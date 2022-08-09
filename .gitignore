@@ -1,0 +1,14 @@
+# VSCode settings.
+.vscode/*
+
+# Cached Python files.
+**/__pycache__/*
+
+# Python Virtual Environment files.
+.venv/*
+
+# VS code workspace
+*.code-workspace
+
+# Database
+app/app.db

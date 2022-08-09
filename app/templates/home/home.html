@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+<!-- What appears in the tab title after 'Logbook Database'. -->>
+{% block title %} - Home Page{% endblock %}
+
+<!-- Header Inserts, e.g. CSS, Scripts -->
+{% block header %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+<!-- Body of the page -->>
+{% block body %}
+    <h1>Logbook Database</h1>
+    <p>Welcome to Logbook Database</p>
+    <main class="container">
+        <h2>How to use</h2>
+        <p>I don't know.</p>
+    </main>
+{% endblock %}
