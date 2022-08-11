@@ -8,7 +8,7 @@ import zipfile
 import requests
 
 
-def get_something():
+def download_zip():
     """
     Code based on Qualtrics API example: https://api.qualtrics.com/ZG9jOjg3NzY3Nw-new-survey-response-export-guide
     Downloads a CSV file. This is not intended behaviour
@@ -38,8 +38,9 @@ def get_something():
     data = {
         "format": "csv",
         "seenUnansweredRecode": 2, # converts questions that weren't answered to "2", can't be used for JSON
-        "startDate": "2019-04-30T07:31:43Z",
+        "startDate": "2019-04-30T07:31:43Z", # only export after given date, inclusive
         "useLabels": True # shows text shown to user instead of internal numbers
+        #"compress": False # can not make it a zip file
     }
 
     download_req_response = requests.request("POST", url, json=data, headers=headers)
@@ -50,6 +51,7 @@ def get_something():
     except KeyError:
         print(download_req_response.json())
         sys.exit(2)
+    assert progress_id is not None, "progress_id is none!"
     
     isFile = None
 
