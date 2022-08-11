@@ -5,6 +5,7 @@ import io
 import os
 import sys
 import zipfile
+import requests
 
 
 def get_something():
@@ -41,7 +42,6 @@ def get_something():
         "useLabels": True # shows text shown to user instead of internal numbers
     }
 
-    # TODO: surely we don't need another external library for HTTP requests
     download_req_response = requests.request("POST", url, json=data, headers=headers)
     print(download_req_response.json())
 
