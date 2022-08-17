@@ -22,12 +22,10 @@ First, clone the repository into your folder of choice.
 ### Windows
 1. Ensure you have Python installed.
 2. Run `setup.bat`.
-3. After ensuring the requirements installed correctly, run the command `flask db upgrade` to generate the proper database.
 
 ### Unix-based systems (Linux, Mac, Cygwin, etc.)
 1. Ensure you have Python 3 installed (such as from your OS' package manager).
 2. Run `setup.sh`.
-3. After ensuring the requirements installed correctly, run the command `flask db upgrade` to generate the proper database.
 
 ## How to launch
 
