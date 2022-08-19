@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'startpage.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 <!-- Header Inserts, e.g. CSS, Scripts -->
@@ -9,16 +9,18 @@
 
 
 {% block body %}
-<h1>Signup</h1>
 
-<main class="container">
+
+<main class="containerlogin">
+    <h1>Sign Up</h1>
     <form class="form-signin" method="POST" action="/signup">
         {{ form.hidden_tag() }}
         {{ wtf.form_field(form.username) }}
         {{ wtf.form_field(form.email)}}
         {{ wtf.form_field(form.password) }}
         {{ wtf.form_field(form.confirmPassword) }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Signup</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
+        <button><a style="text-decoration: none; color: black" href="/login">Back to Login</a></button>
     </form>
 </main>
 {% endblock %}
