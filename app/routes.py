@@ -12,7 +12,7 @@ from flask_login import login_required, current_user
 import json
 from datetime import date, timedelta
 
-@app.route('/')
+@app.route('/home')
 @login_required
 def home():
     return render_template('home.html')
