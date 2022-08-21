@@ -1,13 +1,19 @@
+<<<<<<< Updated upstream
 {% extends 'startpage.html' %}
+=======
+<<<<<<< Updated upstream
+{% extends 'base.html' %}
+=======
+{% extends '_card.html' %}
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 {% import 'bootstrap/wtf.html' as wtf %}
 
-<!-- Header Inserts, e.g. CSS, Scripts -->
-{% block header %}
-    <!-- Page Specific CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+{% block head %}
 {% endblock %}
 
 
+<<<<<<< Updated upstream
 {% block body %}
 
 
@@ -23,4 +29,17 @@
         <button><a style="text-decoration: none; color: black" href="/login">Back to Login</a></button>
     </form>
 </main>
+=======
+{% block content %}
+<h3>Sign Up</h3>
+<form class="u-full-width" method="POST" action="/signup">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username, class_="u-full-width") }}
+    {{ wtf.form_field(form.email, class_="u-full-width")}}
+    {{ wtf.form_field(form.password, class_="u-full-width") }}
+    {{ wtf.form_field(form.confirmPassword, class_="u-full-width") }}
+    <button class="button button-primary u-full-width" type="submit">Sign Up</button>
+    <p style="margin-top: 2rem">Have an account? <a href="/login">Take me to login.</a></p>
+</form>
+>>>>>>> Stashed changes
 {% endblock %}

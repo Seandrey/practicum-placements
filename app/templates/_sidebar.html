@@ -1,0 +1,45 @@
+{% extends '_base.html' %}
+{% block header %}
+  {% block head%}{% endblock %}
+{% endblock %}
+
+{% block body %}
+<nav>
+    <div class = "uwa"></div>
+    <a class="nav-link {{'active' if active_page == 'home' }}" href="/home"><i class="fa fa-home" aria-hidden="true"></i>  Home</a></div>
+    <a class="nav-link {{'active' if active_page == 'student' }}" href="/reports/student"><i class="fa fa-graduation-cap" aria-hidden="true"></i>  Student Reports</a></div>
+    <a class="nav-link {{'active' if active_page == 'staff' }}" href="/reports/staff"><i class="fa fa-university" aria-hidden="true"></i>  Staff Reports</a></div>
+    <a class="nav-link {{'active' if active_page == 'location' }}" href="/reports/location"><i class="fa fa-map-pin" aria-hidden="true"></i>  Location Reports</a></div>
+    <a class="nav-link {{'active' if active_page == 'cohort' }}" href="/reports/cohort"><i class="fa fa-users" aria-hidden="true"></i>  Cohort Reports</a></div>
+    <a class="nav-link {{'active' if active_page == 'library' }}" href="/library"><i class="fa fa-book" aria-hidden="true"></i>  Library</a></div>
+    <a class="nav-link {{'active' if active_page == 'edit' }}" href="/edit"><i class="fa fa-wrench" aria-hidden="true"></i>  Edit Database</a></div>
+    <a class="nav-link" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Sign Out</a></div>
+</nav>
+<main>
+  <div class="container">
+    <h1>Logbook Database</h1>
+    {% block content %}{% endblock %}
+  </div>
+</main>
+<script>
+
+    var sidebarElems = document.getElementsByClassName('sidebarElem');
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var url = window.document.URL;
+
+        for (let i = 0; i < sidebarElems.length; i++) {
+            var link = sidebarElems[i].firstChild;
+            if (link.href != url ) {
+                link.classList.remove('active');
+            } else {
+                link.setAttribute('class', 'active');
+            }
+        }
+
+    })
+
+
+</script>
+
+{% endblock %}

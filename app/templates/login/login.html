@@ -1,27 +1,20 @@
-{% extends 'startpage.html' %}\
+{% extends '_card.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 <!-- Header Inserts, e.g. CSS, Scripts -->
-{% block header %}
+{% block head %}
     <!-- Page Specific CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}"> -->
 {% endblock %}
 
-{% block body %}
-    
-    <div class="containerlogin">
-        <h1 id ="title">Logbook Report Generator </h1>
-        <h2>Login</h2>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            {{ wtf.form_field(form.username) }}
-            {{ wtf.form_field(form.password) }}
-            {{ wtf.form_field(form.rememberMe) }}
-            <button type="submit" id="loginButton">Login</button>
-        </form>
-        <button><a href="/signup" id="nav-signup">No account? Sign up!</a></button>
-
-        <button><a href="/home">Fake Login Button</a></button>
-
-    </div>
+{% block content %}
+<h3>Login</h3>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username, class_="u-full-width") }}
+    {{ wtf.form_field(form.password, class_="u-full-width") }}
+    {{ wtf.form_field(form.rememberMe) }}
+    <button class="button button-primary u-full-width" type="submit" id="loginButton">Login</button>
+    <p style="margin-top: 2rem">Need an account? <a href="/signup">Go to sign up.</a></p>
+</form>
 {% endblock %}

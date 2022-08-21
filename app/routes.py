@@ -12,10 +12,40 @@ from flask_login import login_required, current_user
 import json
 from datetime import date, timedelta
 
-
-@app.route('/home')
+@app.route('/')
+@login_required
 def home():
-    return render_template('home/home.html')
+    return render_template('home.html')
+
+@app.route('/edit')
+@login_required
+def edit():
+    return render_template('edit.html')
+
+@app.route('/library')
+@login_required
+def library():
+    return render_template('library.html')
+
+@app.route('/reports/student')
+@login_required
+def reportStudents():
+    return render_template('reports/student.html')
+
+@app.route('/reports/staff')
+@login_required
+def reportStaff():
+    return render_template('reports/staff.html')
+
+@app.route('/reports/location')
+@login_required
+def reportLocations():
+    return render_template('reports/location.html')
+
+@app.route('/reports/cohort')
+@login_required
+def reportCohorts():
+    return render_template('reports/cohort.html')
 
 @app.route('/studentreports')
 def studentreports():
