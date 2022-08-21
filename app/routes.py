@@ -47,19 +47,7 @@ def reportLocations():
 def reportCohorts():
     return render_template('reports/cohort.html')
 
-@app.route('/studentreports')
-def studentreports():
-    return render_template('home/studentreports.html')
-
-@app.route('/staffreports')
-def staffreports():
-    return render_template('home/staffreports.html')    
-    
 # login.py routes
-""" 
-@app.route('/startpage')
-def startpage():
-    return render_template('startpage.html') """
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signuproute():
