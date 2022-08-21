@@ -15,3 +15,5 @@
 app/app.db
 
 /env
+
+.DS_STORE

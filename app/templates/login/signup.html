@@ -1,35 +1,9 @@
-<<<<<<< Updated upstream
-{% extends 'startpage.html' %}
-=======
-<<<<<<< Updated upstream
-{% extends 'base.html' %}
-=======
 {% extends '_card.html' %}
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block head %}
 {% endblock %}
 
-
-<<<<<<< Updated upstream
-{% block body %}
-
-
-<main class="containerlogin">
-    <h1>Sign Up</h1>
-    <form class="form-signin" method="POST" action="/signup">
-        {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.username) }}
-        {{ wtf.form_field(form.email)}}
-        {{ wtf.form_field(form.password) }}
-        {{ wtf.form_field(form.confirmPassword) }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
-        <button><a style="text-decoration: none; color: black" href="/login">Back to Login</a></button>
-    </form>
-</main>
-=======
 {% block content %}
 <h3>Sign Up</h3>
 <form class="u-full-width" method="POST" action="/signup">
