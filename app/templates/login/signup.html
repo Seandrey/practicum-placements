@@ -1,24 +1,18 @@
-{% extends 'base.html' %}
+{% extends '_card.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-<!-- Header Inserts, e.g. CSS, Scripts -->
-{% block header %}
-    <!-- Page Specific CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+{% block head %}
 {% endblock %}
 
-
-{% block body %}
-<h1>Signup</h1>
-
-<main class="container">
-    <form class="form-signin" method="POST" action="/signup">
-        {{ form.hidden_tag() }}
-        {{ wtf.form_field(form.username) }}
-        {{ wtf.form_field(form.email)}}
-        {{ wtf.form_field(form.password) }}
-        {{ wtf.form_field(form.confirmPassword) }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Signup</button>
-    </form>
-</main>
+{% block content %}
+<h3>Sign Up</h3>
+<form class="u-full-width" method="POST" action="/signup">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username, class_="u-full-width") }}
+    {{ wtf.form_field(form.email, class_="u-full-width")}}
+    {{ wtf.form_field(form.password, class_="u-full-width") }}
+    {{ wtf.form_field(form.confirmPassword, class_="u-full-width") }}
+    <button class="button button-primary u-full-width" type="submit">Sign Up</button>
+    <p style="margin-top: 2rem">Have an account? <a href="/login">Take me to login.</a></p>
+</form>
 {% endblock %}

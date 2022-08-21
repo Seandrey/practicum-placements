@@ -1,3 +1,4 @@
+
 # VSCode settings.
 .vscode/*
 
@@ -12,3 +13,7 @@
 
 # Database
 app/app.db
+
+/env
+
+.DS_STORE

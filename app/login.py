@@ -68,5 +68,5 @@ def loginrender(next_page: Optional[str] = None):
 
 def logoutredirect():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('loginroute'))
 

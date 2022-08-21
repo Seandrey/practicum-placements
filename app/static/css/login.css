@@ -1,3 +1,47 @@
 .something-again {
     font-family: 'Courier New', Courier, monospace;
 }
+
+.containerlogin  { 
+    padding: 5%; 
+}
+
+.containerlogin button { 
+    padding: 10px; 
+    border-width: 1px;
+    border-radius: 5px;
+    margin: 5px 0px 5px 0px; 
+    background-color: rgb(219, 224, 247) ;
+
+}
+
+.containerlogin label { 
+    padding: 4px; 
+}
+
+.containerlogin input { 
+    border-radius: 4px;
+    border-width: 1px; 
+    padding: 4px; 
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+}
+
+.containerlogin input:focus { 
+    background-color:rgb(219, 224, 247);
+}
+
+#loginButton { 
+    width: 10%; 
+}
+
+#title { 
+    background-color: rgb(219, 224, 247);
+    border-radius: 5px; 
+    border-color:  rgb(22, 19, 143); 
+    border-width: 1px;
+    border-style: solid; 
+    padding: 10px 0px 10px 0px; 
+    width: 50%; 
+    margin-left: 25%; 
+}
