@@ -4,27 +4,17 @@
 import io
 import json
 import os
+import re
 import sys
 import zipfile
 import requests
 
 
-def download_zip():
+def download_zip(survey_id: str, api_token: str, data_centre: str):
     """
     Code based on Qualtrics API example: https://api.qualtrics.com/ZG9jOjg3NzY3Nw-new-survey-response-export-guide
     Downloads a CSV file. This is not intended behaviour
     """
-
-    # set user params
-    try:
-        api_token = os.environ["APIKEY"]
-    except KeyError:
-        print("set environment variable APIKEY")
-        sys.exit(2)
-    
-    survey_id = "Sv_someweirdhexurlthing"
-    data_centre = "co1" # unsure what this is
-    # can get IDs from here apparently: https://api.qualtrics.com/ZG9jOjg3NjYzNQ-finding-your-qualtrics-i-ds 
 
     # set static params
     request_check_progress = 0.0
@@ -37,10 +27,10 @@ def download_zip():
 
     # 1: create data export
     data = {
-        "format": "json",
-        "seenUnansweredRecode": 2, # converts questions that weren't answered to "2", can't be used for JSON
+        "format": "json", # JSON seems more difficult to use. See if can parse CSV adequately
+        #"seenUnansweredRecode": 2, # converts questions that weren't answered to "2", can't be used for JSON
         "startDate": "2019-04-30T07:31:43Z", # only export after given date, inclusive
-        "useLabels": True # shows text shown to user instead of internal numbers
+        #"useLabels": True # shows text shown to user instead of internal numbers. can't use for JSON
         #"compress": False # can not make it a zip file
     }
 
@@ -84,10 +74,10 @@ def download_zip():
     request_download = requests.request("GET", request_download_url, headers=headers, stream=True)
 
     # 4: unzip file
-    zipfile.ZipFile(io.BytesIo(request_download.content)).extractall("MyQualtricsDownload")
+    zipfile.ZipFile(io.BytesIO(request_download.content)).extractall("MyQualtricsDownload")
     print("complete")
 
-def load_json(filename: str):
+def load_json(filename: str) -> dict[str, list[dict]]:
     """Loads JSON file to python dictionary"""
     with open(filename) as file:
         data: dict[str, list[dict]] = json.load(file)
@@ -99,6 +89,7 @@ def load_json(filename: str):
         assert len(data["responses"]) == 0 or isinstance(data["responses"][0], dict), "individual response not dict!"
 
         return data
+    # TODO: delete JSON file
 
 class DummyLogModel:
     """Temporary class to act as model for log book main - has some fields required"""
@@ -110,13 +101,44 @@ class DummyLogModel:
         self.activity = activity
         self.domain = domain
         self.min_spent = min_spent
+    
+    def __repr__(self) -> str:
+        return f"<{self.student}, {self.supervisor}, {self.location}, {self.activity}, {self.domain}, {self.min_spent}>"
 
-def test_parse_json(json_file: dict[str, list[dict]]) -> list[DummyLogModel]:
+class LabelLookup:
+    """Class to lookup labels in more intelligent way"""
+
+    def __init__(self, dict: dict[str, str]):
+        """TODO: make this generate from scratch eventually"""
+        self.dict = dict
+
+    def __repr__(self) -> str:
+        return repr(self.dict)
+    
+    def __getitem__(self, key: str) -> str:
+        """Overload [] operator for accesses"""
+        return self.dict[key]
+    
+    def get_text(self, key: str) -> str:
+        """Based on JSON having '_TEXT' suffix for text"""
+        return f'{self[key]}_TEXT'
+
+def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
+    """Gets answer label for given question name key"""
+    print("DEBUG: looking up in labels: ", key)
+    return json_response["labels"][key]
+
+def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
+    """Lookup text embedded in JSON (with _TEXT suffix)"""
+    return response_val[label_lookup.get_text(label_name)]
+
+def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup) -> list[DummyLogModel]:
     """Try to parse JSON representation of dict? Assumed format below"""
 
     rows: list[DummyLogModel] = []
 
     for response in json_file["responses"]:
+        response_val = response["values"]
         
         """unsure what field names are. Qualtrics docs seem to mention there is an "export mapper" that remaps field names to readable 
         ones. Excel spreadsheet definitely doesn't match the camelCase examples here, so presuming that this has happened. As such,
@@ -126,20 +148,20 @@ def test_parse_json(json_file: dict[str, list[dict]]) -> list[DummyLogModel]:
         Actually, labels are the data labels, not the question number labels. Question number labels must be something else.""" 
 
         # I believe these should all have constant question IDs. If not, could allow a "mapping" thing like Sean suggested
-        student_name = response["Student Name"]
-        service_date = response["Journal Date (date of service)"]
-        placement_loc = response["Placement Location"]
-        supervisor = response["Primary Supervisor:"] # possibly issue here as seem to be able to do multiple?
-        num_logs = response["How many activity logs will you be adding today?\n\nThis is the number of separate logs to a maximum of 10 per shift/day."] # TODO: issue with whitespace?
+        student_name = lookup_embedded_text(response_val, label_lookup, "Student Name")
+        service_date = lookup_embedded_text(response_val, label_lookup, "Journal Date (date of service)")
+        placement_loc = get_answer_label(response, label_lookup["Placement Location"])
+        supervisor = get_answer_label(response, label_lookup["Primary Supervisor:"]) # possibly issue here as seem to be able to do multiple?
+        num_logs = lookup_embedded_text(response_val, label_lookup, "How many activity logs will you be adding today?\n\nThis is the number of separate logs to a maximum of 10 per shift/day.") # TODO: issue with whitespace?
 
         # TODO: alternatively, could just start with "1" and keep going if finds more
         for i in range(1, num_logs + 1):
             # would likely have to look these up by label
 
             # note inconsistent spacing of "- " vs " - "
-            category = response[f"{i} - Category"]
-            domain = response[f"{i}- Domain"]
-            minutes = response[f"{i} - Minutes spent on activity:[eg. 1.5 hours = entered as 90]"]
+            category = get_answer_label(response, f"{i}_{label_lookup['Category']}")
+            domain = get_answer_label(response, f"{i}_{label_lookup['Domain']}")
+            minutes = response_val[f"{i}_{label_lookup.get_text('Minutes spent on activity:[eg. 1.5 hours = entered as 90]')}"]
             
             # make a student record now
             model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
@@ -147,33 +169,55 @@ def test_parse_json(json_file: dict[str, list[dict]]) -> list[DummyLogModel]:
 
     return rows
 
-def get_survey_format():
+def get_survey_format(survey_id: str, api_token: str, data_centre: str) -> dict[str, dict]:
     """Gets format of survey (question name mapping, etc.). Adapted from https://api.qualtrics.com/ZG9jOjg3NzY3Mw-managing-surveys"""
     # also see some more docs on JSON schema here: https://api.qualtrics.com/73d7e07ec68b2-get-survey
-
-    # set user params
-    api_token = os.environ["Q_API_TOKEN"]
-    data_centre = os.environ["Q_DATA_CENTER"]
-
-    survey_id = "soemthing"
 
     base_url = f"https://{data_centre}.qualtrics.com/API/v3/surveys/{survey_id}"
     headers = {"x-api-token": api_token}
 
     response = requests.get(base_url, headers=headers)
+    print("DEBUG: response start---")
     print(response.text)
+    print("DEBUG: response end---")
 
     # should have a json form, with "result" field. Under "result", has exportColumnMap
     return response.json()
 
-def get_label_lookup(survey_format_json: dict[str, dict]) -> dict[str, str]:
-    """Gets label lookup map from less useful Qualtrics form."""
+def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
+    """Gets label lookup map from less useful Qualtrics form.
+    NOTE: this implementation abandoned. exportColumnMap seems to have less useful data than I thought - 
+    does not have textual column description. Instead trying another way"""
 
     bad_map = survey_format_json["result"]["exportColumnMap"]
+
+    print("DEBUG: export column map---")
+    print(bad_map)
+    print("DEBUG: end export column map---")
+
+    print(type(bad_map["Q1"]))
+    print(type(bad_map["Q1"]["question"]))
     
     # now, extract a str-str dictionary from that
-    label_lookup: dict[str, str] = {key: value["question"] for (key, value) in bad_map}
+    label_lookup: dict[str, str] = {key: value["question"] for (key, value) in bad_map.items()}
     return label_lookup
+
+def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
+    """Gets label lookup map in form: {"Student Name": "QID1"}"""
+    questions_map = survey_format_json["result"]["questions"]
+
+    print("DEBUG: export questions map---")
+    print(questions_map)
+    print("DEBUG: end questions column map---")
+
+    # now, extract a str-str dictionary from that
+    label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
+
+    # FIXME: why are HTML things in there in the first place?
+    label_lookup = {re.sub("<div>|</div>|<br>", "", key): value for (key, value) in label_lookup.items()}
+
+    return LabelLookup(label_lookup)
+
 
 # JSON format (apparently):
 """

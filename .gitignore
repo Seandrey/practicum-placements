@@ -12,3 +12,6 @@
 
 # Database
 app/app.db
+
+# Qualtrics test files
+MyQualtricsDownload/*
