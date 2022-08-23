@@ -1,3 +1,4 @@
+
 # VSCode settings.
 .vscode/*
 
@@ -6,6 +7,8 @@
 
 # Python Virtual Environment files.
 .venv/*
+env/*
+venv/*
 
 # VS code workspace
 *.code-workspace
@@ -15,3 +18,5 @@ app/app.db
 
 # Qualtrics test files
 MyQualtricsDownload/*
+
+**/.DS_STORE

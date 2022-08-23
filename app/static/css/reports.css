@@ -1,0 +1,116 @@
+table { 
+    border: 1px solid black; 
+    border-collapse: collapse;
+    margin: 0px auto 30px auto; 
+    display: inline-table;
+    background-color: white;
+}
+
+td { 
+    border: 1px solid black; 
+    padding: 5px; 
+    width: 150px; 
+    min-width: 100px;
+    height: 30px; 
+    min-height: 30px;
+    font-size: 14px;
+}
+
+.total { 
+    background-color: rgb(228, 226, 226);
+}
+
+.title { 
+    /* background-color:  rgb(163, 178, 244); */
+    margin-top: 0px; 
+    padding-top: 2%; 
+    padding-bottom: 2%; 
+    border-bottom: 1px solid black; 
+    box-shadow: 0px 0px 10px rgb(168, 167, 167);
+    background-color: white;
+}
+
+.tableTitle { 
+    font-weight: 400;
+}
+
+/* #studentReportInfo label { 
+    margin: 0px 4px 0px 4px; 
+} */
+
+#studentReportInfo input { 
+    width: 200px; 
+    box-sizing: border-box;
+    padding: 4px; 
+    position: relative; 
+    
+}
+
+#studentReportInfo button{ 
+    padding: 4px 10px 4px 10px; 
+}
+
+#studentReportInfo i { 
+    font-size: 14px;
+}
+
+#studentReportInfo input:focus { 
+    background-color: rgb(244, 244, 244);
+}
+
+#studentReportInfo { 
+    height: 210px; 
+    max-height: 210px;
+    min-height: 210px;
+
+}
+
+ul { 
+    display: inline-block; 
+    /* display: none; */
+    visibility: hidden;
+    border: 1px solid black; 
+    padding: 10px 0px 10px 0px; 
+    margin: auto; 
+    width: 200px; 
+    height: 90px; 
+    box-sizing: border-box;
+    margin-top: 0px; 
+    overflow-y: scroll;
+    border-top: 0px; 
+    list-style: none;
+    background-color: white;
+    /* margin-bottom: -86px;  */
+}
+
+li { 
+    text-align: left;
+    padding: 4px; 
+}
+
+li:hover {
+    background-color:rgb(163, 178, 244);
+}
+
+#searchMenu td { 
+   vertical-align: top; 
+   border-style: none;
+   width: 200px; 
+   padding: 2px; 
+   overflow-x: hidden;
+}
+
+#searchMenu { 
+    border-style: none;
+    background-color:  rgb(245, 245, 245);
+}
+
+#dropDown { 
+    width: 200px;
+    display: inline-block;
+}
+
+#createReport { 
+    width: 108px; 
+    min-width: 108px;
+}
