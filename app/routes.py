@@ -1,5 +1,5 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
-# Author: Joel Phillips (22967051)
+# Author: Joel Phillips (22967051), David Norris (22690264)
 
 from typing import Optional
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for

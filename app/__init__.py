@@ -9,10 +9,11 @@ from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 import os
 
-app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app = Flask(__name__, template_folder="views")
 
 # database stuff
-basedir = os.path.abspath(os.path.dirname(__file__))
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
