@@ -16,4 +16,7 @@ venv/*
 # Database
 app/app.db
 
+# Qualtrics test files
+MyQualtricsDownload/*
+
 **/.DS_STORE
