@@ -1,13 +1,11 @@
-{% extends '_sidebar.html' %}
-{% set active_page = 'location' %}
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'student' %}
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 {% endblock %}
 
 {% block content %}
-
-<h3>Location Reports</h3>
-
-
+<h3>Student Reports</h3>
 {% endblock %}
+

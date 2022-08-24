@@ -1,8 +1,8 @@
-{% extends '_sidebar.html' %}
-{% set active_page = 'edit' %}
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'home' %}
 
 <!-- What appears in the tab title after 'Logbook Database'. -->>
-{% block title %} - Home Page{% endblock %}
+{% block title %}Home Page{% endblock %}
 
 <!-- Header Inserts, e.g. CSS, Scripts -->
 {% block head %}
@@ -10,5 +10,5 @@
 
 <!-- Body of the page -->>
 {% block content %}
-    <h3>Edit</h3>
+    <p>Welcome to Logbook Database</p>
 {% endblock %}
