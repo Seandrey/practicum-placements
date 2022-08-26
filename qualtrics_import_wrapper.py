@@ -9,7 +9,7 @@ def run_import():
     # api key, data centre, and survey ID for Joel test survey
     api_key = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
     data_centre = "ca1"
-    survey_id = "SV_eW2JjX7N7XwG5eK"
+    survey_id = "SV_3pXN7wR1BG74Mrs"
     # can get IDs from here apparently: https://api.qualtrics.com/ZG9jOjg3NjYzNQ-finding-your-qualtrics-i-ds 
 
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
