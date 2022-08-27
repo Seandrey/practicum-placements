@@ -46,3 +46,57 @@ First, clone the repository into your folder of choice.
 5. Select `Flask` as the debug category.
 6. Now either click the `Python: Flask` button or press `F5` on your keyboard.
 7. Open [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your browser of choice.
+
+
+## Graphs Macro
+> macro is defined in /app/views/macros/charts.jinja
+
+### Usage
+
+#### 1. Pass the data through to the template from routes.py or anywhere a template is rendered
+> Sample data passed into example.html
+```python
+data = [
+    {
+        'title': 'Testing 1',
+        'id': 'test1',
+        'yMax': '0',
+        'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (3, 8, 12)),
+            ('Excercise Prescription', (9, 9, 9)),
+            ('Excercise Delivery', (0, 2, 4)),
+            ('Other', (3, 8, 9)),
+        ]
+    },
+    {
+        'title': 'Testing 2',
+        'id': 'test2',
+        'yMax': '200',
+        'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (32, 8, 12)),
+            ('Excercise Prescription', (9, 19, 49)),
+            ('Excercise Delivery', (10, 2, 24)),
+            ('Other', (13, 28, 9)),
+        ]
+    },
+    ]
+return render_template('example.html', data=data)
+```
+
+#### 2. From the template, import the macro
+```jinja
+{% import "macros/charts.jinja" as charts %}
+```
+
+#### 3. Now within the head block, call the chart_head macro
+```jinja
+{{ charts.chart_head(data) }}
+```
+
+#### 4. Use the chart_div macro to create a div where you wish to inject chart
+> Must call once for each dict's id in the data array, this is where it will be created
+```jinja
+{{ charts.chart_div(id) }}
+```
