@@ -30,7 +30,33 @@ def library():
 @app.route('/reports/student')
 @login_required
 def reportStudents():
-    return render_template('reports/student.html')
+    data = [
+    {
+        'title': 'Testing 1',
+        'id': 'test1',
+        'yMax': '0',
+        'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (3, 8, 12)),
+            ('Excercise Prescription', (9, 9, 9)),
+            ('Excercise Delivery', (0, 2, 4)),
+            ('Other', (3, 8, 9)),
+        ]
+    },
+    {
+        'title': 'Testing 2',
+        'id': 'test2',
+        'yMax': '200',
+        'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (32, 8, 12)),
+            ('Excercise Prescription', (9, 19, 49)),
+            ('Excercise Delivery', (10, 2, 24)),
+            ('Other', (13, 28, 9)),
+        ]
+    },
+    ]
+    return render_template('reports/student.html', data=data)
 
 @app.route('/reports/staff')
 @login_required

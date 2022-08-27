@@ -1,5 +1,5 @@
 :root {
-    font-size: 8px;
+    font-size: 10px;
 }
 
 * {
@@ -8,6 +8,9 @@
 body {
     height: 100vh;
     background: #363740;
+}
+td:last-child, th:last-child {
+    text-align: right;
 }
 
 /* Cards
@@ -25,10 +28,17 @@ body {
 }
 
 .card {
-  margin: auto;
-  padding: 4rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  padding-bottom: 1rem;
   border-radius: 0.5rem;
   background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03),
+              0 4px 8px rgba(0,0,0,0.03),
+              0 8px 16px rgba(0,0,0,0.03),
+              0 16px 32px rgba(0,0,0,0.03),
+              0 32px 64px rgba(0,0,0,0.03);
+  overflow-y: scroll;
 }
 
 .card-heading,
@@ -36,11 +46,18 @@ body {
   margin-bottom: 1.2rem;
 }
 
+.vertical-fill {
+    display: flex;
+    flex-direction: column;
+}
+.vertical-fill > div {
+    flex-grow: 1;
+}
 main {
     margin-left: 25rem;
     padding-top: 4rem;
     background-color: rgb(245, 245, 245);
-    height: 100%;
+    min-height: 100%;
     width: calc(100% - 25rem);
 }
 
@@ -78,4 +95,8 @@ nav {
 
     background: url(../assets/uwa.png);
     background-size: 74px 78px;
+}
+
+.chart {
+    min-height: 400px;
 }
