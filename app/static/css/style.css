@@ -9,8 +9,17 @@ body {
     height: 100vh;
     background: #363740;
 }
+.container {
+    padding-bottom: 4rem;
+}
 td:last-child, th:last-child {
     text-align: right;
+}
+tbody tr:last-child td, tbody tr:last-child th {
+    border: none;
+}
+td, th {
+    padding: 0 1rem;
 }
 
 /* Cards
@@ -28,7 +37,7 @@ td:last-child, th:last-child {
 }
 
 .card {
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
   padding: 2rem;
   padding-bottom: 1rem;
   border-radius: 0.5rem;

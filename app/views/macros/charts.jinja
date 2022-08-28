@@ -29,7 +29,7 @@
 ##         ]
 ##     },
 ## ]
-{% macro chart_head(charts) %}
+{% macro chart_head(data) %}
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
 
@@ -43,12 +43,14 @@
       function drawChart() {
         var data;
       // Each chart in the div is processed using same data var and drawn
-      {%- for chart in charts %}
+      {%- for chart in data['charts'] %}
         data = new google.visualization.arrayToDataTable([
           [
             'Category',
             {%- for domain in chart['domains'] %}
-            '{{ domain }}',
+            {%- if domain == 1 %}
+            '{{ data['domains'][loop.index - 1] }}',
+            {%- endif %}
             {%- endfor %}
             {role: 'annotation'},
             {role: 'annotation'},
@@ -76,7 +78,8 @@
             bold: true
           },
           isStacked: true,
-          legend: {position: 'bottom', maxLines: 3},
+          legend: {position: 'right'},
+          chartArea: {width: '50%'},
           vAxis: {
             title: 'Hours',
             maxValue: {{ chart['yMax'] }}
@@ -92,6 +95,23 @@
               bold: true
             }
           },
+          {%- if chart['style'] == 'core' %}
+          colors: [
+            '#EA7369',
+            '#DC4BB3',
+            '#7D3AC0'
+          ]
+          {%- else %}
+          colors: [
+            '#176CA1',
+            '#18ABDD',
+            '#1AC9E7',
+            '#1CD4D4',
+            '#1DE5BC',
+            '#6EF0D2',
+            '#C7F9ED'
+          ]
+          {%- endif %}
         }
         chart.draw(view, options);
       {%- endfor %}

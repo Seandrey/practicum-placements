@@ -110,30 +110,16 @@
             </tr>
           </thead>
           <tbody>
+            {% for domain in data.domains %}
             <tr>
-              <td>Cardiovascular</td>
+              <td>{{domain}}</td>
               <td>1</td>
               <td>1</td>
               <td>1</td>
               <td>1</td>
               <td>1</td>
             </tr>
-            <tr>
-              <td>Musculoskeletal</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-            </tr>
-            <tr>
-              <td>Metabolic</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-            </tr>
+            {% endfor %}
           </tbody>
         </table>
     </div>
