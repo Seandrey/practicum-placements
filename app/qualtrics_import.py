@@ -9,6 +9,16 @@ import sys
 import zipfile
 import requests
 
+# constants: question names (exact website match) as strings
+STUDENT_NAME = "Student First Name + Last Name<em>(*ensure you use the same name each time your enter a log)</em>"
+SERVICE_DATE = "Date of service<br />\n<br />\n<span style=\"font-size:13px;\">( If entering a bulk hours, please enter start date ONLY)</span>"
+PLACEMENT_LOCATION = "Placement Location"
+PLACEMENT_SUPERVISOR = "Placement Supervisor:"
+NUM_ACTIVITY_LOGS = "How many activity logs will you be adding today?<br />\n<em>This is the number of separate logs to a maximum of 10 per shift/day.</em>"
+CATEGORY = "Category"
+AEP_DOMAIN = "Client Domain"
+MINUTES_SPENT = "Minutes spent on activity:<div>[eg. 1.5 hours = entered as 90] </div>"
+
 
 def download_zip(survey_id: str, api_token: str, data_centre: str):
     """
@@ -130,9 +140,24 @@ def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
 
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
+
+    print("DEBUG---")
+    print("Key: ", label_lookup.get_text(label_name))
+    print("Response_val:", response_val)
+    print("END DEBUG---")
+
     return response_val[label_lookup.get_text(label_name)]
 
-def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup) -> list[DummyLogModel]:
+def get_multi_label(json_response: dict[str, dict[str, str]], multi_lookup: list[str], original_lookup: str) -> str:
+    """Lookup answer label for a multi-label question (i.e. many mutually-exclusive questions sharing same label)"""
+    labels = json_response["labels"]
+    for qid in multi_lookup:
+        if qid in labels:
+            return labels[qid]
+    raise Exception(f"failed to find key '{original_lookup}' in labels")
+    return ""
+
+def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup, format: dict[str, dict]) -> list[DummyLogModel]:
     """Try to parse JSON representation of dict? Assumed format below"""
 
     rows: list[DummyLogModel] = []
@@ -148,20 +173,25 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup)
         Actually, labels are the data labels, not the question number labels. Question number labels must be something else.""" 
 
         # I believe these should all have constant question IDs. If not, could allow a "mapping" thing like Sean suggested
-        student_name = lookup_embedded_text(response_val, label_lookup, "Student Name")
-        service_date = lookup_embedded_text(response_val, label_lookup, "Journal Date (date of service)")
-        placement_loc = get_answer_label(response, label_lookup["Placement Location"])
-        supervisor = get_answer_label(response, label_lookup["Primary Supervisor:"]) # possibly issue here as seem to be able to do multiple?
-        num_logs = lookup_embedded_text(response_val, label_lookup, "How many activity logs will you be adding today?\n\nThis is the number of separate logs to a maximum of 10 per shift/day.") # TODO: issue with whitespace?
+        student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
+        service_date = lookup_embedded_text(response_val, label_lookup, SERVICE_DATE)
+        placement_loc = get_answer_label(response, label_lookup[PLACEMENT_LOCATION])
+
+        # supervisor is more complicated as has multiple questions as implementation. so use multi lookup
+        supervisor_lookup = get_multi_lookup(format, PLACEMENT_SUPERVISOR)
+        supervisor = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
+
+        num_logs = lookup_embedded_text(response_val, label_lookup, NUM_ACTIVITY_LOGS) 
+        num_logs_int = int(num_logs)
 
         # TODO: alternatively, could just start with "1" and keep going if finds more
-        for i in range(1, num_logs + 1):
+        for i in range(1, num_logs_int + 1):
             # would likely have to look these up by label
 
             # note inconsistent spacing of "- " vs " - "
-            category = get_answer_label(response, f"{i}_{label_lookup['Category']}")
-            domain = get_answer_label(response, f"{i}_{label_lookup['Domain']}")
-            minutes = response_val[f"{i}_{label_lookup.get_text('Minutes spent on activity:[eg. 1.5 hours = entered as 90]')}"]
+            category = get_answer_label(response, f"{i}_{label_lookup[CATEGORY]}")
+            domain = get_answer_label(response, f"{i}_{label_lookup[AEP_DOMAIN]}")
+            minutes = response_val[f"{i}_{label_lookup.get_text(MINUTES_SPENT)}"]
             
             # make a student record now
             model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
@@ -203,7 +233,7 @@ def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
     return label_lookup
 
 def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
-    """Gets label lookup map in form: {"Student Name": "QID1"}"""
+    """Gets label lookup map in form: {"Student Name": "QID1"}. Will not work correctly if names are not unique."""
     questions_map = survey_format_json["result"]["questions"]
 
     print("DEBUG: export questions map---")
@@ -213,11 +243,20 @@ def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
     # now, extract a str-str dictionary from that
     label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
 
-    # FIXME: why are HTML things in there in the first place?
-    label_lookup = {re.sub("<div>|</div>|<br>", "", key): value for (key, value) in label_lookup.items()}
+    # TODO: unsure how best to deal with HTML things. Current approach is just include it in text to search. Better approach could be to remove from survey altogether
+    #label_lookup = {re.sub("<div>|</div>|<br>", "", key): value for (key, value) in label_lookup.items()}
 
     return LabelLookup(label_lookup)
 
+def get_multi_lookup(survey_format_json: dict[str, dict], desired_key: str) -> list[str]:
+    """Gets a list of all values that correspond to the desired key. Designed for use with Placement Supervisor, which is 
+    modelled in Qualtrics as many separate questions with the same name."""
+    questions_map = survey_format_json["result"]["questions"]
+
+    # now, list comprehend this
+    multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionText"] == desired_key]
+
+    return multi_lookup
 
 # JSON format (apparently):
 """

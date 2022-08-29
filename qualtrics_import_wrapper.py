@@ -22,10 +22,10 @@ def run_import():
     # for numbering of looped questions, you get uniform "1 - Age" (or "1_Q12") in CSV if no numbering specifically applied. So presuming this
     # JSON has numbering of "1_QID7" or "1_QID9_TEXT"
 
-    #json = qualtrics_import.load_json("MyQualtricsDownload/Test survey CITS3200.json")
+    json = qualtrics_import.load_json("MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json")
     # TODO: delete MyQualtricsDownload folder, including contents
-    #rows = qualtrics_import.test_parse_json(json, label_lookup)
-    #print(rows)
+    rows = qualtrics_import.test_parse_json(json, label_lookup, format)
+    print(rows)
 
 if __name__ == "__main__":
     run_import()
