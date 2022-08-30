@@ -23,4 +23,4 @@ Bootstrap(app)
 
 # import routes, db models, other stuff (for some reason)
 from app import routes
-from app.models import User
+from app.models import User, ActivityLog
