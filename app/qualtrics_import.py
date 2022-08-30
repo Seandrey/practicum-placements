@@ -13,7 +13,7 @@ import requests
 
 from sqlalchemy.orm.scoping import scoped_session
 from app import db
-from app.models import ActivityLog, Location, Student, Supervisor
+from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor
 
 # constants: question names (exact website match) as strings
 STUDENT_NAME = "Student First Name + Last Name<em>(*ensure you use the same name each time your enter a log)</em>"
@@ -144,6 +144,14 @@ def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
     print("DEBUG: looking up in labels: ", key)
     return json_response["labels"][key]
 
+def make_n_text(text: str, iteration: int) -> str:
+    """Returns text in format required for a given iteration"""
+    return f"{iteration}_{text}"
+
+def get_answer_label_n(json_response: dict[str, dict[str, str]], key: str, iteration: int) -> str:
+    """Gets answer label for a given question name key of a given iteration"""
+    return get_answer_label(json_response, make_n_text(key, iteration))
+
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
 
@@ -228,22 +236,35 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             # would likely have to look these up by label
 
             # note inconsistent spacing of "- " vs " - "
-            category = get_answer_label(response, f"{i}_{label_lookup[CATEGORY]}")
-            domain = get_answer_label(response, f"{i}_{label_lookup[AEP_DOMAIN]}")
-            minutes = response_val[f"{i}_{label_lookup.get_text(MINUTES_SPENT)}"]
-            
-            # make a student record now
-            #model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
-            #rows.append(model)
+            category = get_answer_label_n(response, label_lookup[CATEGORY], i)
+            activity: Optional[Activity] = Activity.query.filter_by(activity=category).one_or_none()
+            if activity is None:
+                activity = Activity(activity=category)
+                session.add(activity)
+                session.commit()
+                session = db.session
 
+            aep_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
+            domain: Optional[Domain] = Domain.query.filter_by(domain=aep_domain).one_or_none()
+            if domain is None:
+                domain = Domain(domain=aep_domain)
+                session.add(domain)
+                session.commit()
+                session = db.session
+
+            minutes = response_val[make_n_text(label_lookup.get_text(MINUTES_SPENT), i)]
             minutes_int: int = 0
             try:
                 minutes_int = int(minutes)
             except ValueError:
                 print(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
                 continue
+            
+            # make a student record now
+            #model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
+            #rows.append(model)
 
-            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity_id, domainid=domain_id, minutes_spent=minutes_int, record_date=service_date_date)
+            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date)
             session.add(log_row)
         session.commit()
 
