@@ -9,7 +9,7 @@ def run_import():
     # api key, data centre, and survey ID for Joel test survey
     api_key = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
     data_centre = "ca1"
-    survey_id = "SV_eW2JjX7N7XwG5eK"
+    survey_id = "SV_9XIDg01qrekuOWi"
     # can get IDs from here apparently: https://api.qualtrics.com/ZG9jOjg3NjYzNQ-finding-your-qualtrics-i-ds 
 
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
@@ -22,9 +22,9 @@ def run_import():
     # for numbering of looped questions, you get uniform "1 - Age" (or "1_Q12") in CSV if no numbering specifically applied. So presuming this
     # JSON has numbering of "1_QID7" or "1_QID9_TEXT"
 
-    json = qualtrics_import.load_json("MyQualtricsDownload/Test survey CITS3200.json")
+    json = qualtrics_import.load_json("MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json")
     # TODO: delete MyQualtricsDownload folder, including contents
-    rows = qualtrics_import.test_parse_json(json, label_lookup)
+    rows = qualtrics_import.test_parse_json(json, label_lookup, format)
     print(rows)
 
 if __name__ == "__main__":
