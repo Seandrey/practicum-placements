@@ -1,0 +1,104 @@
+table { 
+    width: 100%; 
+    background-color: white;
+    border: 1px solid #E1E1E1; 
+    border-radius: 8px;
+    border-collapse: separate;
+}
+
+h1 { 
+    font-size: 28px;
+    font-weight: bold; 
+    margin-bottom: 30px; 
+}
+
+#studentTitle { 
+    display: inline-block; 
+    margin-bottom: 5px; 
+}
+
+#headerRow th:first-child { 
+    padding-left: 20px; 
+}
+
+#headerRow th:nth-child(3) { 
+    text-align: center;
+}
+
+#headerRow th:nth-child(4) { 
+    text-align: center; 
+}
+
+th:first-child { 
+    padding-left: 50px; 
+    width: 30%; 
+}
+
+th:nth-child(2) { 
+    width: 50%; 
+}
+
+
+td:first-child { 
+    padding-left: 50px; 
+}
+
+th { 
+    padding-top: 10px; 
+    padding-right: 10px;  
+    padding-bottom: 5px; 
+}
+
+#headerRow th { 
+    border-style: none; 
+}
+
+#headerRow th:first-child { 
+    font-size: 25px;
+    font-weight: 200; 
+}
+
+td { 
+    padding-top: 10px; 
+    padding-right: 10px; 
+    padding-bottom: 10px;  
+    /* border: 1px solid black;  */
+
+}
+
+input { 
+    float: right; 
+    width: 300px;
+}
+
+.makeReport { 
+    margin: 0px; 
+    padding: 0px 15px; 
+    height: 30px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+}
+
+.makePDF { 
+    margin: 0px; 
+    height: 30px; 
+    padding: 0px 15px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+}
+
+.makeReport:hover{ 
+    color: rgb(31, 69, 163);
+    background-color: white; 
+}
+
+.makePDF:hover{ 
+    color: rgb(31, 69, 163);
+    background-color: white; 
+}
+
+.searchBox { 
+    margin-bottom: 5px; 
+}

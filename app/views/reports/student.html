@@ -1,11 +1,46 @@
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
-{% block head %}
+{% block header %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 {% endblock %}
 
 {% block content %}
-<h3>Student Reports</h3>
+<h3 id="studentTitle">Student Reports</h3>
+
+<input type="text" class="searchBox" placeholder="Enter student name or ID...">
+
+<table>
+    <tr id="headerRow">
+        <th>Results</th>
+        <th></th>
+        <th><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</th>
+        <th><i class="fa fa-filter" aria-hidden="true"></i>  Filter</th>
+    </tr>
+    <tr>
+        <th>Student ID</th>
+        <th>Student Name</th>
+        <th></th>
+        <th></th>
+    </tr>   
+    <tr>
+        <td>123456</td>
+        <td>Lara Posel</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>567890</td>
+        <td>Harry Potter</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>334455</td>
+        <td>Random Name</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+</table>
 {% endblock %}
 
