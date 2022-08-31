@@ -58,7 +58,8 @@ nav {
     text-decoration: none;
     display: block;
     text-align: left;
-    padding: 10px;
+    padding: 15px;
+    font-size: 15px;
 }
 
 .nav-link:hover {
@@ -79,3 +80,4 @@ nav {
     background: url(../assets/uwa.png);
     background-size: 74px 78px;
 }
+

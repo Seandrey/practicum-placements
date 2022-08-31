@@ -66,9 +66,29 @@ td {
 
 }
 
-input { 
+#searchContainer input { 
     float: right; 
     width: 300px;
+    margin-bottom: 0px; 
+    border-style: none; 
+    
+}
+
+.searchIcon { 
+    float: right; 
+    font-size: 25px;
+    padding: 6px; 
+    color: #a6a5a5; 
+}
+
+#searchContainer { 
+    border: 1px solid #D1D1D1;
+    border-radius: 6px; 
+    display:block; 
+    float:right; 
+    margin-bottom: 5px; 
+    background-color: #fff;
+    
 }
 
 .makeReport { 
@@ -99,6 +119,6 @@ input {
     background-color: white; 
 }
 
-.searchBox { 
-    margin-bottom: 5px; 
-}
+/* .searchBox { 
+    
+} */
