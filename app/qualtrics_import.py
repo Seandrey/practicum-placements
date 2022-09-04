@@ -1,13 +1,19 @@
 # Python code to import survey data from Qualtrics
 # Author: Joel Phillips (22967051)
 
+from datetime import date, datetime
 import io
 import json
 import os
 import re
 import sys
+from typing import Optional
 import zipfile
 import requests
+
+from sqlalchemy.orm.scoping import scoped_session
+from app import db
+from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor
 
 # constants: question names (exact website match) as strings
 STUDENT_NAME = "Student First Name + Last Name<em>(*ensure you use the same name each time your enter a log)</em>"
@@ -138,6 +144,14 @@ def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
     print("DEBUG: looking up in labels: ", key)
     return json_response["labels"][key]
 
+def make_n_text(text: str, iteration: int) -> str:
+    """Returns text in format required for a given iteration"""
+    return f"{iteration}_{text}"
+
+def get_answer_label_n(json_response: dict[str, dict[str, str]], key: str, iteration: int) -> str:
+    """Gets answer label for a given question name key of a given iteration"""
+    return get_answer_label(json_response, make_n_text(key, iteration))
+
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
 
@@ -172,30 +186,87 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         
         Actually, labels are the data labels, not the question number labels. Question number labels must be something else.""" 
 
-        # I believe these should all have constant question IDs. If not, could allow a "mapping" thing like Sean suggested
+        session: scoped_session = db.session
+
+        # I believe these should all have constant question descriptions. If not, could allow a "mapping" thing like Sean suggested
+
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
+        # FIXME: survey does not allowing input of student ID, so technically can't disambiguate between students with same name. Here, select "one or none" to cause error if multiple students with a name exist
+        student: Optional[Student] = Student.query.filter_by(name=student_name).one_or_none()
+        if student is None:
+            student = Student(name=student_name)
+            session.add(student)
+
         service_date = lookup_embedded_text(response_val, label_lookup, SERVICE_DATE)
+        service_date_datetime: datetime = 0
+        try:
+            service_date_datetime = datetime.strptime(service_date, "%d/%m/%Y")
+        except ValueError:
+            print(f"failed to parse '{service_date}' to datetime (service date). skipping response")
+            continue
+        service_date_date: date = service_date_datetime.date()
+
         placement_loc = get_answer_label(response, label_lookup[PLACEMENT_LOCATION])
+        location: Optional[Location] = Location.query.filter_by(location=placement_loc).one_or_none()
+        if location is None:
+            location = Location(location=placement_loc)
+            session.add(location)
 
         # supervisor is more complicated as has multiple questions as implementation. so use multi lookup
         supervisor_lookup = get_multi_lookup(format, PLACEMENT_SUPERVISOR)
-        supervisor = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
+        supervisor_name = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
+        supervisor: Optional[Supervisor] = Supervisor.query.filter_by(name=supervisor_name).one_or_none()
+        if supervisor is None:
+            supervisor = Supervisor(name=supervisor_name)
+            session.add(supervisor)
 
         num_logs = lookup_embedded_text(response_val, label_lookup, NUM_ACTIVITY_LOGS) 
-        num_logs_int = int(num_logs)
+        num_logs_int: int = 0
+        try:
+            num_logs_int = int(num_logs)
+        except ValueError:
+            print(f"failed to parse '{num_logs}' to int (num logs). skipping response")
+            continue
+
+        # commit any added tables
+        session.commit()
 
         # TODO: alternatively, could just start with "1" and keep going if finds more
         for i in range(1, num_logs_int + 1):
             # would likely have to look these up by label
 
             # note inconsistent spacing of "- " vs " - "
-            category = get_answer_label(response, f"{i}_{label_lookup[CATEGORY]}")
-            domain = get_answer_label(response, f"{i}_{label_lookup[AEP_DOMAIN]}")
-            minutes = response_val[f"{i}_{label_lookup.get_text(MINUTES_SPENT)}"]
+            category = get_answer_label_n(response, label_lookup[CATEGORY], i)
+            activity: Optional[Activity] = Activity.query.filter_by(activity=category).one_or_none()
+            if activity is None:
+                activity = Activity(activity=category)
+                session.add(activity)
+                session.commit()
+                session = db.session
+
+            aep_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
+            domain: Optional[Domain] = Domain.query.filter_by(domain=aep_domain).one_or_none()
+            if domain is None:
+                domain = Domain(domain=aep_domain)
+                session.add(domain)
+                session.commit()
+                session = db.session
+
+            minutes = response_val[make_n_text(label_lookup.get_text(MINUTES_SPENT), i)]
+            minutes_int: int = 0
+            try:
+                minutes_int = int(minutes)
+            except ValueError:
+                print(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
+                continue
             
             # make a student record now
-            model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
-            rows.append(model)
+            #model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
+            #rows.append(model)
+
+            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date)
+            session.add(log_row)
+        session.commit()
 
     return rows
 

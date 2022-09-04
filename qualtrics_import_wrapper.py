@@ -1,7 +1,11 @@
 # Script for testing qualtrics import functionality
 # Author: Joel Phillips (22967051)
 
-from app import qualtrics_import
+from app import qualtrics_import, db
+
+from sqlalchemy.orm.scoping import scoped_session
+
+from app.models import ActivityLog
 
 
 def run_import():
@@ -26,6 +30,10 @@ def run_import():
     # TODO: delete MyQualtricsDownload folder, including contents
     rows = qualtrics_import.test_parse_json(json, label_lookup, format)
     print(rows)
+
+    db_rows = ActivityLog.query.all()
+    for row in db_rows:
+        print(row)
 
 if __name__ == "__main__":
     run_import()
