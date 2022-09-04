@@ -30,7 +30,46 @@ def library():
 @app.route('/reports/student')
 @login_required
 def reportStudents():
-    return render_template('reports/student.html')
+    data = {
+    'domains': (
+        'Cardiovascular',
+        'Musculoskeletal',
+        'Metabolic',
+        'Mental Health',
+        'Cancer',
+        'Kidney',
+        'Neurological',
+        'Respiratory/Pulmonary',
+        'Other'
+    ), ## list of available domains
+    'charts': [
+    {
+        'title': 'Core Domains',
+        'id': 'test1',
+        'yMax': '200',
+        'style': 'core',
+        'domains': (1, 1, 1, 0, 0, 0, 0, 0, 0), ## if the index is one, the domain will be shown
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (32, 8, 12)), ## three tuple as we are showing three domains
+            ('Excercise Prescription', (9, 19, 49)),
+            ('Excercise Delivery', (10, 2, 24)),
+            ('Other', (13, 28, 9)),
+        ]
+    },
+    {
+        'title': 'Additional Domains',
+        'id': 'test2',
+        'yMax': '70',
+        'domains': (0, 0, 0, 1, 1, 1, 1, 1, 1),
+        'hours': [
+            ('Referrals, Screening or Assessmnts', (3, 8, 12, 6, 6, 12)),
+            ('Excercise Prescription', (3, 8, 1, 6, 6, 12)),
+            ('Excercise Delivery', (5, 3, 1, 6, 6, 12)),
+            ('Other', (3, 8, 12, 5, 3, 1)),
+        ]
+    }]
+    }
+    return render_template('reports/student.html', data=data)
 
 @app.route('/reports/staff')
 @login_required

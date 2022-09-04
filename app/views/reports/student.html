@@ -1,11 +1,139 @@
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
+{% import "macros/charts.jinja" as charts %}
+
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+    {{ charts.chart_head(data) }}
 {% endblock %}
 
 {% block content %}
 <h3>Student Reports</h3>
+<div class='row'>
+    <div class='three columns vertical-fill'>
+        <div class='card'>
+            <h5>Core</h5>
+            <table class='u-full-width'>
+                <tr>
+                  <th>Total</th>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <th>Remaining</th>
+                  <td>0.0</td>
+                </tr>
+            </table>
+        </div>
+        <div class='card'>
+            <h5>Additional</h5>
+            <table class='u-full-width'>
+                <tr>
+                  <th>Total</th>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <th>Remaining</th>
+                  <td>0.0</td>
+                </tr>
+            </table>
+        </div>
+        <div class='card'>
+            <h5>Other</h5>
+            <table class='u-full-width'>
+                <tr>
+                  <th>Total</th>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <th>Remaining</th>
+                  <td>0.0</td>
+                </tr>
+            </table>
+        </div>
+        <div class='card'>
+            <h5>CHECK</h5>
+            <h2>PASS</h2>
+        </div>
+    </div>
+    <div class='nine columns vertical-fill'>
+        <div class='card'>
+        <h5>HOURS BY PLACEMENT LOCATION</h5>
+        <table class="u-full-width">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for location in [
+            'UWA Exercise & Performance Centre',
+            'WACRH (Geraldton)',
+            'Agility Rehabilitation',
+            'Curtin Stadium'
+            'Fiona Stanley Hospital',
+            'Guardian Exercise Rehabilitation',
+            'Health Care WA',
+            'HFRC',
+            'Made to Move Rehabilitation Gym',
+            'Neuromoves',
+            'O2 Active',
+            'Redimed',
+            'Reps Movement',
+            'The Exercise Therapist',
+            'Other/Self Directed',
+            'Shenton College'
+            ] %}
+            <tr>
+              <td>{{location}}</td>
+              <td>0.0</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    <div class='card'>
+        <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
+        <table class="u-full-width">
+          <thead>
+            <tr>
+                <th></th>
+                <th colspan="5" style="text-align:left">Activity Type</th>
+            </tr>
+            <tr>
+              <th>AEP Domains</th>
+              <th>Referrals, Screening or Assessments</th>
+              <th>Exercise Prescription</th>
+              <th>Exercise Delivery</th>
+              <th>Other</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for domain in data.domains %}
+            <tr>
+              <td>{{domain}}</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('test1')}}
+    </div>
+</div>
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('test2')}}
+    </div>
+</div>
 {% endblock %}
 
