@@ -154,6 +154,7 @@ def reportLocations():
         "domains": domains
     }
 
+    # FIXME: actually distinguish between "core" and "additional" domains. 
     # list of domain names
     domain_names: list[str] = []
     # "hours" data
@@ -179,17 +180,6 @@ def reportLocations():
 
     chart_data = {
         "domains": tuple(domain_names),
-        """'domains': (
-            'Cardiovascular',
-            'Musculoskeletal',
-            'Metabolic',
-            'Mental Health',
-            'Cancer',
-            'Kidney',
-            'Neurological',
-            'Respiratory/Pulmonary',
-            'Other'
-        ),  # list of available domains"""
         'charts': [
             {
                 'title': 'Core Domains',
@@ -199,13 +189,6 @@ def reportLocations():
                 # if the index is one, the domain will be shown
                 #'domains': (1, 1, 1, 0, 0, 0, 0, 0, 0),
                 "domains": tuple(domains_used),
-                """'hours': [
-                    # three tuple as we are showing three domains
-                    ('Referrals, Screening or Assessmnts', (32, 8, 12)),
-                    ('Excercise Prescription', (9, 19, 49)),
-                    ('Excercise Delivery', (10, 2, 24)),
-                    ('Other', (13, 28, 9)),
-                ]"""
                 "hours": [(key, tuple(value)) for key, value in domains_hours.items()]
             },
             {
@@ -213,16 +196,11 @@ def reportLocations():
                 'id': 'additional_domains_test',
                 'yMax': '70',
                 'domains': tuple(domains_used),
-                """'hours': [
-                    ('Referrals, Screening or Assessmnts', (3, 8, 12, 6, 6, 12)),
-                    ('Excercise Prescription', (3, 8, 1, 6, 6, 12)),
-                    ('Excercise Delivery', (5, 3, 1, 6, 6, 12)),
-                    ('Other', (3, 8, 12, 5, 3, 1)),
-                ]"""
                 "hours": [(key, tuple(value)) for key, value in domains_hours.items()]
             }
         ]
     }
+    print(chart_data)
 
     return render_template('reports/location.html', data=data, chart_data=chart_data)
 
