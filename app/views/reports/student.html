@@ -1,6 +1,8 @@
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
+{% block title %} Student Reports {% endblock %}
+
 {% block header %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 {% endblock %}
@@ -13,14 +15,15 @@
 <input type="text" class="searchBox" placeholder="Enter student name or ID...">
 </div>
 
+<div class="tableContainer">
 <table>
     <tr id="headerRow">
         <th>Results</th>
         <th></th>
-        <th><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</th>
-        <th><i class="fa fa-filter" aria-hidden="true"></i>  Filter</th>
+        <th><button class="functionButton"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</button></th>
+        <th><button class="functionButton"><i class="fa fa-filter" aria-hidden="true"></i>  Filter</button></th>
     </tr>
-    <tr>
+    <tr id="headerRow2">
         <th>Student ID</th>
         <th>Student Name</th>
         <th></th>
@@ -40,28 +43,53 @@
     </tr>
     <tr>
         <td>334455</td>
-        <td>Random Name</td>
+        <td>Jeremy Williams</td>
         <td><button class="makeReport">See Report</button></td>
         <td><button class="makePDF">Download PDF</button></td>
     </tr>
     <tr>
         <td>527289</td>
-        <td>Hannah Montana</td>
+        <td>Chantelle Brown</td>
         <td><button class="makeReport">See Report</button></td>
         <td><button class="makePDF">Download PDF</button></td>
     </tr>
     <tr>
         <td>127389</td>
-        <td>Sally Harry</td>
+        <td>Xavier Johnson</td>
         <td><button class="makeReport">See Report</button></td>
         <td><button class="makePDF">Download PDF</button></td>
     </tr>
     <tr>
         <td>875930</td>
-        <td>Goodbye Hello</td>
+        <td>Graham Talbot</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>123456</td>
+        <td>Emily Snipes</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>567890</td>
+        <td>John Smith</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>334455</td>
+        <td>Dick Richards</td>
+        <td><button class="makeReport">See Report</button></td>
+        <td><button class="makePDF">Download PDF</button></td>
+    </tr>
+    <tr>
+        <td>527289</td>
+        <td>Penelope White</td>
         <td><button class="makeReport">See Report</button></td>
         <td><button class="makePDF">Download PDF</button></td>
     </tr>
 </table>
+</div>
 {% endblock %}
 
