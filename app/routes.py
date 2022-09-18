@@ -102,7 +102,19 @@ def reportLocations():
 @app.route('/reports/cohort')
 @login_required
 def reportCohorts():
-    return render_template('reports/cohort.html')
+    data = {
+        "year": date.today().year,
+        "domains": [{
+            "name": "Something",
+            "referrals": 1,
+            "prescription": 0,
+            "delivery": 2,
+            "other": 0,
+            "total": 3
+        }]
+    }
+
+    return render_template('reports/cohort.html', data=data)
 
 # login.py routes
 
