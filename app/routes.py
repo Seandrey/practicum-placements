@@ -143,16 +143,12 @@ def reportLocations():
 @app.route('/reports/cohort')
 @login_required
 def reportCohorts():
+    # hardcoded cohort for now: 2022
+    domains = get_domain_table([ActivityLog.record_date.between(date.today().replace(month=1, day=1), date.today().replace(month=12, day=31))])
+
     data = {
         "year": date.today().year,
-        "domains": [{
-            "domain": "Something",
-            "assessment": 1,
-            "prescription": 0,
-            "delivery": 2,
-            "other": 0,
-            "total": 3
-        }]
+        "domains": domains
     }
 
     return render_template('reports/cohort.html', data=data)
