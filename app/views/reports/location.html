@@ -1,8 +1,11 @@
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'location' %}
 
+{% import "macros/charts.jinja" as charts %}
+
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+{{ charts.chart_head(chart_data) }}
 {% endblock %}
 
 {% block content %}
@@ -60,6 +63,17 @@
 </table>
 
 <p>TODO: core domains graph</p>
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('core_domains_test')}}
+    </div>
+</div>
+
 <p>TODO: additional domains graph</p>
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('additional_domains_test')}}
+    </div>
+</div>
 
 {% endblock %}
