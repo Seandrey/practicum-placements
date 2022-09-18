@@ -79,6 +79,55 @@ def reportStudents():
 def reportStaff():
     return render_template('reports/staff.html')
 
+def get_domain_col(activity: str, flist: list):
+    """Gets the single AEP domain/activity type table column specified as a partial query"""
+    session: scoped_session = db.session
+
+    #flist.append(Activity.activity == activity)
+    pres_activity_subq = session.query(ActivityLog, Activity).join(Activity).filter(*flist, Activity.activity == activity).subquery()
+    prescriptions: list = session.query(Domain.domain, (func.coalesce(func.sum(pres_activity_subq.c.minutes_spent), 0) / 60.0).label("hours")).join(pres_activity_subq, pres_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).all()
+
+    return prescriptions
+
+def get_domain_table(flist: Optional[list]):
+    """Gets AEP domain/activity type table"""
+    session: scoped_session = db.session
+
+    location_id = 1
+    #flist = [ActivityLog.locationid == location_id]
+    if flist is None:
+        flist = []
+
+    # find activity-domain table based on hardcoded activity types. due to how group by works, probably have to do this piecewise
+    #assessments: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Assessment").group_by(ActivityLog.domainid).all()
+    #assessments: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter_by(locationid=location_id).join(Activity, ActivityLog.activityid == Activity.activityid, isouter=True).group_by(ActivityLog.domainid).all()
+    
+    #assessments: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog, ActivityLog.domainid == Domain.domainid, isouter=True).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Assessment").group_by(ActivityLog.domainid).all()
+    assessments = get_domain_col("Exercise Assessment", flist)
+    print(assessments)
+
+    #prescriptions: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Prescription").group_by(ActivityLog.domainid).all()
+    #prescriptions: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog, ActivityLog.domainid == Domain.domainid, isouter=True).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Prescription").group_by(ActivityLog.domainid).all()
+    #prescriptions: list = session.query((func.sum(ActivityLog.minutes_spent) / 60.0).label("hours"), Domain.domain).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Prescription").join(Domain, Domain.domainid == ActivityLog.domainid, isouter=True).group_by(ActivityLog.domainid).all()
+    
+    #pres_activity_subq = session.query(ActivityLog, Activity).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Prescription").subquery()
+    #prescriptions: list = session.query(Domain.domain, (func.coalesce(func.sum(pres_activity_subq.c.minutes_spent), 0) / 60.0).label("hours")).join(pres_activity_subq, pres_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).all()
+
+    prescriptions = get_domain_col("Exercise Prescription", flist)
+    print(prescriptions)
+    # Domain LEFT JOIN ActivityLog. JOIN Activity. But ActivityLog and Activity already are for specific location and have specific activity
+
+    #deliveries: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Exercise Delivery").group_by(ActivityLog.domainid).all()
+    deliveries = get_domain_col("Exercise Delivery", flist)
+    print(deliveries)
+
+    #others: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).join(Activity).filter(ActivityLog.locationid == location_id, Activity.activity == "Other").group_by(ActivityLog.domainid).all()
+    others = get_domain_col("Other", flist)
+    print(others)
+
+    total: list = session.query(Domain.domain, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.domainid).all()
+    print(total)
+
 @app.route('/reports/location')
 @login_required
 def reportLocations():
@@ -98,11 +147,10 @@ def reportLocations():
     print(loc_name)
 
     # find hours by supervisor for that location
-    loc_hours = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
+    loc_hours: list = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
     print(loc_hours)
 
-    # find activity-domain table
-    domains = session.query(Domain.domain, )
+    domains = get_domain_table([ActivityLog.locationid == location_id])
 
     data = {
         "location": loc_name,
