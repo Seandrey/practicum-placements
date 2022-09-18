@@ -69,6 +69,7 @@ def reportStudents():
         ]
     }]
     }
+
     return render_template('reports/student.html', data=data)
 
 @app.route('/reports/staff')
@@ -79,7 +80,24 @@ def reportStaff():
 @app.route('/reports/location')
 @login_required
 def reportLocations():
-    return render_template('reports/location.html')
+    data = {
+        "location": "Some location",
+        "date_generated": date.today().isoformat(),
+        "loc_hours": [{
+            "supervisor": "Some Supervisor",
+            "hours": 420
+        }],
+        "domains": [{
+            "name": "Something",
+            "referrals": 1,
+            "prescription": 0,
+            "delivery": 2,
+            "other": 0,
+            "total": 3
+        }]
+    }
+
+    return render_template('reports/location.html', data=data)
 
 @app.route('/reports/cohort')
 @login_required
