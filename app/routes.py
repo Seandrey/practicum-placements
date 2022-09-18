@@ -5,12 +5,14 @@ from typing import Optional
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
-from app import app
+from app import app, db
 from datetime import datetime
 from app.login import signuprender, loginrender, logoutredirect
 from flask_login import login_required, current_user
 import json
 from datetime import date, timedelta
+
+from app.models import Activity, ActivityLog, Domain, Location, Supervisor
 
 @app.route('/home')
 @login_required
@@ -80,16 +82,35 @@ def reportStaff():
 @app.route('/reports/location')
 @login_required
 def reportLocations():
+    # hardcoded location for now: whatever "1" is
+    location_id = 1
+
+    # TODO: also filter based on year/semester if relevant
+    
+    session: scoped_session = db.session
+
+    # DEBUG find everything in DB with that location
+    loc_data = session.query(ActivityLog, Domain, Activity, Supervisor, Location).join(Domain).join(Activity).join(Supervisor).join(Location).all()
+    print(loc_data)
+
+    # find location name
+    loc_name = Location.query.filter_by(locationid=location_id).one().location
+    print(loc_name)
+
+    # find hours by supervisor for that location
+    loc_hours = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
+    print(loc_hours)
+
+    # find activity-domain table
+    domains = session.query(Domain.domain, )
+
     data = {
-        "location": "Some location",
+        "location": loc_name,
         "date_generated": date.today().isoformat(),
-        "loc_hours": [{
-            "supervisor": "Some Supervisor",
-            "hours": 420
-        }],
+        "loc_hours": loc_hours,
         "domains": [{
-            "name": "Something",
-            "referrals": 1,
+            "domain": "Something",
+            "assessment": 1,
             "prescription": 0,
             "delivery": 2,
             "other": 0,
@@ -105,8 +126,8 @@ def reportCohorts():
     data = {
         "year": date.today().year,
         "domains": [{
-            "name": "Something",
-            "referrals": 1,
+            "domain": "Something",
+            "assessment": 1,
             "prescription": 0,
             "delivery": 2,
             "other": 0,
