@@ -95,32 +95,45 @@
       <div class='card'>
         <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
         <table class="u-full-width">
-          <thead>
-            <tr>
-                <th></th>
-                <th colspan="5" style="text-align:left">Activity Type</th>
-            </tr>
-            <tr>
-              <th>AEP Domains</th>
-              <th>Referrals, Screening or Assessments</th>
-              <th>Exercise Prescription</th>
-              <th>Exercise Delivery</th>
-              <th>Other</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for domain in data.domains %}
-            <tr>
-              <td>{{domain}}</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-            </tr>
-            {% endfor %}
-          </tbody>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="5" style="text-align:left">Activity Type</th>
+                </tr>
+                <tr>
+                    <th>AEP Domains</th>
+                    <th>Referrals, Screening or Assessments</th>
+                    <th>Exercise Prescription</th>
+                    <th>Exercise Delivery</th>
+                    <th>Other</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(1, 5) %}
+                <tr>
+                    <td>{{data.core.graph[0][i]}}</td>
+                    {% set total = namespace(value=0) %}
+                    {% for j in range(1, 5) %}
+                        <td>{{data.core.graph[j][i] | round(2, 'common')}}</td>
+                        {% set total.value = total.value + data.core.graph[j][i] %}
+                    {% endfor %}
+                    <td>{{total.value | round(2, 'common')}}</td>
+                </tr>
+                {% endfor %}
+                {% for i in range(1, 6) %}
+                <tr>
+                    <td>{{data.additional.graph[0][i]}}</td>
+                    {% set total = namespace(value=0) %}
+                    {% for j in range(1, 5) %}
+                        <td>{{data.additional.graph[j][i] | round(2, 'common')}}</td>
+                        {% set total.value = total.value + data.additional.graph[j][i] %}
+                    {% endfor %}
+                    <td>{{total.value | round(2, 'common')}}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
         </table>
       </div>
     </div>

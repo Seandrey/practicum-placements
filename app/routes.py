@@ -38,7 +38,11 @@ def library():
 @app.route('/reports/student')
 #@login_required
 def reportStudents():
-    # this should show the student search page
+    teardown_db()
+    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
+    fill_db_multiple_students(1)
+    data = get_student_info(22000000)
+    teardown_db()
     return render_template('reports/student.html', data=data)
 
 @app.route('/reports/student/<studentid>')
@@ -93,8 +97,11 @@ def get_domain_table(flist: Optional[list]):
 
 
 @app.route('/reports/location')
-@login_required
+#@login_required
 def reportLocations():
+    teardown_db()
+    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
+    fill_db_multiple_students(10)
     # hardcoded location for now: whatever "1" is
     location_id = 1
 
@@ -112,68 +119,20 @@ def reportLocations():
     print(loc_name)
 
     # find hours by supervisor for that location
-    loc_hours: list = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label(
+    sup_hours: list = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label(
         "hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
-    print(loc_hours)
-
-    domains: list[dict] = get_domain_table([ActivityLog.locationid == location_id])
+    print(sup_hours)
 
     data = {
         "location": loc_name,
         "date_generated": date.today().isoformat(),
-        "loc_hours": loc_hours,
-        "domains": domains
+        "sup_hours": sup_hours,
+        "core": build_chart('location', location_id, True),
+        "additional": build_chart('location', location_id, False)
     }
 
-    # FIXME: actually distinguish between "core" and "additional" domains. 
-    # list of domain names
-    domain_names: list[str] = []
-    # "hours" data
-    domains_hours: dict[str, list[int]] = {
-        "Exercise Assessment": [],
-        "Exercise Prescription": [],
-        "Exercise Delivery": [],
-        "Other": []
-    }
-    # bitset of domains used
-    domains_used: list[int] = []
-    for domain in domains:
-        domain_names.append(domain.domain)
-        if domain.total == 0:
-            domains_used.append(0)
-            continue
-        domains_used.append(1)
-        domains_hours["Exercise Assessment"].append(domain.assessment)
-        domains_hours["Exercise Prescription"].append(domain.prescription)
-        domains_hours["Exercise Delivery"].append(domain.delivery)
-        domains_hours["Other"].append(domain.other)
-    print(domains_hours)
-
-    chart_data = {
-        "domains": tuple(domain_names),
-        'charts': [
-            {
-                'title': 'Core Domains',
-                'id': 'core_domains_test',
-                'yMax': '200',
-                'style': 'core',
-                # if the index is one, the domain will be shown
-                #'domains': (1, 1, 1, 0, 0, 0, 0, 0, 0),
-                "domains": tuple(domains_used),
-                "hours": [(key, tuple(value)) for key, value in domains_hours.items()]
-            },
-            {
-                'title': 'Additional Domains',
-                'id': 'additional_domains_test',
-                'yMax': '70',
-                'domains': tuple(domains_used),
-                "hours": [(key, tuple(value)) for key, value in domains_hours.items()]
-            }
-        ]
-    }
-    print(chart_data)
-
-    return render_template('reports/location.html', data=data, chart_data=chart_data)
+    teardown_db()
+    return render_template('reports/location.html', data=data)
 
 
 @app.route('/reports/cohort')

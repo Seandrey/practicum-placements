@@ -1,11 +1,11 @@
-{% extends 'templates/auth_area.html' %}
+ {% extends 'templates/auth_area.html' %}
 {% set active_page = 'location' %}
 
 {% import "macros/charts.jinja" as charts %}
 
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
-{{ charts.chart_head(chart_data) }}
+{{ charts.chart_head(data) }}
 {% endblock %}
 
 {% block content %}
@@ -14,65 +14,83 @@
 <p>Location: {{data.location}}</p>
 <p>Date generated: {{data.date_generated}}</p>
 
-<table>
-    <thead>
-        <tr>
-            <th colspan="3">Hours By Supervisor</th>
-        </tr>
-        <tr>
-            <th colspan="2">Supervisor</th>
-            <th>Hours</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for sup_hours in data.loc_hours %}
-        <td>{{sup_hours.supervisor}}</td>
-        <td>{{sup_hours.hours}}</td>
-        {% endfor %}
-    </tbody>
-</table>
-
-<h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
-<table class="u-full-width">
-    <thead>
-        <tr>
-            <th></th>
-            <th colspan="5" style="text-align:left">Activity Type</th>
-        </tr>
-        <tr>
-            <th>AEP Domains</th>
-            <th>Referrals, Screening or Assessments</th>
-            <th>Exercise Prescription</th>
-            <th>Exercise Delivery</th>
-            <th>Other</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for domain in data.domains %}
-        <tr>
-            <td>{{domain.domain}}</td>
-            <td>{{domain.assessment}}</td>
-            <td>{{domain.prescription}}</td>
-            <td>{{domain.delivery}}</td>
-            <td>{{domain.other}}</td>
-            <td>{{domain.total}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<p>TODO: core domains graph</p>
 <div class='row'>
-    <div class='twelve columns card'>
-        {{ charts.chart_div('core_domains_test')}}
+    <div class='four columns card'>
+        <table class="u-full-width">
+            <thead>
+                <tr>
+                    <th colspan="3">Hours By Supervisor</th>
+                </tr>
+                <tr>
+                    <th colspan="2">Supervisor</th>
+                    <th>Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sup_hours in data.sup_hours %}
+                <tr>
+                    <td>{{sup_hours.supervisor}}</td>
+                    <td>{{sup_hours.hours | round(2, 'common')}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class='eight columns card'>
+        <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
+        <table class="u-full-width">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="5" style="text-align:left">Activity Type</th>
+                </tr>
+                <tr>
+                    <th>AEP Domains</th>
+                    <th>Referrals, Screening or Assessments</th>
+                    <th>Exercise Prescription</th>
+                    <th>Exercise Delivery</th>
+                    <th>Other</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(1, 5) %}
+                <tr>
+                    <td>{{data.core.graph[0][i]}}</td>
+                    {% set total = namespace(value=0) %}
+                    {% for j in range(1, 5) %}
+                        <td>{{data.core.graph[j][i] | round(2, 'common')}}</td>
+                        {% set total.value = total.value + data.core.graph[j][i] %}
+                    {% endfor %}
+                    <td>{{total.value | round(2, 'common')}}</td>
+                </tr>
+                {% endfor %}
+                {% for i in range(1, 6) %}
+                <tr>
+                    <td>{{data.additional.graph[0][i]}}</td>
+                    {% set total = namespace(value=0) %}
+                    {% for j in range(1, 5) %}
+                        <td>{{data.additional.graph[j][i] | round(2, 'common')}}</td>
+                        {% set total.value = total.value + data.additional.graph[j][i] %}
+                    {% endfor %}
+                    <td>{{total.value | round(2, 'common')}}</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
     </div>
 </div>
 
-<p>TODO: additional domains graph</p>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('additional_domains_test')}}
+        {{ charts.chart_div('core')}}
+    </div>
+</div>
+
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('additional')}}
     </div>
 </div>
 
