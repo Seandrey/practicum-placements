@@ -75,6 +75,7 @@ class Domain(db.Model):
     """Used to represent AEP domain"""
     domainid = db.Column(db.Integer, primary_key=True)
     domain = db.Column(db.String(64))
+    core = db.Column(db.Boolean())
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
@@ -89,7 +90,7 @@ class ActivityLog(db.Model):
     activityid = db.Column(db.Integer, db.ForeignKey(Activity.activityid))
     domainid = db.Column(db.Integer, db.ForeignKey(Domain.domainid))
     minutes_spent = db.Column(db.Integer)
-    record_date = db.Column(db.Date) 
+    record_date = db.Column(db.Date)
 
     def __repr__(self):
         return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, activity {self.activityid}, domain {self.domainid} of {self.minutes_spent} m on {self.record_date}>'
