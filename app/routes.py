@@ -126,8 +126,14 @@ def update_db_qualtrics():
     os.remove(json_path)
     os.rmdir("MyQualtricsDownload")
 
-@app.route('/update')
+@app.route('/update', methods=['GET', 'POST'])
 def updateroute():
-    """Temporary route: to manually update DB from Qualtrics"""
+    """Temporary route: to manually update DB from Qualtrics. Remove GET later as not idempotent"""
     update_db_qualtrics()
-    return redirect(url_for('home'))
+
+    # allow redirection: designed to be used to reload page on AJAX POST
+    redirect_to = request.args.get("next")
+    if redirect_to is None:
+        redirect_to = "home"
+
+    return redirect(url_for(redirect_to))
