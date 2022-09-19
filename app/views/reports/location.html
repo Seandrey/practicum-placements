@@ -16,13 +16,11 @@
 
 <div class='row'>
     <div class='four columns card'>
+        <h5>HOURS BY SUPERVISOR</h5>
         <table class="u-full-width">
             <thead>
                 <tr>
-                    <th colspan="3">Hours By Supervisor</th>
-                </tr>
-                <tr>
-                    <th colspan="2">Supervisor</th>
+                    <th>Supervisor</th>
                     <th>Hours</th>
                 </tr>
             </thead>
@@ -46,30 +44,29 @@
                 </tr>
                 <tr>
                     <th>AEP Domains</th>
-                    <th>Referrals, Screening or Assessments</th>
-                    <th>Exercise Prescription</th>
-                    <th>Exercise Delivery</th>
-                    <th>Other</th>
-                    <th>Total</th>
+                    {% for a in data.core.activities %}
+                    <th>{{a}}</th>
+                    {% endfor %}
+                    <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(1, 4) %}
+                {% for i in range(1, data.core.len + 1) %}
                 <tr>
                     <td>{{data.core.graph[0][i]}}</td>
                     {% set total = namespace(value=0) %}
-                    {% for j in range(1, 5) %}
+                    {% for j in range(1, data.core.activities|length + 1) %}
                         <td>{{data.core.graph[j][i] | round(2, 'common')}}</td>
                         {% set total.value = total.value + data.core.graph[j][i] %}
                     {% endfor %}
                     <td>{{total.value | round(2, 'common')}}</td>
                 </tr>
                 {% endfor %}
-                {% for i in range(1, 6) %}
+                {% for i in range(1, data.additional.len + 1) %}
                 <tr>
                     <td>{{data.additional.graph[0][i]}}</td>
                     {% set total = namespace(value=0) %}
-                    {% for j in range(1, 5) %}
+                    {% for j in range(1, data.core.activities|length + 1) %}
                         <td>{{data.additional.graph[j][i] | round(2, 'common')}}</td>
                         {% set total.value = total.value + data.additional.graph[j][i] %}
                     {% endfor %}

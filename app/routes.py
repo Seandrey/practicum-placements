@@ -112,7 +112,7 @@ def reportLocations():
     # DEBUG find everything in DB with that location
     loc_data = session.query(ActivityLog, Domain, Activity, Supervisor, Location).join(
         Domain).join(Activity).join(Supervisor).join(Location).all()
-    print(loc_data)
+    #print(loc_data)
 
     # find location name
     loc_name = Location.query.filter_by(locationid=location_id).one().location

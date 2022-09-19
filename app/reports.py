@@ -107,16 +107,15 @@ def build_chart(key, value, core=True):
     'Category',
   ]], 'total': 0, 'other': 0}
   q = db.session.query(Domain).filter_by(core=core).all()
-  length = 0
+  length = len(q)
   for domain in q:
     data['graph'][0].append(domain.domain)
-    length += 1
   data['graph'][0].append({'role': 'annotation'})
   data['graph'][0].append({'role': 'annotation'})
-
-  print(length)
+  data['len'] = length
 
   q = db.session.query(Activity).all()
+  data['activities'] = [d.activity for d in q]
   for activity in q:
     activityHours = [0] * length
     activityHours.insert(0, activity.activity)
@@ -134,9 +133,7 @@ def build_chart(key, value, core=True):
     for domain in p:
       activityHours[domain[0] if core else domain[0] - 3] = round(domain[1]  / 60, 2)
       total += round(domain[1]  / 60, 2)
-    data['total'] = round(total, 2)
-    if not core:
-      data['other'] += activityHours[-1]
+    data['total'] += round(total, 2)
     activityHours.append(total)
     activityHours.append('')
     data['graph'].append(activityHours)
