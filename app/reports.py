@@ -134,7 +134,7 @@ def build_chart(key, value, core=True):
     for domain in p:
       activityHours[domain[0] if core else domain[0] - 3] = round(domain[1]  / 60, 2)
       total += round(domain[1]  / 60, 2)
-    data['total'] += total
+    data['total'] = round(total, 2)
     if not core:
       data['other'] += activityHours[-1]
     activityHours.append(total)
