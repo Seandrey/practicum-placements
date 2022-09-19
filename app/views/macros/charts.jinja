@@ -1,122 +1,88 @@
 ## Author: David Norris (22690264)
 ## An array of dicts each with a title key, an id key and a bars key
-##
-## Example data:
-##
-## data = [
-##     {
-##         'title': 'Testing 1',
-##         'id': 'test1',
-##         'yMax': '0',
-##         'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
-##         'hours': [
-##             ('Referrals, Screening or Assessmnts', (3, 8, 12)),
-##             ('Excercise Prescription', (9, 9, 9)),
-##             ('Excercise Delivery', (0, 2, 4)),
-##             ('Other', (3, 8, 9)),
-##         ]
-##     },
-##     {
-##         'title': 'Testing 2',
-##         'id': 'test2',
-##         'yMax': '200',
-##         'domains': ('Cardiovascular', 'Musculosceletal', 'Metabolic'),
-##         'hours': [
-##             ('Referrals, Screening or Assessmnts', (32, 8, 12)),
-##             ('Excercise Prescription', (9, 19, 49)),
-##             ('Excercise Delivery', (10, 2, 24)),
-##             ('Other', (13, 28, 9)),
-##         ]
-##     },
-## ]
 {% macro chart_head(data) %}
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+// Get google Visualisation API and include ColumnChart
+google.load('visualization', '1', {'packages':['corechart']});
 
-      // Get google Visualisation API and include ColumnChart
-      google.load('visualization', '1', {'packages':['corechart']});
+// Set callback for once API loads
+google.setOnLoadCallback(drawCharts);
 
-      // Set callback for once API loads
-      google.setOnLoadCallback(drawChart);
+function drawCharts() {
+  var graph, title, max;
 
-      // This is the callback that draws after load
-      function drawChart() {
-        var data;
-      // Each chart in the div is processed using same data var and drawn
-      {%- for chart in data['charts'] %}
-        data = new google.visualization.arrayToDataTable([
-          [
-            'Category',
-            {%- for domain in chart['domains'] %}
-            {%- if domain == 1 %}
-            '{{ data['domains'][loop.index - 1] }}',
-            {%- endif %}
-            {%- endfor %}
-            {role: 'annotation'},
-            {role: 'annotation'},
-          ],
-          {%- for type, domains in chart['hours'] %}
-          [
-            '{{ type }}',
-            {%- set total = namespace(value=0) %}
-            {%- for hours in domains %}
-            {{ hours }},
-            {%- set total.value = total.value + hours %}
-            {%- endfor %}
-            {{ total.value }},
-            ''
-          ],
-          {%- endfor %}
-        ]);
-        var view = new google.visualization.DataView(data);
-        var chart = new google.visualization.ColumnChart(
-                document.getElementById("{{chart['id']}}")); // chart div id from dict
-        var options = {
-          title: '{{chart['title']}}', // title from dict
-          titleTextStyle: {
-            fontSize: 20,
-            bold: true
-          },
-          isStacked: true,
-          legend: {position: 'right'},
-          chartArea: {width: '50%'},
-          vAxis: {
-            title: 'Hours',
-            maxValue: {{ chart['yMax'] }}
-          },
-          annotations: {
-            stem: {
-              color: "transparent",
-              length: 5
-            },
-            textStyle: {
-              color: "#000000",
-              fontSize: 14,
-              bold: true
-            }
-          },
-          {%- if chart['style'] == 'core' %}
-          colors: [
-            '#EA7369',
-            '#DC4BB3',
-            '#7D3AC0'
-          ]
-          {%- else %}
-          colors: [
-            '#176CA1',
-            '#18ABDD',
-            '#1AC9E7',
-            '#1CD4D4',
-            '#1DE5BC',
-            '#6EF0D2',
-            '#C7F9ED'
-          ]
-          {%- endif %}
-        }
-        chart.draw(view, options);
-      {%- endfor %}
+  graph = {{data['core']['graph']}};
+  title = '{{data['core']['title']}}';
+  max = {{data['core']['total'] / 4 | round(2, 'common')}};
+
+  drawChart(graph, title, max, 'core');
+
+  graph = {{data['additional']['graph']}};
+  title = '{{data['additional']['title']}}';
+  max = {{data['additional']['total'] / 3 | round(2, 'common')}};
+
+  drawChart(graph, title, max, 'additional');
+}
+
+
+// This is the callback that draws after load
+function drawChart(graph, title, max, graphID) {
+  var graph = graph
+  coloursCore = [
+      '#EA7369',
+      '#DC4BB3',
+      '#7D3AC0',
+      '#176CA1',
+  ];
+  coloursAdditional = [
+      '#18ABDD',
+      '#1AC9E7',
+      '#1CD4D4',
+      '#1DE5BC',
+      '#6EF0D2',
+      '#C7F9ED'
+  ];
+
+  var options = {
+    title: title, // title from dict
+    titleTextStyle: {
+      fontSize: 20,
+      bold: true
+    },
+    isStacked: true,
+    legend: {position: 'right'},
+    chartArea: {width: '50%'},
+    vAxis: {
+      title: 'Hours',
+      maxValue: max,
+    },
+    annotations: {
+      stem: {
+        color: "transparent",
+        length: 5
+      },
+      textStyle: {
+        color: "#000000",
+        fontSize: 14,
+        bold: true
       }
-    </script>
+    },
+  }
+  if (graphID == 'core')
+    options['colors'] = coloursCore;
+  else
+    options['colors'] = coloursAdditional
+  var data;
+  // Each chart in the div is processed using same data var and drawn
+  data = new google.visualization.arrayToDataTable(graph);
+  var view = new google.visualization.DataView(data);
+  var chart = new google.visualization.ColumnChart(
+          document.getElementById(graphID)); // chart div id from dict
+
+  chart.draw(view, options);
+}
+</script>
 {% endmacro %}
 
 ## Creates a chart container, must have same id as dict

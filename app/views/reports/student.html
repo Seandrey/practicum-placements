@@ -16,11 +16,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>0.0</td>
+                  <td>{{data['core']['total']  | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>0.0</td>
+                  <td>{{(200 - data['core']['total'])  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -29,11 +29,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>0.0</td>
+                  <td>{{ (data['additional']['total'] - data['additional']['other']) | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>0.0</td>
+                  <td>{{ (100.0 - (data['additional']['total'] - data['additional']['other'])) | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -42,11 +42,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>0.0</td>
+                  <td>{{ data['additional']['other'] | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>0.0</td>
+                  <td>{{ 60 - data['additional']['other'] | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -127,12 +127,12 @@
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('test1')}}
+        {{ charts.chart_div('core')}}
     </div>
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('test2')}}
+        {{ charts.chart_div('additional')}}
     </div>
 </div>
 {% endblock %}
