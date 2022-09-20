@@ -2,6 +2,7 @@
 # Author: Joel Phillips (22967051), David Norris (22690264)
 
 from typing import Optional
+from venv import create
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
@@ -14,7 +15,6 @@ from datetime import date, timedelta
 from app.models import User, ActivityLog, Activity, Domain, Location
 # from models import Location as Loc
 from app.queries import *
-
 #import User, Student, Location , Supervisor, Activity, ActivityLog, Domain
 
 @app.route('/home')
@@ -30,14 +30,15 @@ def edit():
 @app.route('/library')
 @login_required
 def library():
-    return render_template('library.html')
+    students = studentRep()
+    return render_template('library.html', students=students)
 
-@app.route('/reports/student')
+@app.route('/reports/student', methods=["GET", "POST"])
 @login_required
 def reportStudents():
-    result = createReport(1, 90) 
-    createDomainAct(1)
-        
+    #Not really sure about what the layout of library will look like
+
+    #Dummy Data to populate student layout
     data = {
     'domains': (
         'Cardiovascular',
@@ -78,8 +79,17 @@ def reportStudents():
     }]
     }
 
+    # Post method based from Library Student Search Bar
+    if request.method == 'POST':
+        studname = request.form.get('studname')
+        print(studname)
+        student = queryStudent(studname)
+        print(student[0].studentid)
+        result = createReport(student[0].studentid, 90) 
+        render_template('reports/student.html', data=data, result=result, location=result['location'])
 
-    return render_template('reports/student.html', data=data, result=result, location=result['location'], domainAct=result['domainAct'])
+    result = createReport(1,90)
+    return render_template('reports/student.html', data=data, result=result, location=result['location'])
 
 @app.route('/reports/staff')
 @login_required

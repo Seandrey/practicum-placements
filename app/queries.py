@@ -1,5 +1,6 @@
-from app.models import *
+# from app.models import *
 from app import db
+from app.models import *
 
 
 
@@ -26,7 +27,16 @@ def checkPass(studid, minHours):
         return True
     return False
 
+def studentRep():
+    #Returns student Table
+    students = db.session.query(Student).all()
+    return students
 
+def queryStudent(studname):
+    #finds student id
+    student = db.session.query(Student).filter(Student.name==studname).all()
+    print(student[0].studentid)
+    return student
 
 
 def createLocationRep(studid):
