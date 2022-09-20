@@ -1,7 +1,7 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
 # Author: Joel Phillips (22967051), David Norris (22690264)
 
-from typing import Optional
+from typing import Any, Optional
 import flask
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
@@ -156,6 +156,23 @@ def reportLocations():
     teardown_db()
     return render_template('reports/location.html', data=data)
 
+def get_year_flist(year: int) -> list:
+    """Returns an flist for the year given, to pass into get_domain_table()"""
+    return [ActivityLog.record_date.between(date(year, 1, 1), date(year, 12, 31))]
+
+def get_cohort_info() -> dict[str, Any]:
+    """Generates data used for cohort page"""
+    # hardcoded cohort for now: 2022
+    domains = get_domain_table(get_year_flist(date.today().year))
+
+    activity_names: list[Activity] = Activity.query.order_by(Activity.activityid).all()
+
+    data = {
+        "year": date.today().year,
+        "domains": domains,
+        "activity_names": activity_names
+    }
+    return data
 
 @app.route('/reports/cohort')
 @login_required
@@ -165,18 +182,7 @@ def reportCohorts():
     # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
     fill_db_multiple_students(10)
 
-    # hardcoded cohort for now: 2022
-    domains = get_domain_table([ActivityLog.record_date.between(
-        date.today().replace(month=1, day=1), date.today().replace(month=12, day=31))])
-
-    activity_names: list[Activity] = Activity.query.order_by(Activity.activityid).all()
-
-    data = {
-        "year": date.today().year,
-        "domains": domains,
-        "activity_names": activity_names
-    }
-
+    data = get_cohort_info()
     return render_template('reports/cohort.html', data=data)
 
 # login.py routes
