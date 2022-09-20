@@ -151,8 +151,11 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     domain_names.append({'role': 'annotation'})
     domain_names.append({'role': 'annotation'})
 
+    type_title = ""
+    if core is not None:
+        type_title = " Core" if core else " Additional"
     data = {
-        'title': title + ' Core' if core else title + ' Additional',
+        'title': title + type_title,
         'graph': weird_activity_map,
         'len': num_domains_of_type,
         "activities": [activity.activity for activity in activities],
@@ -220,10 +223,26 @@ def build_chart(key: str, value: int, core: bool = True) -> dict[str, Any]:
     return data
 
 
-def get_student_info(studentid):
-    data = {}
-    data['core'] = build_chart('student', studentid, True)
-    data['additional'] = build_chart('student', studentid, False)
+def get_student_info(studentid: int) -> dict[str, Any]:
+    """Generates data used for student page"""
+
+    domains = get_domain_table([ActivityLog.studentid == studentid])
+
+    activity_names: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    total_row = gen_total_row(domains, activity_names)
+
+    name = Student.query.filter_by(studentid=studentid).one().name
+    data = {
+        "domains": domains,
+        "activity_names": activity_names,
+        "total_row": total_row,
+        "core": build_chart_from_table(f"{name}", domains, activity_names),
+        #"core": build_chart_from_table("Test", domains, activity_names, True),
+        "additional": build_chart_from_table(f"{name}", domains, activity_names, False) # FIXME: retain due to charts.jinja requirement. unused
+    }
+
     # here we should also add data for location and domain, currently only gains graphs
     return data
 
