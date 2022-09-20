@@ -36,7 +36,7 @@ def library():
 
 
 @app.route('/reports/student')
-#@login_required
+# @login_required
 def reportStudents():
     teardown_db()
     # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
@@ -45,8 +45,9 @@ def reportStudents():
     teardown_db()
     return render_template('reports/student.html', data=data)
 
+
 @app.route('/reports/student/<studentid>')
-#@login_required
+# @login_required
 def reportStudent(studentid):
     teardown_db()
     # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
@@ -85,6 +86,13 @@ def get_domain_table(flist: Optional[list]):
 
     # find activity-domain table based on hardcoded activity types. due to how group by works, probably have to do this piecewise
 
+    # TODO: notes for me tomorrow
+    domains: list[Domain] = Domain.query.all()
+    for domain in domains:
+        col = get_domain_col(domain.domain, flist)
+    total = get_domain_col(None, flist)
+    # END new stuff
+
     assessments = get_domain_col("Exercise Assessment", flist)
     prescriptions = get_domain_col("Exercise Prescription", flist)
     deliveries = get_domain_col("Exercise Delivery", flist)
@@ -97,7 +105,7 @@ def get_domain_table(flist: Optional[list]):
 
 
 @app.route('/reports/location')
-#@login_required
+# @login_required
 def reportLocations():
     teardown_db()
     # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
@@ -112,7 +120,7 @@ def reportLocations():
     # DEBUG find everything in DB with that location
     loc_data = session.query(ActivityLog, Domain, Activity, Supervisor, Location).join(
         Domain).join(Activity).join(Supervisor).join(Location).all()
-    #print(loc_data)
+    # print(loc_data)
 
     # find location name
     loc_name = Location.query.filter_by(locationid=location_id).one().location
