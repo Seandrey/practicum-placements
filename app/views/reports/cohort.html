@@ -22,10 +22,6 @@
         </tr>
         <tr>
             <th>AEP Domains</th>
-            <!--<th>Referrals, Screening or Assessments</th>
-            <th>Exercise Prescription</th>
-            <th>Exercise Delivery</th>
-            <th>Other</th>-->
             {% for activity in data.activity_names %}
             <th>{{activity.activity}}</th>
             {% endfor %}
@@ -36,10 +32,6 @@
         {% for domain in data.domains %}
         <tr>
             <td>{{domain.domain}}</td>
-            <!--<td>{{domain.assessment}}</td>
-            <td>{{domain.prescription}}</td>
-            <td>{{domain.delivery}}</td>
-            <td>{{domain.other}}</td>-->
             {% for activity in data.activity_names %}
             <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
             {% endfor %}

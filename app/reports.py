@@ -1,7 +1,8 @@
-# Build charts for google charts to display
-# Author: David Norris (22690264)
+# Build charts for google charts to display and report tables
+# Author: David Norris (22690264), Joel Phillips (22967051)
 
 from typing import Any, Optional
+from sqlalchemy.orm.scoping import scoped_session
 from app.models import *
 from app import db
 import random
@@ -101,6 +102,7 @@ def fill_db_student_random_hours(studentid, name):
 
     db.session.commit()
 
+
 def gen_total_row(domains: list, activity_names: list[Activity], core: Optional[bool] = None) -> dict:
     """Sums activities and AEP domain/activity table to generate a total row"""
     total_row = {"domain": "Total"}
@@ -115,13 +117,9 @@ def gen_total_row(domains: list, activity_names: list[Activity], core: Optional[
     total_row["total"] = total
     return total_row
 
+
 def build_chart_from_table(title: str, domain_table: list, activities: list[Activity], core: Optional[bool] = None) -> dict[str, Any]:
     """Populate chart from AEP domain/activity table data"""
-
-    # FIXME: remove this when core is no longer required
-    if core is None:
-        core = True
-
     # category info
     domain_names: list = ["Category"]
     # number of domains that are core, or not core, or whatever was desired
@@ -137,23 +135,21 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
             num_domains_of_type += 1
 
             for activity in activities:
-                weird_activity_map[activity.activityid].append(round(domain[activity.activityid], 2))
+                weird_activity_map[activity.activityid].append(
+                    round(domain[activity.activityid], 2))
 
     # generate desired type of total row
     total_row = gen_total_row(domain_table, activities, core)
 
     # add totals and annotation end quote to end of each
     for activity in activities:
-        weird_activity_map[activity.activityid].append(round(total_row[activity.activityid], 2))
+        weird_activity_map[activity.activityid].append(
+            round(total_row[activity.activityid], 2))
         weird_activity_map[activity.activityid].append("")
 
     # this is for google charts annotations
     domain_names.append({'role': 'annotation'})
     domain_names.append({'role': 'annotation'})
-
-    print("DEBUG: weird_activity_map")
-    print(weird_activity_map)
-    print("DEBUG: end weird activity map")
 
     data = {
         'title': title + ' Core' if core else title + ' Additional',
@@ -229,4 +225,104 @@ def get_student_info(studentid):
     data['core'] = build_chart('student', studentid, True)
     data['additional'] = build_chart('student', studentid, False)
     # here we should also add data for location and domain, currently only gains graphs
+    return data
+
+
+def get_domain_col(activity: Optional[str], flist: list):
+    """Gets the single AEP domain/activity type table column specified as a partial query"""
+    session: scoped_session = db.session
+
+    boilerplate = session.query(
+        ActivityLog, Activity).join(Activity).filter(*flist)
+    # if no activity, don't include in subquery (assume any activity)
+    col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
+    ) if activity is not None else boilerplate.subquery()
+    cols = session.query(Domain.domainid, Domain.domain, (func.coalesce(func.sum(col_activity_subq.c.minutes_spent), 0) / 60.0).label(
+        "hours"), Domain.core).join(col_activity_subq, col_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).subquery()
+
+    return cols
+
+
+def get_domain_table(flist: Optional[list]) -> list:
+    """Gets AEP domain/activity type table and number of activity columns"""
+    session: scoped_session = db.session
+    if flist is None:
+        flist = []
+
+    # ensure this is in desired order
+    activities: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+    # list of subqueries for each column (i.e. each activity type)
+    col_subqs: list = []
+    for activity in activities:
+        col = get_domain_col(activity.activity, flist)
+        col_subqs.append(col)
+    total = get_domain_col(None, flist)
+
+    table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(
+        f"{activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"), total.c.core.label("core"))
+    # join each col_subq
+    for col_subq in col_subqs:
+        table = table.join(col_subq, col_subq.c.domainid == total.c.domainid)
+    # ensure ordered by domainid
+    table = table.order_by(total.c.domainid).all()
+
+    return table
+
+
+def get_year_flist(year: int) -> list:
+    """Returns an flist for the year given, to pass into get_domain_table()"""
+    return [ActivityLog.record_date.between(date(year, 1, 1), date(year, 12, 31))]
+
+
+def get_cohort_info(year: int) -> dict[str, Any]:
+    """Generates data used for cohort page"""
+    domains = get_domain_table(get_year_flist(year))
+
+    activity_names: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    # add "total" row at bottom
+    total_row = gen_total_row(domains, activity_names)
+
+    data = {
+        "year": year,
+        "domains": domains,
+        "activity_names": activity_names,
+        "total_row": total_row,
+        "core": build_chart_from_table(f"Cohort {year}", domains, activity_names, True),
+        "additional": build_chart_from_table(f"Cohort {year}", domains, activity_names, False)
+    }
+    return data
+
+
+def get_location_info(location_id: int):
+    """Generates data used for location page"""
+    session: scoped_session = db.session
+
+    # find location name
+    loc_name = Location.query.filter_by(locationid=location_id).one().location
+
+    # find hours by supervisor for that location
+    sup_hours: list = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label(
+        "hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
+
+    domains = get_domain_table([ActivityLog.locationid == location_id])
+
+    activity_names: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    # add "total" row at bottom
+    total_row = gen_total_row(domains, activity_names)
+
+    data = {
+        "location": loc_name,
+        "date_generated": date.today().isoformat(),
+        "sup_hours": sup_hours,
+        "domains": domains,
+        "activity_names": activity_names,
+        "total_row": total_row,
+        "core": build_chart_from_table(f"{loc_name}", domains, activity_names, True),
+        "additional": build_chart_from_table(f"{loc_name}", domains, activity_names, False)
+    }
     return data
