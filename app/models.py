@@ -60,7 +60,7 @@ class Supervisor(db.Model):
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
-        return f'<Supervisor {self.supervisorid} with name {self.name}'
+        return f'<Supervisor {self.supervisorid} with name {self.name}>'
 
 class Activity(db.Model):
     """Used to represent activity type/category"""
@@ -75,6 +75,7 @@ class Domain(db.Model):
     """Used to represent AEP domain"""
     domainid = db.Column(db.Integer, primary_key=True)
     domain = db.Column(db.String(64))
+    core = db.Column(db.Boolean())
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
@@ -92,4 +93,4 @@ class ActivityLog(db.Model):
     record_date = db.Column(db.Date)
 
     def __repr__(self):
-        return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, activity {self.activityid}, domain {self.domainid} of {self.minutes_spent} m on {self.record_date}>'
+        return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, location {self.locationid}, activity {self.activityid}, domain {self.domainid} of {self.minutes_spent} m on {self.record_date}>'

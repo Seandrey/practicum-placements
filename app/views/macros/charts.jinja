@@ -1,0 +1,92 @@
+## Author: David Norris (22690264)
+## An array of dicts each with a title key, an id key and a bars key
+{% macro chart_head(data) %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+// Get google Visualisation API and include ColumnChart
+google.load('visualization', '1', {'packages':['corechart']});
+
+// Set callback for once API loads
+google.setOnLoadCallback(drawCharts);
+
+function drawCharts() {
+  var graph, title, max;
+
+  graph = {{data['core']['graph']}};
+  title = '{{data['core']['title']}}';
+  max = {{data['core']['total'] / 4 | round(2, 'common')}};
+
+  drawChart(graph, title, max, 'core');
+
+  graph = {{data['additional']['graph']}};
+  title = '{{data['additional']['title']}}';
+  max = {{data['additional']['total'] / 3 | round(2, 'common')}};
+
+  drawChart(graph, title, max, 'additional');
+}
+
+
+// This is the callback that draws after load
+function drawChart(graph, title, max, graphID) {
+  var graph = graph
+  coloursCore = [
+      '#EA7369',
+      '#DC4BB3',
+      '#7D3AC0',
+      '#176CA1',
+  ];
+  coloursAdditional = [
+      '#18ABDD',
+      '#1AC9E7',
+      '#1CD4D4',
+      '#1DE5BC',
+      '#6EF0D2',
+      '#C7F9ED'
+  ];
+
+  var options = {
+    title: title, // title from dict
+    titleTextStyle: {
+      fontSize: 20,
+      bold: true
+    },
+    isStacked: true,
+    legend: {position: 'right'},
+    chartArea: {width: '50%'},
+    vAxis: {
+      title: 'Hours',
+      maxValue: max,
+    },
+    annotations: {
+      stem: {
+        color: "transparent",
+        length: 5
+      },
+      textStyle: {
+        color: "#000000",
+        fontSize: 14,
+        bold: true
+      }
+    },
+  }
+  if (graphID == 'core')
+    options['colors'] = coloursCore;
+  else
+    options['colors'] = coloursAdditional
+  var data;
+  // Each chart in the div is processed using same data var and drawn
+  data = new google.visualization.arrayToDataTable(graph);
+  var view = new google.visualization.DataView(data);
+  var chart = new google.visualization.ColumnChart(
+          document.getElementById(graphID)); // chart div id from dict
+
+  chart.draw(view, options);
+}
+</script>
+{% endmacro %}
+
+## Creates a chart container, must have same id as dict
+## Also styles the chart with a chart class
+{% macro chart_div(id) %}
+  <div class="chart" id="{{id}}"></div>
+{% endmacro %}

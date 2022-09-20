@@ -3,7 +3,7 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from app.config import Config
+from app.config import Config, DevConfig
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
@@ -14,7 +14,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__, template_folder="views")
 
 # database stuff
-app.config.from_object(Config)
+dev = os.environ.get('DEVELOPMENT')
+if dev:
+  app.config.from_object(DevConfig)
+else:
+  app.config.from_object(Config)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
@@ -23,4 +28,4 @@ Bootstrap(app)
 
 # import routes, db models, other stuff (for some reason)
 from app import routes
-from app.models import User
+from app.models import User, ActivityLog
