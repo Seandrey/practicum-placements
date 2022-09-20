@@ -38,13 +38,7 @@ def library():
 @app.route('/reports/student')
 # @login_required
 def reportStudents():
-    # DEBUG
-    teardown_db()
-    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
-    fill_db_multiple_students(1)
-
-    data = get_student_info(22000000)
-    return render_template('reports/student.html', data=data)
+    return render_template('reports/student_search.html')
 
 
 @app.route('/reports/student/<studentid>')
