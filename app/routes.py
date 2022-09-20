@@ -1,9 +1,7 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
 # Author: Joel Phillips (22967051), David Norris (22690264)
 
-from ssl import SSLSession
 from typing import Optional
-from app.qualtrics_import import MINUTES_SPENT
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
