@@ -95,7 +95,7 @@ def fill_db_student_random_hours(studentid, name):
     db.session.add(st)
     for i in range(0, 50):
         al = ActivityLog(studentid=studentid, domainid=random.randint(1, len(d)), activityid=random.randint(1, len(
-            a)), locationid=random.randint(1, len(l)), supervisorid=random.randint(1, len(s)), minutes_spent=random.randint(40, 200))
+            a)), locationid=random.randint(1, len(l)), supervisorid=random.randint(1, len(s)), minutes_spent=random.randint(40, 200), record_date=date.today())
         db.session.add(al)
 
     db.session.commit()

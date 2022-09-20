@@ -79,7 +79,7 @@ def get_domain_col(activity: Optional[str], flist: list):
 
 
 def get_domain_table(flist: Optional[list]):
-    """Gets AEP domain/activity type table"""
+    """Gets AEP domain/activity type table and number of activity columns"""
     session: scoped_session = db.session
     if flist is None:
         flist = []
@@ -87,13 +87,26 @@ def get_domain_table(flist: Optional[list]):
     # find activity-domain table based on hardcoded activity types. due to how group by works, probably have to do this piecewise
 
     # TODO: notes for me tomorrow
-    domains: list[Domain] = Domain.query.all()
-    for domain in domains:
-        col = get_domain_col(domain.domain, flist)
+    #domains: list[Domain] = Domain.query.all()
+
+    # ensure this is in desired order
+    activities: list[Activity] = Activity.query.order_by(Activity.activityid).all()
+    # list of subqueries for each column (i.e. each activity type)
+    col_subqs: list = []
+    for activity in activities:
+        col = get_domain_col(activity.activity, flist)
+        col_subqs.append(col)
     total = get_domain_col(None, flist)
+
+    table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(f"${activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"))
+    # join each col_subq
+    for col_subq in col_subqs:
+        table = table.join(col_subq, col_subq.c.domainid == total.c.domainid)
+    # ensure ordered by domainid
+    table = table.order_by(total.c.domainid).all()
     # END new stuff
 
-    assessments = get_domain_col("Exercise Assessment", flist)
+    """assessments = get_domain_col("Exercise Assessment", flist)
     prescriptions = get_domain_col("Exercise Prescription", flist)
     deliveries = get_domain_col("Exercise Delivery", flist)
     others = get_domain_col("Other", flist)
@@ -101,6 +114,7 @@ def get_domain_table(flist: Optional[list]):
 
     table = session.query(total.c.domain.label("domain"), assessments.c.hours.label("assessment"), prescriptions.c.hours.label("prescription"), deliveries.c.hours.label("delivery"), others.c.hours.label("other"), total.c.hours.label("total")).join(
         assessments, assessments.c.domainid == total.c.domainid).join(prescriptions, prescriptions.c.domainid == total.c.domainid).join(deliveries, deliveries.c.domainid == total.c.domainid).join(others, others.c.domainid == total.c.domainid).all()
+    """
     return table
 
 
@@ -146,13 +160,21 @@ def reportLocations():
 @app.route('/reports/cohort')
 @login_required
 def reportCohorts():
+    # DEBUG
+    teardown_db()
+    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
+    fill_db_multiple_students(10)
+
     # hardcoded cohort for now: 2022
     domains = get_domain_table([ActivityLog.record_date.between(
         date.today().replace(month=1, day=1), date.today().replace(month=12, day=31))])
 
+    activity_names: list[Activity] = Activity.query.order_by(Activity.activityid).all()
+
     data = {
         "year": date.today().year,
-        "domains": domains
+        "domains": domains,
+        "activity_names": activity_names
     }
 
     return render_template('reports/cohort.html', data=data)
