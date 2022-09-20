@@ -1,6 +1,7 @@
 # Build charts for google charts to display
 # Author: David Norris (22690264)
 
+from typing import Any, Optional
 from app.models import *
 from app import db
 import random
@@ -100,10 +101,73 @@ def fill_db_student_random_hours(studentid, name):
 
     db.session.commit()
 
+def gen_total_row(domains: list, activity_names: list[Activity], core: Optional[bool] = None) -> dict:
+    """Sums activities and AEP domain/activity table to generate a total row"""
+    total_row = {"domain": "Total"}
+    total: int = 0
+    for activity in activity_names:
+        sum: int = 0
+        for row in domains:
+            if core is None or row.core == core:
+                sum += row[f"{activity.activityid}"]
+        total_row[activity.activityid] = sum
+        total += sum
+    total_row["total"] = total
+    return total_row
 
-def build_chart(key, value, core=True):
+def build_chart_from_table(title: str, domain_table: list, activities: list[Activity], core: Optional[bool] = None) -> dict[str, Any]:
+    """Populate chart from AEP domain/activity table data"""
+
+    # FIXME: remove this when core is no longer required
+    if core is None:
+        core = True
+
+    # category info
+    domain_names: list = ["Category"]
+    # number of domains that are core, or not core, or whatever was desired
+    num_domains_of_type: int = 0
+
+    weird_activity_map: list[list] = [domain_names]
+    for activity in activities:
+        weird_activity_map.append([activity.activity])
+
+    for domain in domain_table:
+        if core is None or domain.core == core:
+            domain_names.append(domain.domain)
+            num_domains_of_type += 1
+
+            for activity in activities:
+                weird_activity_map[activity.activityid].append(round(domain[activity.activityid], 2))
+
+    # generate desired type of total row
+    total_row = gen_total_row(domain_table, activities, core)
+
+    # add totals and annotation end quote to end of each
+    for activity in activities:
+        weird_activity_map[activity.activityid].append(round(total_row[activity.activityid], 2))
+        weird_activity_map[activity.activityid].append("")
+
+    # this is for google charts annotations
+    domain_names.append({'role': 'annotation'})
+    domain_names.append({'role': 'annotation'})
+
+    print("DEBUG: weird_activity_map")
+    print(weird_activity_map)
+    print("DEBUG: end weird activity map")
+
+    data = {
+        'title': title + ' Core' if core else title + ' Additional',
+        'graph': weird_activity_map,
+        'len': num_domains_of_type,
+        "activities": [activity.activity for activity in activities],
+        "total": round(total_row["total"], 2)
+    }
+    return data
+
+
+def build_chart(key: str, value: int, core: bool = True) -> dict[str, Any]:
     """format some queries to populate a dictionary the way google charts expects, this passed after using json.dumps() into a jinja macro data structure"""
-    title = ''
+    title: str = ''
     if key == 'student':
         q = db.session.query(ActivityLog).filter_by(
             studentid=value).order_by("domainid").all()
@@ -115,8 +179,8 @@ def build_chart(key, value, core=True):
         title = db.session.query(Location).filter_by(
             locationid=value).first().location
 
-    q = db.session.query(Domain).filter_by(core=core).all()
-    domains = [domain.domain for domain in q]
+    q: list[Domain] = db.session.query(Domain).filter_by(core=core).all()
+    domains: list = [domain.domain for domain in q]
     length = len(domains)
     domains.insert(0, 'Category')
     # this is for google charts annotations
@@ -131,10 +195,10 @@ def build_chart(key, value, core=True):
         'len': length
     }
 
-    q = db.session.query(Activity).all()
+    q: list[Activity] = db.session.query(Activity).all()
     data['activities'] = [act.activity for act in q]
     for activity in q:
-        activityHours = [0] * data['len']
+        activityHours: list = [0] * data['len']
         activityHours.insert(0, activity.activity)
         p = db.session.query(
             ActivityLog.domainid,

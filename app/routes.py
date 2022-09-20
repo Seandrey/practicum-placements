@@ -73,12 +73,12 @@ def get_domain_col(activity: Optional[str], flist: list):
     col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
     ) if activity is not None else boilerplate.subquery()
     cols = session.query(Domain.domainid, Domain.domain, (func.coalesce(func.sum(col_activity_subq.c.minutes_spent), 0) / 60.0).label(
-        "hours")).join(col_activity_subq, col_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).subquery()
+        "hours"), Domain.core).join(col_activity_subq, col_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).subquery()
 
     return cols
 
 
-def get_domain_table(flist: Optional[list]):
+def get_domain_table(flist: Optional[list]) -> list:
     """Gets AEP domain/activity type table and number of activity columns"""
     session: scoped_session = db.session
     if flist is None:
@@ -98,13 +98,12 @@ def get_domain_table(flist: Optional[list]):
         col_subqs.append(col)
     total = get_domain_col(None, flist)
 
-    table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(f"${activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"))
+    table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(f"{activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"), total.c.core.label("core"))
     # join each col_subq
     for col_subq in col_subqs:
         table = table.join(col_subq, col_subq.c.domainid == total.c.domainid)
     # ensure ordered by domainid
     table = table.order_by(total.c.domainid).all()
-    # END new stuff
 
     """assessments = get_domain_col("Exercise Assessment", flist)
     prescriptions = get_domain_col("Exercise Prescription", flist)
@@ -167,10 +166,22 @@ def get_cohort_info() -> dict[str, Any]:
 
     activity_names: list[Activity] = Activity.query.order_by(Activity.activityid).all()
 
+    # add "total" row at bottom
+    total_row = gen_total_row(domains, activity_names)
+
+    from_table = build_chart_from_table("Chart name", domains, activity_names)
+    print(from_table)
+    print("DEBUG: printing graph")
+    print(build_chart('location', 1, True))
+    print("DEBUG: end print graph")
+
     data = {
         "year": date.today().year,
         "domains": domains,
-        "activity_names": activity_names
+        "activity_names": activity_names,
+        "total_row": total_row,
+        "core": build_chart_from_table("Chart name", domains, activity_names, True),
+        "additional": build_chart_from_table("Chart name", domains, activity_names, False)
     }
     return data
 
