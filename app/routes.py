@@ -1,16 +1,23 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
 # Author: Joel Phillips (22967051), David Norris (22690264)
 
+from ssl import SSLSession
 from typing import Optional
+from app.qualtrics_import import MINUTES_SPENT
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
-from app import app
+from app import app, db
 from datetime import datetime
 from app.login import signuprender, loginrender, logoutredirect
 from flask_login import login_required, current_user
 import json
 from datetime import date, timedelta
+from app.models import User, ActivityLog, Activity, Domain, Location
+# from models import Location as Loc
+from app.queries import *
+
+#import User, Student, Location , Supervisor, Activity, ActivityLog, Domain
 
 @app.route('/home')
 @login_required
@@ -30,6 +37,9 @@ def library():
 @app.route('/reports/student')
 @login_required
 def reportStudents():
+    result = createReport(1, 90) 
+    createDomainAct(1)
+        
     data = {
     'domains': (
         'Cardiovascular',
@@ -69,7 +79,9 @@ def reportStudents():
         ]
     }]
     }
-    return render_template('reports/student.html', data=data)
+
+
+    return render_template('reports/student.html', data=data, result=result, location=result['location'], domainAct=result['domainAct'])
 
 @app.route('/reports/staff')
 @login_required
