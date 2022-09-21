@@ -15,18 +15,18 @@ names_list = ["Brandon Bell", "Victoria Little", "Samuel Wilkinson", "Charles Ta
 
 d = (
     'Health/Fitness',
-    'Sport and Perfomance',
+    'Sport & Performance',
     'Healthy Aging',
-    'Paediatics & Young People',
+    'Paediatrics & Young People',
     'Mental Health & Wellness',
     'Community Wellness',
     'Employment Health & Wellness',
     'Clinical Case'
 )
 a = (
-    'Excercise Assessment',
-    'Excercise Prescription',
-    'Excercise Delivery',
+    'Exercise Assessment',
+    'Exercise Prescription',
+    'Exercise Delivery',
     'Other'
 )
 l = (
