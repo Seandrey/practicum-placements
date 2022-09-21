@@ -16,11 +16,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>{{data.core.total  | round(2, 'common') }}</td>
+                  <td>0.0</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{(200 - data.core.total)  | round(2, 'common') }}</td>
+                  <td>0.0</td>
                 </tr>
             </table>
         </div>
@@ -29,11 +29,24 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>{{ data.additional.total | round(2, 'common') }}</td>
+                  <td>0.0</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{ (100.0 - data.additional.total) | round(2, 'common') }}</td>
+                  <td>0.0</td>
+                </tr>
+            </table>
+        </div>
+        <div class='card'>
+            <h5>Other</h5>
+            <table class='u-full-width'>
+                <tr>
+                  <th>Total</th>
+                  <td>0.0</td>
+                </tr>
+                <tr>
+                  <th>Remaining</th>
+                  <td>0.0</td>
                 </tr>
             </table>
         </div>
@@ -43,7 +56,7 @@
         </div>
     </div>
     <div class='nine columns vertical-fill'>
-      <div class='card'>
+        <div class='card'>
         <h5>HOURS BY PLACEMENT LOCATION</h5>
         <table class="u-full-width">
           <thead>
@@ -78,60 +91,48 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
-      <div class='card'>
+    </div>
+    <div class='card'>
         <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
         <table class="u-full-width">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th colspan="5" style="text-align:left">Activity Type</th>
-                </tr>
-                <tr>
-                    <th>AEP Domains</th>
-                    {% for a in data.core.activities %}
-                    <th>{{a}}</th>
-                    {% endfor %}
-                    <th>TOTAL</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in range(1, data.core.len + 1) %}
-                <tr>
-                    <td>{{data.core.graph[0][i]}}</td>
-                    {% set total = namespace(value=0) %}
-                    {% for j in range(1, data.core.activities|length + 1) %}
-                        <td>{{data.core.graph[j][i] | round(2, 'common')}}</td>
-                        {% set total.value = total.value + data.core.graph[j][i] %}
-                    {% endfor %}
-                    <td>{{total.value | round(2, 'common')}}</td>
-                </tr>
-                {% endfor %}
-                {% for i in range(1, data.additional.len + 1) %}
-                <tr>
-                    <td>{{data.additional.graph[0][i]}}</td>
-                    {% set total = namespace(value=0) %}
-                    {% for j in range(1, data.core.activities|length + 1) %}
-                        <td>{{data.additional.graph[j][i] | round(2, 'common')}}</td>
-                        {% set total.value = total.value + data.additional.graph[j][i] %}
-                    {% endfor %}
-                    <td>{{total.value | round(2, 'common')}}</td>
-                </tr>
-                {% endfor %}
-
-            </tbody>
+          <thead>
+            <tr>
+                <th></th>
+                <th colspan="5" style="text-align:left">Activity Type</th>
+            </tr>
+            <tr>
+              <th>AEP Domains</th>
+              <th>Referrals, Screening or Assessments</th>
+              <th>Exercise Prescription</th>
+              <th>Exercise Delivery</th>
+              <th>Other</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for domain in data.domains %}
+            <tr>
+              <td>{{domain}}</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+              <td>1</td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
-      </div>
+    </div>
     </div>
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('core')}}
+        {{ charts.chart_div('test1')}}
     </div>
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('additional')}}
+        {{ charts.chart_div('test2')}}
     </div>
 </div>
 </div>

@@ -8,39 +8,5 @@
 {% block content %}
 
 <h3>Cohort Reports</h3>
-<p>Year: {{data.year}}</p>
-
-<h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
-<table class="u-full-width">
-    <thead>
-        <tr>
-            <th></th>
-            <th colspan="5" style="text-align:left">Activity Type</th>
-        </tr>
-        <tr>
-            <th>AEP Domains</th>
-            <th>Referrals, Screening or Assessments</th>
-            <th>Exercise Prescription</th>
-            <th>Exercise Delivery</th>
-            <th>Other</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for domain in data.domains %}
-        <tr>
-            <td>{{domain.domain}}</td>
-            <td>{{domain.assessment}}</td>
-            <td>{{domain.prescription}}</td>
-            <td>{{domain.delivery}}</td>
-            <td>{{domain.other}}</td>
-            <td>{{domain.total}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<p>TODO: core activity types graph (same as core domains in location.html)</p>
-<p>TODO: other activity types graph (same as additional domains in location.html)</p>
 
 {% endblock %}
