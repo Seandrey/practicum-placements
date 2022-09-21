@@ -14,8 +14,8 @@ from flask_login import login_required, current_user
 import json
 from datetime import date, timedelta
 from app.reports import *
-
-from app.models import Activity, ActivityLog, Domain, Location, Supervisor
+from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
+from app.queries import *
 
 
 @app.route('/home')
@@ -33,8 +33,8 @@ def edit():
 @app.route('/library')
 @login_required
 def library():
-    return render_template('library.html')
-
+    students = studentRep()
+    return render_template('library.html', students=students)
 
 @app.route('/reports/student')
 # @login_required
@@ -52,7 +52,6 @@ def reportStudent(studentid):
 
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
-
 
 @app.route('/reports/staff')
 @login_required

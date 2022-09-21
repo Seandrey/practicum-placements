@@ -13,17 +13,19 @@
 
 <div id = "searchContainer">
 <i class="fa fa-search searchIcon" aria-hidden="true"></i>
-<input type="text" class="searchBox" placeholder="Enter student name or ID...">
+
+<input type="text" class="searchBox" onkeyup="myFunction()" id="myInput" placeholder="Enter student name or ID...">
 </div>
 
 <div class="tableContainer">
-<table>
+<table id="studTable">
     <tr id="headerRow">
         <th>Results</th>
         <th></th>
         <th><button class="functionButton"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</button></th>
         <th><button class="functionButton"><i class="fa fa-filter" aria-hidden="true"></i>  Filter</button></th>
     </tr>
+    
     <tr id="headerRow2">
         <th>Student ID</th>
         <th>Student Name</th>
@@ -49,4 +51,26 @@
         <td><button class="makePDF">Download PDF</button></td>
     </tr>
 </table>
+
+<script>
+    function myFunction(){
+        var input, filter, table, tr, td, txtValue, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("studTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }       
+        }
+    }
+</script>
+
 {% endblock %}
