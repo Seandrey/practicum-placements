@@ -1,8 +1,11 @@
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'cohort' %}
 
+{% import "macros/charts.jinja" as charts %}
+
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+{{ charts.chart_head(data) }}
 {% endblock %}
 
 {% block content %}
@@ -19,10 +22,9 @@
         </tr>
         <tr>
             <th>AEP Domains</th>
-            <th>Referrals, Screening or Assessments</th>
-            <th>Exercise Prescription</th>
-            <th>Exercise Delivery</th>
-            <th>Other</th>
+            {% for activity in data.activity_names %}
+            <th>{{activity.activity}}</th>
+            {% endfor %}
             <th>Total</th>
         </tr>
     </thead>
@@ -30,17 +32,32 @@
         {% for domain in data.domains %}
         <tr>
             <td>{{domain.domain}}</td>
-            <td>{{domain.assessment}}</td>
-            <td>{{domain.prescription}}</td>
-            <td>{{domain.delivery}}</td>
-            <td>{{domain.other}}</td>
-            <td>{{domain.total}}</td>
+            {% for activity in data.activity_names %}
+            <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
+            {% endfor %}
+            <td>{{domain.total | round(2, 'common')}}</td>
         </tr>
         {% endfor %}
+        <tr>
+            <td>{{data.total_row.domain}}</td>
+            {% for activity in data.activity_names %}
+            <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+            {% endfor %}
+            <td>{{data.total_row.total | round(2, 'common')}}</td>
+        </tr>
     </tbody>
 </table>
 
-<p>TODO: core activity types graph (same as core domains in location.html)</p>
-<p>TODO: other activity types graph (same as additional domains in location.html)</p>
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('core')}}
+    </div>
+</div>
+
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('additional')}}
+    </div>
+</div>
 
 {% endblock %}
