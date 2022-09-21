@@ -1,12 +1,13 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
 # Author: Joel Phillips (22967051), David Norris (22690264)
 
+import os
 from typing import Any, Optional
 import flask
 from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
-from app import app, db
+from app import app, db, qualtrics_import
 from datetime import datetime
 from app.login import signuprender, loginrender, logoutredirect
 from flask_login import login_required, current_user
@@ -106,3 +107,39 @@ def loginroute():
 @app.route('/logout')
 def logoutroute():
     return logoutredirect()
+
+def update_db_qualtrics():
+    """TODO: move to another .py file. Updates DB from Qualtrics"""
+    # api key, data centre, and survey ID for Joel test survey
+    api_key = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
+    data_centre = "ca1"
+    survey_id = "SV_9XIDg01qrekuOWi"
+
+    format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
+    label_lookup = qualtrics_import.get_label_lookup(format)
+
+    qualtrics_import.download_zip(survey_id, api_key, data_centre)
+
+    json_path = "MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json"
+    assert os.path.isfile(json_path), "failed to find downloaded .json"
+    json = qualtrics_import.load_json(json_path)
+    qualtrics_import.test_parse_json(json, label_lookup, format)
+
+    # remove generated files
+    os.remove(json_path)
+    os.rmdir("MyQualtricsDownload")
+
+@app.route('/update', methods=['GET', 'POST'])
+def updateroute():
+    """Temporary route: to manually update DB from Qualtrics. Remove GET later as not idempotent"""
+    update_db_qualtrics()
+
+    # DEBUG
+    print(ActivityLog.query.all())
+
+    # allow redirection: designed to be used to reload page on AJAX POST
+    redirect_to = request.args.get("next")
+    if redirect_to is None:
+        redirect_to = "home"
+
+    return redirect(url_for(redirect_to))
