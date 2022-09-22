@@ -16,11 +16,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>0.0</td>
+                  <td>{{data.core.total  | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>0.0</td>
+                  <td>{{(200 - data.core.total)  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -29,24 +29,11 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>0.0</td>
+                  <td>{{ data.additional.total | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>0.0</td>
-                </tr>
-            </table>
-        </div>
-        <div class='card'>
-            <h5>Other</h5>
-            <table class='u-full-width'>
-                <tr>
-                  <th>Total</th>
-                  <td>0.0</td>
-                </tr>
-                <tr>
-                  <th>Remaining</th>
-                  <td>0.0</td>
+                  <td>{{ (100.0 - data.additional.total) | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -56,7 +43,7 @@
         </div>
     </div>
     <div class='nine columns vertical-fill'>
-        <div class='card'>
+      <div class='card'>
         <h5>HOURS BY PLACEMENT LOCATION</h5>
         <table class="u-full-width">
           <thead>
@@ -86,54 +73,59 @@
             ] %}
             <tr>
               <td>{{location}}</td>
-              <td>0.0</td>
+              <td>0.0</td> 
             </tr>
             {% endfor %}
           </tbody>
         </table>
-    </div>
-    <div class='card'>
+      </div>
+      <div class='card'>
         <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
         <table class="u-full-width">
-          <thead>
-            <tr>
-                <th></th>
-                <th colspan="5" style="text-align:left">Activity Type</th>
-            </tr>
-            <tr>
-              <th>AEP Domains</th>
-              <th>Referrals, Screening or Assessments</th>
-              <th>Exercise Prescription</th>
-              <th>Exercise Delivery</th>
-              <th>Other</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for domain in data.domains %}
-            <tr>
-              <td>{{domain}}</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-              <td>1</td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="5" style="text-align:left">Activity Type</th>
+                </tr>
+                <tr>
+                    <th>AEP Domains</th>
+                    {% for activity in data.activity_names %}
+                    <th>{{activity.activity}}</th>
+                    {% endfor %}
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for domain in data.domains %}
+              <tr>
+                  <td>{{domain.domain}}</td>
+                  {% for activity in data.activity_names %}
+                  <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
+                  {% endfor %}
+                  <td>{{domain.total | round(2, 'common')}}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                  <td>{{data.total_row.domain}}</td>
+                  {% for activity in data.activity_names %}
+                  <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+                  {% endfor %}
+                  <td>{{data.total_row.total | round(2, 'common')}}</td>
+              </tr>
           </tbody>
         </table>
-    </div>
-    </div>
-</div>
-<div class='row'>
-    <div class='twelve columns card'>
-        {{ charts.chart_div('test1')}}
+      </div>
     </div>
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('test2')}}
+        {{ charts.chart_div('core')}}
     </div>
 </div>
-{% endblock %}
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div('additional')}}
+    </div>
+</div>
 
+{% endblock %}
