@@ -50,25 +50,6 @@
                 awaitChart();
             };
         }
-
-        const filterSearch = () = {
-        var input, filter, table, tr, td, txtValue, i;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("studTable");
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[1];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }
-        }
-    }
     </script>
 {% endblock %}
 
@@ -78,7 +59,7 @@
 <div id = "searchContainer">
 <i class="fa fa-search searchIcon" aria-hidden="true"></i>
 
-<input type="text" class="searchBox" onkeyup="filterSearch()" id="myInput" placeholder="Enter student name or ID...">
+<input type="text" class="searchBox" onkeyup="myFunction()" id="myInput" placeholder="Enter student name or ID...">
 </div>
 <div id='pdfcontainer'></div>
 <div class="tableContainer">
@@ -116,5 +97,25 @@
     </tr>
 </table>
 
+<script>
+    function myFunction(){
+        var input, filter, table, tr, td, txtValue, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("studTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+</script>
 
 {% endblock %}
