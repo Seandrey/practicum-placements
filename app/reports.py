@@ -233,14 +233,14 @@ def get_student_info(studentid: int) -> dict[str, Any]:
 
     total_row = gen_total_row(domains, activity_names)
 
-    name = Student.query.filter_by(studentid=studentid).one().name
+    s = Student.query.filter_by(studentid=studentid).one()
     data = {
+        "date_generated": date.today().isoformat(),
+        "student": s,
         "domains": domains,
         "activity_names": activity_names,
         "total_row": total_row,
-        "core": build_chart_from_table(f"{name}", domains, activity_names),
-        #"core": build_chart_from_table("Test", domains, activity_names, True),
-        "additional": build_chart_from_table(f"{name}", domains, activity_names, False) # FIXME: retain due to charts.jinja requirement. unused
+        "core": build_chart_from_table(f"{s.name}", domains, activity_names),
     }
 
     # here we should also add data for location and domain, currently only gains graphs
@@ -342,6 +342,5 @@ def get_location_info(location_id: int):
         "activity_names": activity_names,
         "total_row": total_row,
         "core": build_chart_from_table(f"{loc_name}", domains, activity_names, True),
-        "additional": build_chart_from_table(f"{loc_name}", domains, activity_names, False)
     }
     return data

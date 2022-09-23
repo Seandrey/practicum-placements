@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 :root {
     font-size: 10px;
+    font-family: 'Roboto', sans-serif;
 }
 
 * {
@@ -20,6 +23,10 @@ tbody tr:last-child td, tbody tr:last-child th {
 }
 td, th {
     padding: 0 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
 }
 
 /* Cards
@@ -102,7 +109,6 @@ nav {
     width: 74px;
     height: 78px;
     margin: 3rem auto;
-
     background: url(../assets/uwa.png);
     background-size: 74px 78px;
 }

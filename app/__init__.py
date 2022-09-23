@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 import os
+from jinja2.utils import markupsafe
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

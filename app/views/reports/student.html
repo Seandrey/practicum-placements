@@ -4,7 +4,7 @@
 {% import "macros/charts.jinja" as charts %}
 
 {% block head %}
-    {{ charts.chart_head(data) }}
+    {{ charts.chart_head(data, '') }}
 {% endblock %}
 
 {% block content %}
@@ -21,19 +21,6 @@
                 <tr>
                   <th>Remaining</th>
                   <td>{{(200 - data.core.total)  | round(2, 'common') }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class='card'>
-            <h5>Additional</h5>
-            <table class='u-full-width'>
-                <tr>
-                  <th>Total</th>
-                  <td>{{ data.additional.total | round(2, 'common') }}</td>
-                </tr>
-                <tr>
-                  <th>Remaining</th>
-                  <td>{{ (100.0 - data.additional.total) | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
@@ -120,11 +107,6 @@
 <div class='row'>
     <div class='twelve columns card'>
         {{ charts.chart_div('core')}}
-    </div>
-</div>
-<div class='row'>
-    <div class='twelve columns card'>
-        {{ charts.chart_div('additional')}}
     </div>
 </div>
 

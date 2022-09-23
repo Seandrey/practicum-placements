@@ -9,8 +9,10 @@ class Config(object):
     SECRET_KEY = os.urandom(32)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BASE_DIR = basedir
 
 class DevConfig(object):
     SECRET_KEY = os.urandom(32)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'testing.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BASE_DIR = basedir

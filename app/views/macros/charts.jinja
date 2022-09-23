@@ -1,41 +1,32 @@
 ## Author: David Norris (22690264)
 ## An array of dicts each with a title key, an id key and a bars key
-{% macro chart_head(data) %}
+{% macro chart_head(data, imgDiv) %}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-// Get google Visualisation API and include ColumnChart
+var finished = false;
+/* Get google Visualisation API and include ColumnChart */
 google.load('visualization', '1', {'packages':['corechart']});
 
-// Set callback for once API loads
+/* Set callback for once API loads */
 google.setOnLoadCallback(drawCharts);
-
 function drawCharts() {
   var graph, title, max;
 
   graph = {{data['core']['graph']}};
-  title = '{{data['core']['title']}}';
   max = {{data['core']['total'] / 4 | round(2, 'common')}};
 
-  drawChart(graph, title, max, 'core');
-
-  graph = {{data['additional']['graph']}};
-  title = '{{data['additional']['title']}}';
-  max = {{data['additional']['total'] / 3 | round(2, 'common')}};
-
-  drawChart(graph, title, max, 'additional');
+  drawChart(graph, max, 'core', {{imgDiv}});
+  finished = true
 }
 
 
-// This is the callback that draws after load
-function drawChart(graph, title, max, graphID) {
-  var graph = graph
-  coloursCore = [
+/* This is the callback that draws after load */
+function drawChart(graph, max, graphID, imgDiv) {
+  colours = [
       '#EA7369',
       '#DC4BB3',
       '#7D3AC0',
       '#176CA1',
-  ];
-  coloursAdditional = [
       '#18ABDD',
       '#1AC9E7',
       '#1CD4D4',
@@ -43,9 +34,8 @@ function drawChart(graph, title, max, graphID) {
       '#6EF0D2',
       '#C7F9ED'
   ];
-
   var options = {
-    title: title, // title from dict
+    title: 'Activity Hours Totals', /* title from dict */
     titleTextStyle: {
       fontSize: 20,
       bold: true
@@ -69,16 +59,22 @@ function drawChart(graph, title, max, graphID) {
       }
     },
   }
-  if (graphID == 'core')
-    options['colors'] = coloursCore;
-  else
-    options['colors'] = coloursAdditional
-  var data;
-  // Each chart in the div is processed using same data var and drawn
+  options['colors'] = colours;
+
+  /* Each chart in the div is processed using same data var and drawn */
   data = new google.visualization.arrayToDataTable(graph);
+  var mainGraph = document.getElementById(graphID);
   var view = new google.visualization.DataView(data);
   var chart = new google.visualization.ColumnChart(
-          document.getElementById(graphID)); // chart div id from dict
+      mainGraph); /* chart div id from dict */
+
+  if (typeof imgDiv != 'undefined') {
+    google.visualization.events.addListener(chart, 'ready', function () {
+      var imgUri = chart.getImageURI();
+      imgDiv.src = imgUri;
+      mainGraph.remove();
+    });
+  }
 
   chart.draw(view, options);
 }

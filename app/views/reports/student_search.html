@@ -6,17 +6,81 @@
 
 {% block header %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+    <script>
+        const downloadFile = (blob, fileName) => {
+          const link = document.createElement('a');
+          // make blobURI that points to blob
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          // for compatibility, some browsers require a link
+          document.body.append(link);
+          link.click();
+          link.remove();
+          // save memory if blob is using a lot
+          setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+        };
+
+        const getChartPng = (studentID) => {
+            var printWindow = window.open(`/reports/student/pdf/${studentID}`, '', 'height=2000,width=1000');
+            printWindow.onload = () => {
+                var chartImg = printWindow.document.getElementById('total')
+                const awaitChart = () => {
+                    // we need the charts api to of converted image to uri in img.src
+                    if(chartImg.src === '') {
+                        // timeout to come back in 50 ms and break this call
+                        setTimeout(awaitChart, 50);
+                        return;
+                    }
+                    fetch(`/reports/student/pdf/${studentID}`, {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/pdf',
+                          'Content-Type': 'text/html'
+                        },
+                        body: printWindow.document.getElementById('wrapper').innerHTML
+                    })
+                    .then((response) => {
+                        printWindow.close();
+                        return response.blob()
+                    })
+                    .then((data) => {
+                        downloadFile(data, `Report-${studentID}.pdf`);
+                    })
+                }
+                awaitChart();
+            };
+        }
+
+        const filterSearch = () = {
+        var input, filter, table, tr, td, txtValue, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("studTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+    </script>
 {% endblock %}
 
 {% block content %}
-<h3 id="studentTitle">Student Reports</h3>
+<h3 id="studentTitle"><div>Student Reports</div></h3>
 
 <div id = "searchContainer">
 <i class="fa fa-search searchIcon" aria-hidden="true"></i>
 
-<input type="text" class="searchBox" onkeyup="myFunction()" id="myInput" placeholder="Enter student name or ID...">
+<input type="text" class="searchBox" onkeyup="filterSearch()" id="myInput" placeholder="Enter student name or ID...">
 </div>
-
+<div id='pdfcontainer'></div>
 <div class="tableContainer">
 <table id="studTable">
     <tr id="headerRow">
@@ -42,7 +106,7 @@
         <td>22000001</td>
         <td>Harry Potter</td>
         <td><a href='./student/22000001'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
+        <td><button onClick='getChartPng(22000001)' class="makePDF">Download PDF</button></td><!-- download_file("/reports/student/pdf/22000001", "report.html") -->
     </tr>
     <tr>
         <td>22000002</td>
@@ -52,25 +116,5 @@
     </tr>
 </table>
 
-<script>
-    function myFunction(){
-        var input, filter, table, tr, td, txtValue, i;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("studTable");
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[1];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }       
-        }
-    }
-</script>
 
 {% endblock %}

@@ -4,7 +4,7 @@
 import os
 from typing import Any, Optional
 import flask
-from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
+from flask import Flask, Response, redirect, render_template, request, make_response, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
 from app import app, db, qualtrics_import
@@ -16,6 +16,7 @@ from datetime import date, timedelta
 from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
 from app.queries import *
+import pdfkit
 
 
 @app.route('/home')
@@ -52,6 +53,41 @@ def reportStudent(studentid):
 
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
+
+@app.route('/reports/student/pdf/<studentid>', methods=['GET', 'POST'])
+# @login_required
+def reportStudentPdf(studentid):
+    # DEBUG
+    teardown_db()
+    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
+    fill_db_multiple_students(3)
+    data = get_student_info(studentid)
+    if request.method == 'POST':
+        html = request.data.decode('utf-8')
+
+        # PDF options
+        options = {
+            "orientation": "portrait",
+            "page-size": "A4",
+            "encoding": "UTF-8",
+            "enable-local-file-access":""
+        }
+        css = ['skeleton.css', 'normalize.css', 'style.css', 'reports.css', 'pdf.css']
+        css = [os.path.join(app.root_path, 'static\\css\\' + c) for c in css]
+        print(css)
+        config = pdfkit.configuration(wkhtmltopdf='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe')
+        pdffile = os.path.join(app.root_path, 'static\\') + str(studentid) + '.pdf'
+        print(pdffile)
+        # Build PDF from HTML
+        pdf = pdfkit.from_string(html, False, options=options, configuration=config, css=css, verbose=True)
+        response=make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'inline; filename-output.pdf'
+
+        return response
+
+    if request.method == 'GET':
+        return render_template('reports/student_pdf.jinja', data=data)
 
 @app.route('/reports/staff')
 @login_required
