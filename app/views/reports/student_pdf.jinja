@@ -1,3 +1,4 @@
+## Author David Norris (22690264)
 {% import "macros/charts.jinja" as charts %}
 
 <!DOCTYPE html>
@@ -50,27 +51,10 @@
                 </tr>
               </thead>
               <tbody>
-                {%- for location in [
-                'UWA Exercise & Performance Centre',
-                'WACRH (Geraldton)',
-                'Agility Rehabilitation',
-                'Curtin Stadium'
-                'Fiona Stanley Hospital',
-                'Guardian Exercise Rehabilitation',
-                'Health Care WA',
-                'HFRC',
-                'Made to Move Rehabilitation Gym',
-                'Neuromoves',
-                'O2 Active',
-                'Redimed',
-                'Reps Movement',
-                'The Exercise Therapist',
-                'Other/Self Directed',
-                'Shenton College'
-                ] %}
+                {%- for location, hours in data.locations.items() %}
                 <tr>
                   <td>{{location}}</td>
-                  <td>0.0</td>
+                  <td>{{ hours | round(2, 'common') }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

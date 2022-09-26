@@ -1,3 +1,4 @@
+## Author David Norris (22690264)
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
@@ -8,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
     <script>
         const downloadFile = (blob, fileName) => {
+          // Author David Norris (22690264),
           const link = document.createElement('a');
           // make blobURI that points to blob
           link.href = URL.createObjectURL(blob);
@@ -21,6 +23,7 @@
         };
 
         const getChartPng = (studentID) => {
+            // Author David Norris (22690264)
             var printWindow = window.open(`/reports/student/pdf/${studentID}`, '', 'height=1000,width=1000');
             printWindow.onload = () => {
                 var chartImg = printWindow.document.getElementById('chartImage')
@@ -52,6 +55,7 @@
         }
 
         const searchFilterStudents = () => {
+            // Author David Norris (22690264), Sean Ledesma (22752771)
             var filter, studentRows, studentRow;
 
             filter = document.getElementById("myInput").value;
