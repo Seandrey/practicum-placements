@@ -21,17 +21,17 @@
         };
 
         const getChartPng = (studentID) => {
-            var printWindow = window.open(`/reports/student/pdf/${studentID}`, '', 'height=2000,width=1000');
+            var printWindow = window.open(`/reports/student/pdf/${studentID}`, '', 'height=1000,width=1000');
             printWindow.onload = () => {
-                var chartImg = printWindow.document.getElementById('total')
+                var chartImg = printWindow.document.getElementById('chartImage')
                 const awaitChart = () => {
                     // we need the charts api to of converted image to uri in img.src
                     if(chartImg.src === '') {
-                        // timeout to come back in 50 ms and break this call
+                        // timeout to come back in 50 ms and don't exec until re-test
                         setTimeout(awaitChart, 50);
                         return;
                     }
-                    fetch(`/reports/student/pdf/${studentID}`, {
+                    fetch('/makepdf', {
                         method: 'POST',
                         headers: {
                           'Accept': 'application/pdf',
@@ -50,6 +50,28 @@
                 awaitChart();
             };
         }
+
+        const searchFilterStudents = () => {
+            var filter, studentRows, studentRow;
+
+            filter = document.getElementById("myInput").value;
+            const reg = new RegExp(`(^|\\s)${filter}`, 'gi');
+
+            studentRows = document.querySelectorAll("#studTable > tbody > tr");
+
+            for (i = 0; i < studentRows.length; i++) {
+                studentRow = studentRows[i]
+                name = studentRow.children[1].textContent || studentRow.children[1].innerText;
+                id = studentRow.children[0].textContent || studentRow.children[0].innerText;
+                if (name || id) {
+                    if (reg.test(name) || reg.test(id)) {
+                        studentRow.style.display = "";
+                    } else {
+                        studentRow.style.display = "none";
+                    }
+                }
+            }
+        }
     </script>
 {% endblock %}
 
@@ -59,11 +81,12 @@
 <div id = "searchContainer">
 <i class="fa fa-search searchIcon" aria-hidden="true"></i>
 
-<input type="text" class="searchBox" onkeyup="myFunction()" id="myInput" placeholder="Enter student name or ID...">
+<input type="text" class="searchBox" onkeyup="searchFilterStudents()" id="myInput" placeholder="Enter student name or ID...">
 </div>
 <div id='pdfcontainer'></div>
 <div class="tableContainer">
 <table id="studTable">
+    <thead>
     <tr id="headerRow">
         <th>Results</th>
         <th></th>
@@ -77,45 +100,17 @@
         <th></th>
         <th></th>
     </tr>
+    </thead>
+    <tbody>
+    {%- for student in students %}
     <tr>
-        <td>22000000</td>
-        <td>Lara Posel</td>
-        <td><a href='./student/22000000'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
+        <td>{{student.id}}</td>
+        <td>{{student.name}}</td>
+        <td><a href='./student/{{student.id}}'><button class="makeReport">See Report</button></a></td>
+        <td><button onClick='getChartPng({{student.id}})' class="makePDF">Download PDF</button></td>
     </tr>
-    <tr>
-        <td>22000001</td>
-        <td>Harry Potter</td>
-        <td><a href='./student/22000001'><button class="makeReport">See Report</button></a></td>
-        <td><button onClick='getChartPng(22000001)' class="makePDF">Download PDF</button></td><!-- download_file("/reports/student/pdf/22000001", "report.html") -->
-    </tr>
-    <tr>
-        <td>22000002</td>
-        <td>Jeremy Williams</td>
-        <td><a href='./student/22000001'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
-    </tr>
+    {%- endfor %}
+    </tbody>
 </table>
-
-<script>
-    function myFunction(){
-        var input, filter, table, tr, td, txtValue, i;
-        input = document.getElementById("myInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("studTable");
-        tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[1];
-            if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-            }
-        }
-    }
-</script>
 
 {% endblock %}

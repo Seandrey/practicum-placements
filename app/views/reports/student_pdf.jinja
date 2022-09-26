@@ -10,30 +10,31 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pdf.css') }}">
-    {{ charts.chart_head(data, 'total') }}
+    {{ charts.chart_head(data, 'chartImage') }}
   </head>
   <body>
   <div id='wrapper'>
     <img width='100%' height='auto' class='letterhead' src={{ url_for('static', filename='assets/letterhead.png', _external=True) }}/>
-      <div class='data'>
+    <div class='data'>
       <div class='two-info-float'>
-      <p>Student Logbook Hours</p>
-      <p>Generated: {{data.date_generated}}</p>
-    </div>
-
-      <h3 class='title'><small>Student:</small> {{data.student.name}} ({{data.student.studentid}})</h3>
+        <p>Student Logbook Hours</p>
+        <p>Generated: {{data.date_generated}}</p>
+      </div>
+      <div class='row'>
+        <h3 class='title'><small>Student:</small> {{data.student.name}} ({{data.student.studentid}})</h3>
+      </div>
       <div class='row'>
         <div class='three columns vertical-fill'>
             <div>
-                <h5>Achieved Hours - {{ 'PASSED' if ((40 - data.core.total) <= 0) else 'UNPASSED' }}</h5>
+                <h5>Achieved Hours - {{ 'PASSED' if ((40 - data.graph.total) <= 0) else 'UNPASSED' }}</h5>
                 <table class='u-full-width'>
                     <tr>
                       <th>Total</th>
-                      <td>{{data.core.total  | round(2, 'common') }}</td>
+                      <td>{{data.graph.total  | round(2, 'common') }}</td>
                     </tr>
                     <tr>
                       <th>Remaining</th>
-                      <td>{{(200 - data.core.total)  | round(2, 'common') }}</td>
+                      <td>{{[(40 - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                     </tr>
                 </table>
             </div>
@@ -117,8 +118,8 @@
       </div>
       <div class='row new_page'>
           <div class='twelve columns'>
-            <img id='total'></img>
-            {{ charts.chart_div('core')}}
+            <img id='chartImage'></img>
+            {{ charts.chart_div()}}
           </div>
       </div>
     </div>

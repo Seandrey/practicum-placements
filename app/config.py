@@ -9,10 +9,10 @@ class Config(object):
     SECRET_KEY = os.urandom(32)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    BASE_DIR = basedir
+    WKHTML_EXE='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
 
 class DevConfig(object):
     SECRET_KEY = os.urandom(32)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'testing.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    BASE_DIR = basedir
+    WKHTML_EXE='C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'

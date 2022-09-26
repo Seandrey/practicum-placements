@@ -3,7 +3,6 @@
 {% macro chart_head(data, imgDiv) %}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-var finished = false;
 /* Get google Visualisation API and include ColumnChart */
 google.load('visualization', '1', {'packages':['corechart']});
 
@@ -12,28 +11,14 @@ google.setOnLoadCallback(drawCharts);
 function drawCharts() {
   var graph, title, max;
 
-  graph = {{data['core']['graph']}};
-  max = {{data['core']['total'] / 4 | round(2, 'common')}};
+  graph = {{data['graph']['rows']}};
+  max = {{data['graph']['total'] / 4 | round(2, 'common')}};
 
-  drawChart(graph, max, 'core', {{imgDiv}});
-  finished = true
+  drawChart(graph, max, {{imgDiv}});
 }
 
-
 /* This is the callback that draws after load */
-function drawChart(graph, max, graphID, imgDiv) {
-  colours = [
-      '#EA7369',
-      '#DC4BB3',
-      '#7D3AC0',
-      '#176CA1',
-      '#18ABDD',
-      '#1AC9E7',
-      '#1CD4D4',
-      '#1DE5BC',
-      '#6EF0D2',
-      '#C7F9ED'
-  ];
+function drawChart(graph, max, imgDiv) {
   var options = {
     title: 'Activity Hours Totals', /* title from dict */
     titleTextStyle: {
@@ -58,12 +43,23 @@ function drawChart(graph, max, graphID, imgDiv) {
         bold: true
       }
     },
+    colors: [
+      '#EA7369',
+      '#DC4BB3',
+      '#7D3AC0',
+      '#176CA1',
+      '#18ABDD',
+      '#1AC9E7',
+      '#1CD4D4',
+      '#1DE5BC',
+      '#6EF0D2',
+      '#C7F9ED'
+    ]
   }
-  options['colors'] = colours;
 
   /* Each chart in the div is processed using same data var and drawn */
   data = new google.visualization.arrayToDataTable(graph);
-  var mainGraph = document.getElementById(graphID);
+  var mainGraph = document.getElementById('graph');
   var view = new google.visualization.DataView(data);
   var chart = new google.visualization.ColumnChart(
       mainGraph); /* chart div id from dict */
@@ -83,6 +79,6 @@ function drawChart(graph, max, graphID, imgDiv) {
 
 ## Creates a chart container, must have same id as dict
 ## Also styles the chart with a chart class
-{% macro chart_div(id) %}
-  <div class="chart" id="{{id}}"></div>
+{% macro chart_div() %}
+  <div class="chart" id="graph"></div>
 {% endmacro %}
