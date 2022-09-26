@@ -32,6 +32,7 @@ Bootstrap(app)
 from app import routes
 from app.models import User, ActivityLog
 from app.reports import teardown_db, fill_db_multiple_students
+
 # DEBUG
 teardown_db()
 # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
