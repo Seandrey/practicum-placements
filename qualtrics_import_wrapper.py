@@ -21,6 +21,8 @@ def run_import():
     print("Label lookup:")
     print(label_lookup)
 
+    qualtrics_import.add_known_choices(label_lookup, format)
+
     qualtrics_import.download_zip(survey_id, api_key, data_centre)
     # shows weird format of CSV that doesn't seem to match Excel spreadsheet. Need to access their survey to ensure this matches
     # for numbering of looped questions, you get uniform "1 - Age" (or "1_Q12") in CSV if no numbering specifically applied. So presuming this
@@ -43,4 +45,3 @@ def run_import():
 
 if __name__ == "__main__":
     run_import()
-    

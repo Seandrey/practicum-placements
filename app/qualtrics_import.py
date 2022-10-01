@@ -184,6 +184,28 @@ def get_or_add_db(type: Type[dbModel], fdict: dict[str, Any]) -> dbModel:
         db.session.add(db_row)
     return db_row
 
+def add_known_choices_from_q(question_id: str, questions_map: dict, type: Type[dbModel], fdict_key: str):
+    """Adds all known values from a 'choice' question, if values aren't added already"""
+    choices: dict = questions_map[question_id]["choices"]
+    for key, value in choices.items():
+        get_or_add_db(type, {fdict_key: value["description"]})
+        # TODO: is there a difference between "description" and "choiceText"?
+
+def add_known_choices(label_lookup: LabelLookup, format: dict[str, dict]):
+    """Adds all known activities, AEP domains, regardless of whether used in response"""
+
+    questions_map: dict = format["result"]["questions"]
+
+    # activity
+    """activity_data = questions_map[label_lookup[CATEGORY]]
+    activity_choices: dict = activity_data["choices"]
+    for key, value in activity_choices.items():
+        get_or_add_db(Activity, {"activity": value["description"]})
+        # TODO: is there a difference between "description" and "choiceText"?"""
+    add_known_choices_from_q(label_lookup[CATEGORY], questions_map, Activity, "activity")
+
+    add_known_choices_from_q(label_lookup[AEP_DOMAIN], questions_map, Domain, "domain")
+
 def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup, format: dict[str, dict]) -> list[DummyLogModel]:
     """Try to parse JSON representation of dict? Assumed format below"""
 
