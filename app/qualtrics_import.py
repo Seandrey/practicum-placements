@@ -226,12 +226,10 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         # I believe these should all have constant question descriptions. If not, could allow a "mapping" thing like Sean suggested
 
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
-        # FIXME: survey does not allowing input of student ID, so technically can't disambiguate between students with same name. Here, select "one or none" to cause error if multiple students with a name exist
-        """student: Optional[Student] = Student.query.filter_by(name=student_name).one_or_none()
-        if student is None:
-            student = Student(name=student_name)
-            session.add(student)"""
+
+        student_number = lookup_embedded_text(response_val, label_lookup, STUDENT_NUMBER)
         student = get_or_add_db(Student, {"name": student_name})
+        # FIXME: replace with student ID-based lookup. will also require student name as input, so probably can't just use get_or_add_db
 
         service_date = lookup_embedded_text(response_val, label_lookup, SERVICE_DATE)
         service_date_datetime: datetime = 0
@@ -258,6 +256,9 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             session.add(supervisor)"""
         supervisor = get_or_add_db(Supervisor, {"name": supervisor_name})
 
+        unit_code = get_answer_label(response, label_lookup[UNIT_CODE])
+        # TODO: DB handling
+
         num_logs = lookup_embedded_text(response_val, label_lookup, NUM_ACTIVITY_LOGS) 
         num_logs_int: int = 0
         try:
@@ -283,6 +284,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
                 session.add(activity)
                 session.commit()
                 session = db.session
+            # TODO: probably don't need this anymore
 
             aep_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
             domain: Optional[Domain] = Domain.query.filter_by(domain=aep_domain).one_or_none()
@@ -291,6 +293,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
                 session.add(domain)
                 session.commit()
                 session = db.session
+            # TODO: probably don't need this anymore
 
             minutes = response_val[make_n_text(label_lookup.get_text(MINUTES_SPENT), i)]
             minutes_int: int = 0
