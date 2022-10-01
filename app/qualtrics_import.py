@@ -16,14 +16,16 @@ from app import db
 from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor
 
 # constants: question names (exact website match) as strings
-STUDENT_NAME = "Student First Name + Last Name<em>(*ensure you use the same name each time your enter a log)</em>"
-SERVICE_DATE = "Date of service<br />\n<br />\n<span style=\"font-size:13px;\">( If entering a bulk hours, please enter start date ONLY)</span>"
-PLACEMENT_LOCATION = "Placement Location"
-PLACEMENT_SUPERVISOR = "Placement Supervisor:"
-NUM_ACTIVITY_LOGS = "How many activity logs will you be adding today?<br />\n<em>This is the number of separate logs to a maximum of 10 per shift/day.</em>"
-CATEGORY = "Category"
-AEP_DOMAIN = "Client Domain"
-MINUTES_SPENT = "Minutes spent on activity:<div>[eg. 1.5 hours = entered as 90] </div>"
+STUDENT_NAME = "Name"
+STUDENT_NUMBER = "Student Number"
+UNIT_CODE = "Unit Code"
+SERVICE_DATE = "Service Date"
+PLACEMENT_LOCATION = "Location"
+PLACEMENT_SUPERVISOR = "Supervisor"
+NUM_ACTIVITY_LOGS = "Number of Logs"
+CATEGORY = "Activity Type"
+AEP_DOMAIN = "Domain"
+MINUTES_SPENT = "Minutes"
 
 
 def download_zip(survey_id: str, api_token: str, data_centre: str):
@@ -322,14 +324,18 @@ def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
 
 def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
     """Gets label lookup map in form: {"Student Name": "QID1"}. Will not work correctly if names are not unique."""
-    questions_map = survey_format_json["result"]["questions"]
+    questions_map: dict = survey_format_json["result"]["questions"]
 
     print("DEBUG: export questions map---")
     print(questions_map)
     print("DEBUG: end questions column map---")
 
     # now, extract a str-str dictionary from that
-    label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
+    #label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
+    label_lookup: dict[str, str] = {}
+    for key, value in questions_map.items():
+        if "questionLabel" in value and value["questionLabel"] is not None:
+            label_lookup[value["questionLabel"]] = key
 
     # TODO: unsure how best to deal with HTML things. Current approach is just include it in text to search. Better approach could be to remove from survey altogether
     #label_lookup = {re.sub("<div>|</div>|<br>", "", key): value for (key, value) in label_lookup.items()}
@@ -339,10 +345,11 @@ def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
 def get_multi_lookup(survey_format_json: dict[str, dict], desired_key: str) -> list[str]:
     """Gets a list of all values that correspond to the desired key. Designed for use with Placement Supervisor, which is 
     modelled in Qualtrics as many separate questions with the same name."""
-    questions_map = survey_format_json["result"]["questions"]
+    questions_map: dict = survey_format_json["result"]["questions"]
 
     # now, list comprehend this
-    multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionText"] == desired_key]
+    #multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionText"] == desired_key]
+    multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionLabel"] == desired_key]
 
     return multi_lookup
 

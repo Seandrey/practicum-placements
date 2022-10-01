@@ -5,7 +5,7 @@ from app import qualtrics_import, db
 
 from sqlalchemy.orm.scoping import scoped_session
 
-from app.models import ActivityLog
+from app.models import Activity, ActivityLog, Domain
 
 
 def run_import():
@@ -34,6 +34,13 @@ def run_import():
     db_rows = ActivityLog.query.all()
     for row in db_rows:
         print(row)
+    domain_rows = Domain.query.all()
+    for row in domain_rows:
+        print(row)
+    activity_rows = Activity.query.all()
+    for row in activity_rows:
+        print(row)
 
 if __name__ == "__main__":
     run_import()
+    
