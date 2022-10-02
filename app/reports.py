@@ -66,10 +66,8 @@ def fill_db_multiple_students(num):
     student id start at 2200000 and increment by 1 to 22000000 + num"""
     count = 0
     for domain in d:
-        if count < 3:
-            i = Domain(domain=domain, core=True)
-        else:
-            i = Domain(domain=domain, core=False)
+        i = Domain(domain=domain)
+
         db.session.add(i)
         count += 1
 
@@ -102,23 +100,21 @@ def fill_db_student_random_hours(studentid, name):
 
     db.session.commit()
 
-
-def gen_total_row(domains: list, activity_names: list[Activity], core: Optional[bool] = None) -> dict:
+def gen_total_row(domains: list, activity_names: list[Activity]) -> dict:
     """Sums activities and AEP domain/activity table to generate a total row"""
     total_row = {"domain": "Total"}
     total: int = 0
     for activity in activity_names:
         sum: int = 0
         for row in domains:
-            if core is None or row.core == core:
-                sum += row[f"{activity.activityid}"]
+            sum += row[f"{activity.activityid}"]
         total_row[activity.activityid] = sum
         total += sum
     total_row["total"] = total
     return total_row
 
 
-def build_chart_from_table(title: str, domain_table: list, activities: list[Activity], core: Optional[bool] = None) -> dict[str, Any]:
+def build_chart_from_table(title: str, domain_table: list, activities: list[Activity]) -> dict[str, Any]:
     """Populate chart from AEP domain/activity table data"""
     # category info
     domain_names: list = ["Category"]
@@ -130,16 +126,15 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
         weird_activity_map.append([activity.activity])
 
     for domain in domain_table:
-        if core is None or domain.core == core:
-            domain_names.append(domain.domain)
-            num_domains_of_type += 1
+        domain_names.append(domain.domain)
+        num_domains_of_type += 1
 
-            for activity in activities:
-                weird_activity_map[activity.activityid].append(
-                    round(domain[activity.activityid], 2))
+        for activity in activities:
+            weird_activity_map[activity.activityid].append(
+                round(domain[activity.activityid], 2))
 
     # generate desired type of total row
-    total_row = gen_total_row(domain_table, activities, core)
+    total_row = gen_total_row(domain_table, activities)
 
     # add totals and annotation end quote to end of each
     for activity in activities:
@@ -151,76 +146,14 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     domain_names.append({'role': 'annotation'})
     domain_names.append({'role': 'annotation'})
 
-    type_title = ""
-    if core is not None:
-        type_title = " Core" if core else " Additional"
-    data = {
-        'title': title + type_title,
-        'graph': weird_activity_map,
+    graph = {
+        'title': 'Activity Hours Totals',
+        'rows': weird_activity_map,
         'len': num_domains_of_type,
         "activities": [activity.activity for activity in activities],
         "total": round(total_row["total"], 2)
     }
-    return data
-
-
-def build_chart(key: str, value: int, core: bool = True) -> dict[str, Any]:
-    """format some queries to populate a dictionary the way google charts expects, this passed after using json.dumps() into a jinja macro data structure"""
-    title: str = ''
-    if key == 'student':
-        q = db.session.query(ActivityLog).filter_by(
-            studentid=value).order_by("domainid").all()
-        title = db.session.query(Student).filter_by(
-            studentid=value).first().name
-    elif key == 'location':
-        q = db.session.query(ActivityLog).filter_by(
-            locationid=value).order_by("domainid").all()
-        title = db.session.query(Location).filter_by(
-            locationid=value).first().location
-
-    q: list[Domain] = db.session.query(Domain).filter_by(core=core).all()
-    domains: list = [domain.domain for domain in q]
-    length = len(domains)
-    domains.insert(0, 'Category')
-    # this is for google charts annotations
-    domains.append({'role': 'annotation'})
-    # this is for google charts annotations
-    domains.append({'role': 'annotation'})
-
-    data = {
-        'title': title + ' Core' if core else title + ' Additional',
-        'graph': [domains],
-        'total': 0,
-        'len': length
-    }
-
-    q: list[Activity] = db.session.query(Activity).all()
-    data['activities'] = [act.activity for act in q]
-    for activity in q:
-        activityHours: list = [0] * data['len']
-        activityHours.insert(0, activity.activity)
-        p = db.session.query(
-            ActivityLog.domainid,
-            func.sum(ActivityLog.minutes_spent).label('total'),
-            Domain.core,
-        ).join(Activity.logs
-               ).filter(Domain.core == core, Domain.domainid == ActivityLog.domainid
-                        ).filter(ActivityLog.activityid == activity.activityid
-                                 ).group_by(ActivityLog.domainid
-                                            ).all()
-
-        total = 0
-        for domain in p:
-            activityHours[domain[0] if core else domain[0] -
-                          3] = round(domain[1] / 60, 2)
-            total += round(domain[1] / 60, 2)
-        data['total'] += round(total, 2)
-        activityHours.append(total)  # this is for google charts annotations
-        activityHours.append('')  # this is for google charts annotations
-
-        data['graph'].append(activityHours)
-
-    return data
+    return graph
 
 
 def get_student_info(studentid: int) -> dict[str, Any]:
@@ -233,16 +166,17 @@ def get_student_info(studentid: int) -> dict[str, Any]:
 
     total_row = gen_total_row(domains, activity_names)
 
-    name = Student.query.filter_by(studentid=studentid).one().name
+    s = Student.query.filter_by(studentid=studentid).one()
     data = {
+        "date_generated": date.today().isoformat(),
+        "student": s,
         "domains": domains,
+        "locations": get_location_hours(studentid),
         "activity_names": activity_names,
         "total_row": total_row,
-        "core": build_chart_from_table(f"{name}", domains, activity_names),
-        #"core": build_chart_from_table("Test", domains, activity_names, True),
-        "additional": build_chart_from_table(f"{name}", domains, activity_names, False) # FIXME: retain due to charts.jinja requirement. unused
+        "graph": build_chart_from_table(f"{s.name}", domains, activity_names),
     }
-
+    print(data['locations'])
     # here we should also add data for location and domain, currently only gains graphs
     return data
 
@@ -257,7 +191,7 @@ def get_domain_col(activity: Optional[str], flist: list):
     col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
     ) if activity is not None else boilerplate.subquery()
     cols = session.query(Domain.domainid, Domain.domain, (func.coalesce(func.sum(col_activity_subq.c.minutes_spent), 0) / 60.0).label(
-        "hours"), Domain.core).join(col_activity_subq, col_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).subquery()
+        "hours")).join(col_activity_subq, col_activity_subq.c.domainid == Domain.domainid, isouter=True).group_by(Domain.domainid).subquery()
 
     return cols
 
@@ -279,7 +213,7 @@ def get_domain_table(flist: Optional[list]) -> list:
     total = get_domain_col(None, flist)
 
     table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(
-        f"{activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"), total.c.core.label("core"))
+        f"{activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"))
     # join each col_subq
     for col_subq in col_subqs:
         table = table.join(col_subq, col_subq.c.domainid == total.c.domainid)
@@ -309,8 +243,7 @@ def get_cohort_info(year: int) -> dict[str, Any]:
         "domains": domains,
         "activity_names": activity_names,
         "total_row": total_row,
-        "core": build_chart_from_table(f"Cohort {year}", domains, activity_names, True),
-        "additional": build_chart_from_table(f"Cohort {year}", domains, activity_names, False)
+        "graph": build_chart_from_table(f"Cohort {year}", domains, activity_names),
     }
     return data
 
@@ -341,7 +274,20 @@ def get_location_info(location_id: int):
         "domains": domains,
         "activity_names": activity_names,
         "total_row": total_row,
-        "core": build_chart_from_table(f"{loc_name}", domains, activity_names, True),
-        "additional": build_chart_from_table(f"{loc_name}", domains, activity_names, False)
+        "graph": build_chart_from_table(f"{loc_name}", domains, activity_names),
     }
     return data
+
+def get_location_hours(studentid):
+    locations = db.session.query(Location.location).all()
+    studlocation = db.session.query(Location.location, func.sum(ActivityLog.minutes_spent)).join(ActivityLog, Location.locationid == ActivityLog.locationid).filter(ActivityLog.studentid==studentid).group_by(Location.location).all()
+
+    #convert list object into tuple
+    location = {}
+
+    for loc, minutes in studlocation:
+        location[loc] = round(minutes  / 60.0, 2)
+    for loc in locations:
+        if loc.location not in location:
+            location[loc.location] = 0.00
+    return location
