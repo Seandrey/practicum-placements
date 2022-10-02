@@ -39,7 +39,7 @@ def library():
 @app.route('/reports/student')
 # @login_required
 def reportStudents():
-    students = db.session.query(Student.studentid.label('id'), Student.name).all()
+    students = db.session.query(Student.student_number.label('id'), Student.name).all()
     return render_template('reports/student_search.html', students=students)
 
 

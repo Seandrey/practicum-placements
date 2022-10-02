@@ -156,8 +156,11 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     return graph
 
 
-def get_student_info(studentid: int) -> dict[str, Any]:
-    """Generates data used for student page"""
+def get_student_info(student_number: int) -> dict[str, Any]:
+    """Generates data used for student page. Gets student number as external student number, not internal DB number!"""
+
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
 
     domains = get_domain_table([ActivityLog.studentid == studentid])
 
@@ -166,7 +169,6 @@ def get_student_info(studentid: int) -> dict[str, Any]:
 
     total_row = gen_total_row(domains, activity_names)
 
-    s = Student.query.filter_by(studentid=studentid).one()
     data = {
         "date_generated": date.today().isoformat(),
         "student": s,

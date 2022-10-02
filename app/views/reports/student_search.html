@@ -108,7 +108,7 @@
     <tbody>
     {%- for student in students %}
     <tr>
-        <td>{{student.id}}</td>
+        <td>{{(student.id|string).zfill(8)}}</td>
         <td>{{student.name}}</td>
         <td><a href='./student/{{student.id}}'><button class="makeReport">See Report</button></a></td>
         <td><button onClick='getChartPng({{student.id}})' class="makePDF">Download PDF</button></td>

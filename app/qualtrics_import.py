@@ -217,9 +217,15 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
         student_number = lookup_embedded_text(response_val, label_lookup, STUDENT_NUMBER)
-        student: Optional[Student] = Student.query.filter_by(student_number=student_number).one_or_none()
+        student_number_int: int = 0
+        try:
+            student_number_int = int(student_number, base=10)
+        except ValueError:
+            print(f"failed to parse '{student_number}' to int (student number). skipping response")
+            continue
+        student: Optional[Student] = Student.query.filter_by(student_number=student_number_int).one_or_none()
         if student is None:
-            student = Student(student_number=student_number, name=student_name)
+            student = Student(student_number=student_number_int, name=student_name)
             db.session.add(student)
         # TODO changes in how differing student names for same ID are handled? currently just ignores name change
         if student.name != student_name:
