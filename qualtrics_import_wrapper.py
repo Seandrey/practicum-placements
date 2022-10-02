@@ -30,8 +30,7 @@ def run_import():
 
     json = qualtrics_import.load_json("MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json")
     # TODO: delete MyQualtricsDownload folder, including contents
-    rows = qualtrics_import.test_parse_json(json, label_lookup, format)
-    print(rows)
+    qualtrics_import.test_parse_json(json, label_lookup, format)
 
     db_rows = ActivityLog.query.all()
     for row in db_rows:

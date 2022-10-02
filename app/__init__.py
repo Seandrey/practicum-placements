@@ -22,7 +22,7 @@ else:
   app.config.from_object(Config)
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, render_as_batch=True)
 login = LoginManager(app)
 login.login_view = "loginroute"
 
@@ -34,6 +34,6 @@ from app.models import User, ActivityLog
 from app.reports import teardown_db, fill_db_multiple_students
 
 # DEBUG
-teardown_db()
+#teardown_db()
 # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
-fill_db_multiple_students(10)
+#fill_db_multiple_students(10)

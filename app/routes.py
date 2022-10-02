@@ -109,6 +109,8 @@ def update_db_qualtrics():
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
     label_lookup = qualtrics_import.get_label_lookup(format)
 
+    qualtrics_import.add_known_choices(label_lookup, format)
+
     qualtrics_import.download_zip(survey_id, api_key, data_centre)
 
     json_path = "MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json"
