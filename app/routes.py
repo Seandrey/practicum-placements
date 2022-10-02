@@ -4,7 +4,7 @@
 import os
 from typing import Any, Optional
 import flask
-from flask import Flask, Response, redirect, render_template, request, jsonify, url_for
+from flask import Flask, Response, redirect, render_template, request, make_response, jsonify, url_for
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy import func
 from app import app, db, qualtrics_import
@@ -15,7 +15,7 @@ import json
 from datetime import date, timedelta
 from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
-from app.queries import *
+import pdfkit
 
 
 @app.route('/home')
@@ -39,19 +39,23 @@ def library():
 @app.route('/reports/student')
 # @login_required
 def reportStudents():
-    return render_template('reports/student_search.html')
+    students = db.session.query(Student.studentid.label('id'), Student.name).all()
+    return render_template('reports/student_search.html', students=students)
 
 
 @app.route('/reports/student/<studentid>')
 # @login_required
 def reportStudent(studentid):
-    # DEBUG
-    teardown_db()
-    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
-    fill_db_multiple_students(1)
-
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
+
+@app.route('/reports/student/pdf/<studentid>')
+# @login_required
+def reportStudentPdf(studentid):
+    data = get_student_info(studentid)
+
+    return render_template('reports/student_pdf.jinja', data=data)
+
 
 @app.route('/reports/staff')
 @login_required
@@ -62,11 +66,6 @@ def reportStaff():
 @app.route('/reports/location')
 # @login_required
 def reportLocations():
-    # DEBUG
-    teardown_db()
-    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
-    fill_db_multiple_students(10)
-
     # hardcoded location for now: whatever "1" is
     location_id = 1
     # TODO: also filter based on year/semester if relevant
@@ -78,17 +77,10 @@ def reportLocations():
 @app.route('/reports/cohort')
 @login_required
 def reportCohorts():
-    # DEBUG
-    teardown_db()
-    # this fill db starts at 22000000, for testing navigate to /reports/student/22000000 as we only populate one
-    fill_db_multiple_students(10)
-
     # hardcoded cohort for now: 2022
     year = date.today().year
     data = get_cohort_info(year)
     return render_template('reports/cohort.html', data=data)
-
-# login.py routes
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -142,3 +134,26 @@ def updateroute():
         redirect_to = "home"
 
     return redirect(url_for(redirect_to))
+
+@app.route('/makepdf', methods=['POST'])
+def makePDF():
+    if request.method == 'POST':
+        html = request.data.decode('utf-8')
+
+        # PDF options
+        options = {
+            "orientation": "portrait",
+            "page-size": "A4",
+            "encoding": "UTF-8",
+            "enable-local-file-access":""
+        }
+        css = ['skeleton.css', 'normalize.css', 'style.css', 'reports.css', 'pdf.css']
+        css = [os.path.join(app.root_path, 'static\\css\\' + c) for c in css]
+        config = pdfkit.configuration(wkhtmltopdf=app.config['WKHTML_EXE'])
+        # Build PDF from HTML
+        pdf = pdfkit.from_string(html, False, options=options, configuration=config, css=css)
+        response=make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'inline; filename-output.pdf'
+
+        return response

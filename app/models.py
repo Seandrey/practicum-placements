@@ -75,7 +75,6 @@ class Domain(db.Model):
     """Used to represent AEP domain"""
     domainid = db.Column(db.Integer, primary_key=True)
     domain = db.Column(db.String(64))
-    core = db.Column(db.Boolean())
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
