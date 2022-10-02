@@ -27,7 +27,7 @@
       <div class='row'>
         <div class='three columns vertical-fill'>
             <div>
-                <h5>Achieved Hours - {{ 'PASSED' if ((40 - data.graph.total) <= 0) else 'UNPASSED' }}</h5>
+                <h5>Achieved Hours - {{ 'PASSED' if ((data.required_min - data.graph.total) <= 0) else 'UNPASSED' }}</h5>
                 <table class='u-full-width'>
                     <tr>
                       <th>Total</th>
@@ -35,7 +35,7 @@
                     </tr>
                     <tr>
                       <th>Remaining</th>
-                      <td>{{[(40 - data.graph.total), 0] | max  | round(2, 'common') }}</td>
+                      <td>{{[(data.required_min - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                     </tr>
                 </table>
             </div>

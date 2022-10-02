@@ -169,6 +169,10 @@ def get_student_info(student_number: int) -> dict[str, Any]:
 
     total_row = gen_total_row(domains, activity_names)
 
+    # assume unit is one in which most recent added hours are
+    recent_hours: ActivityLog = ActivityLog.query.filter_by(studentid=studentid).order_by(ActivityLog.record_date.desc()).first()
+    unit: Unit = Unit.query.filter_by(unitid=recent_hours.unitid).one()
+
     data = {
         "date_generated": date.today().isoformat(),
         "student": s,
@@ -176,7 +180,8 @@ def get_student_info(student_number: int) -> dict[str, Any]:
         "locations": get_location_hours(studentid),
         "activity_names": activity_names,
         "total_row": total_row,
-        "graph": build_chart_from_table(f"{s.name}", domains, activity_names),
+        "required_min": unit.required_minutes,
+        "graph": build_chart_from_table(f"{s.name}", domains, activity_names)
     }
     print(data['locations'])
     # here we should also add data for location and domain, currently only gains graphs

@@ -215,6 +215,12 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
         session: scoped_session = db.session
 
+        # if already seen a response with same ID in database, skip
+        same_response_id: list[ActivityLog] = ActivityLog.query.filter_by(responseid=response_id).all()
+        if len(same_response_id) != 0:
+            print(f"Found response ID {response_id} in DB already! Skipping response")
+            continue
+
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
         student_number = lookup_embedded_text(response_val, label_lookup, STUDENT_NUMBER)
         student_number_int: int = 0

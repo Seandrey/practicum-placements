@@ -23,13 +23,13 @@
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{[(40 - data.graph.total), 0] | max  | round(2, 'common') }}</td>
+                  <td>{{[(data.required_min - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
         <div class='card'>
             <h5>CHECK</h5>
-            <h2>{{ 'PASSED' if ((40 - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
+            <h2>{{ 'PASSED' if ((data.required_min - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
         </div>
     </div>
     <div class='nine columns vertical-fill'>
