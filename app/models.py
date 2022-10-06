@@ -90,7 +90,9 @@ class Unit(db.Model):
     unitid = db.Column(db.Integer, primary_key=True)
     unit = db.Column(db.String(64))
     required_minutes = db.Column(db.Integer)
-    """Minutes that this unit requires to be completed. TODO is this appropriate numbers?"""
+    """Minutes that this unit requires to be completed."""
+    counts_prev = db.Column(db.Boolean, default=False)
+    """Whether the required minutes of this unit are contributed to by hours in previous units"""
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):

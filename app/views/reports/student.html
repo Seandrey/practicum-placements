@@ -43,10 +43,10 @@
             </tr>
           </thead>
           <tbody>
-            {%- for location, hours in data.locations.items() %}
+            {% for location in data.locations %}
             <tr>
-              <td>{{location}}</td>
-              <td>{{ hours | round(2, 'common') }}</td>
+              <td>{{ location.location }}</td>
+              <td>{{ location.hours | round(2, 'common') }}</td>
             </tr>
             {% endfor %}
           </tbody>

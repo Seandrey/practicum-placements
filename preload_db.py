@@ -8,18 +8,21 @@ from sqlalchemy.orm.scoping import scoped_session
 
 from app.models import Unit
 
-def get_or_add_unit(name: str, required_min: int) -> Unit:
+def get_or_add_unit(name: str, required_min: int, counts_prev: bool) -> Unit:
     unit: Optional[Unit] = Unit.query.filter_by(unit=name).one_or_none()
     if unit is None:
-        unit = Unit(unit=name, required_minutes=required_min)
+        unit = Unit(unit=name, required_minutes=required_min, counts_prev=counts_prev)
         db.session.add(unit)
     assert unit.required_minutes == required_min, f"Unit {name} says required min of {unit.required_minutes} in DB but {required_min} desired!"
+    assert unit.counts_prev == counts_prev, f"Unit {name} says counts previous is {unit.counts_prev} in DB, but {counts_prev} desired!"
     return unit
 
 def import_units():
-    # FIXME: correct values
-    get_or_add_unit("SSEH2295", 120)
-    get_or_add_unit("SSEH3394", 200)
+    get_or_add_unit("SSEH2295", 40, False)
+    get_or_add_unit("SSEH3345", 25, False)
+    get_or_add_unit("SSEH3385", 25, False)
+    get_or_add_unit("SSEH3393", 140, True)
+    get_or_add_unit("SSEH3394", 140, True)
 
     # note that some units do not have cumulative hours from previous units counted. for example, 
     """
