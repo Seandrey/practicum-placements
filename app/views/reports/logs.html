@@ -1,0 +1,246 @@
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'student' %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+{% endblock %}
+
+{% block content %}
+
+
+<a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
+            <h3>Activity Logs for Lara Posel</h3>
+            <h6>
+                Double click a table cell to edit it, hit enter to exit editing mode.</h6>
+            <div class="card">
+                <table id="activity-log-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Placement Location</th>
+                        <th>Primary Supervisor</th>
+                        <th>Category</th>
+                        <th>Domain</th>
+                        <th>Minutes</th>
+                        <th>Submit Changes</th>
+                    </tr>
+                    <tr>
+                        <td>1/8/22</td>
+                        <td class = "select location-field"></td>
+                        <td class = "select supervisor-field"></td>
+                        <td class = "select exercise-prescription-field"></td>
+                        <td class = "select domain-field"></td>
+                        <td class = "text-field">119</td>
+                        <th><button class="seeLogs">Submit</button></th>
+                    </tr>
+                    <tr>
+                        <td>10/8/22</td>
+                        <td class = "select location-field"></td>
+                        <td class = "select supervisor-field"></td>
+                        <td class = "select exercise-prescription-field"></td>
+                        <td class = "select domain-field"></td>
+                        <td class = "text-field">60</td>
+                        <th><button class="seeLogs">Submit</button></th>
+                    </tr>
+                    <tr>
+                        <td>15/8/22</td>
+                        <td class = "select location-field"></td>
+                        <td class = "select supervisor-field"></td>
+                        <td class = "select exercise-prescription-field"></td>
+                        <td class = "select domain-field"></td>
+                        <td class = "text-field">90</td>
+                        <th><button class="seeLogs">Submit</button></th>
+                    </tr>
+                </table>
+            </div>
+            
+        </div>
+    </main>
+    <script>
+
+        // -------------------------------------------------------------------------------------
+        // Create 'Locations' drop down box: 
+        // -------------------------------------------------------------------------------------
+        
+        var locations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "WACRH (Geraldton)", "Agility Rehabilitation", "Curtin Stadium"]; 
+        // Which locations must be selected when the page loads (i.e. what the student submitted)
+        var selectedLocations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "Agility Rehabilitation"]; 
+        
+        let locationDropDown = document.createElement("select"); 
+        
+        for (let i = 0; i < locations.length; i++) { 
+            var choice = document.createElement("option");
+            choice.value = locations[i]; 
+            choice.text = locations[i]; 
+            locationDropDown.appendChild(choice); 
+        }
+
+        locationDropDown.disabled = true; 
+        locationFields = document.getElementsByClassName('location-field'); 
+
+        // Append drop down to each location field table cell: 
+        for (let i = 0; i < locationFields.length; i++) {
+            var locationDropDownCopy = locationDropDown.cloneNode(true); 
+            locationDropDownCopy.value = selectedLocations[i]; 
+            locationFields[i].appendChild(locationDropDownCopy); 
+        }
+
+        // -------------------------------------------------------------------------------------
+        // Create 'supervisors' drop down box: 
+        // -------------------------------------------------------------------------------------
+
+        var supervisors = ["Jarryd Heasman", "Joel Young", "Ben Green", "Emma Philipe", "Kane Greenaway"]; 
+        var selectedSupervisors = ["Jarryd Heasman", "Joel Young", "Emma Philipe"]; 
+
+        let supervisorDropDown = document.createElement("select"); 
+        
+        for (let i = 0; i < supervisors.length; i++) { 
+            var choice = document.createElement("option");
+            choice.value = supervisors[i]; 
+            choice.text = supervisors[i]; 
+            supervisorDropDown.appendChild(choice); 
+        }
+
+        supervisorDropDown.disabled = true; 
+        supervisorFields = document.getElementsByClassName('supervisor-field'); 
+
+        // Append drop down to each supervisor field table cell: 
+        for (let i = 0; i < supervisorFields.length; i++) {
+            var supervisorDropDownCopy = supervisorDropDown.cloneNode(true); 
+            supervisorDropDownCopy.value = selectedSupervisors[i]; 
+            supervisorFields[i].appendChild(supervisorDropDownCopy); 
+        }
+
+        // -------------------------------------------------------------------------------------
+        // Create 'exercise-prescription' drop down box: 
+        // -------------------------------------------------------------------------------------
+
+        var exercisePrescription = ["Exercise Prescription", "Other"]
+        var selectedExercisePrescription = ["Exercise Prescription", "Other", "Exercise Prescription"]; 
+
+        let exercisePrescriptionDropDown = document.createElement("select"); 
+        
+        for (let i = 0; i < exercisePrescription.length; i++) { 
+            var choice = document.createElement("option");
+            choice.value = exercisePrescription[i]; 
+            choice.text = exercisePrescription[i]; 
+            exercisePrescriptionDropDown.appendChild(choice); 
+        }
+
+        exercisePrescriptionDropDown.disabled = true; 
+        exercisePrescriptionFields = document.getElementsByClassName('exercise-prescription-field'); 
+
+        // Append drop down to each exercise prescription field table cell: 
+        for (let i = 0; i < exercisePrescriptionFields.length; i++) {
+            var exercisePrescriptionDropDownCopy = exercisePrescriptionDropDown.cloneNode(true); 
+            exercisePrescriptionDropDownCopy.value = selectedExercisePrescription[i]; 
+            exercisePrescriptionFields[i].appendChild(exercisePrescriptionDropDownCopy); 
+        }
+
+        // -------------------------------------------------------------------------------------
+        // Create 'domain' drop down box: 
+        // -------------------------------------------------------------------------------------
+
+        var domains = ["Health & Fitness", "Sport & Performance", "Healthy Aging", "Paediatrics & Young People", "Mental Health & Wellness"] 
+        var selectedDomains = ["Health & Fitness", "Sport & Performance", "Mental Health & Wellness"]; 
+
+        let domainsDropDown = document.createElement("select"); 
+        
+        for (let i = 0; i < domains.length; i++) { 
+            var choice = document.createElement("option");
+            choice.value = domains[i]; 
+            choice.text = domains[i]; 
+            domainsDropDown.appendChild(choice); 
+        }
+
+        domainsDropDown.disabled = true; 
+        domainsFields = document.getElementsByClassName('domain-field'); 
+
+        // Append drop down to each domain field table cell: 
+        for (let i = 0; i < domainsFields.length; i++) {
+            var domainsDropDownCopy = domainsDropDown.cloneNode(true); 
+            domainsDropDownCopy.value = selectedDomains[i]; 
+            domainsFields[i].appendChild(domainsDropDownCopy); 
+        }
+
+        // -------------------------------------------------------------------------------------
+        // Add event listeners to all drop downs to enable/disable editing
+        // -------------------------------------------------------------------------------------
+
+        for (let tableData of document.getElementsByClassName('select')) { 
+            
+            tableData.addEventListener('dblclick', function() { 
+                var dropDown = this.firstElementChild; 
+                dropDown.disabled = false; 
+            } )
+
+            tableData.addEventListener('change', function() { 
+                var dropDown = this.firstElementChild; 
+                dropDown.disabled = true; 
+                this.style.backgroundColor = 'rgb(220, 227, 255)'; 
+                dropDown.style.backgroundColor = 'rgb(220, 227, 255)'; 
+            })
+
+            tableData.addEventListener('mouseout', function() { 
+                var dropDown = this.firstElementChild; 
+                dropDown.disabled = true; 
+            })
+        }
+
+
+        // -------------------------------------------------------------------------------------
+        // Event listeners to edit text fields (only minutes for now, still need to add date editing) 
+        // -------------------------------------------------------------------------------------
+
+
+        function validateInput(value) { 
+            var number = Number(value); 
+            if ( !(Number.isInteger(number))) {
+                alert("Please enter a positive integer in the minutes field."); 
+                return true; 
+            } else { return false; }
+        }
+
+        var minutesFields = document.getElementsByClassName('text-field'); 
+        var initialMinutes = []; 
+        
+
+        for (let i=0; i < minutesFields.length; i++) { 
+
+            initialMinutes.push(minutesFields[i].innerText); 
+
+            minutesFields[i].addEventListener('dblclick', function() { 
+                this.contentEditable = 'true'; 
+                this.focus(); 
+                this.style.backgroundColor = '#ffcccc'; 
+                this.style.color = 'black'; 
+            })
+
+            minutesFields[i].addEventListener('blur', function() { 
+                this.contentEditable = 'false'; 
+                this.style.backgroundColor = ''; 
+                this.style.color = 'rgb(165, 164, 164)'; 
+                if (validateInput(this.innerText)) 
+                    {this.style.color = "red";}
+                else {
+                    if (this.innerText != initialMinutes[i]) { 
+                    this.style.backgroundColor = 'rgb(220, 227, 255)'; 
+                    }
+                }
+            })
+
+            minutesFields[i].addEventListener('keypress', function(event) { 
+                if (event.key == "Enter") { 
+                    this.contentEditable = 'false'; 
+                    this.style.backgroundColor = ''; 
+                    if (this.innerText != initialMinutes[i]) { 
+                    this.style.backgroundColor = 'rgb(220, 227, 255)'; 
+                }
+                } 
+            })
+            
+        }
+
+    </script>
+
+
+{% endblock %}

@@ -1,3 +1,21 @@
+#activity-log-table th, #activity-log-table td{ 
+    padding: 4px; 
+    text-align: center; 
+}
+
+#activity-log-table td { 
+    color: rgb(165, 164, 164); 
+}
+
+#activity-log-table select { 
+    appearance: none;
+}
+
+#activity-log-table select { 
+    border-style: none; 
+    width: 100%; 
+    padding: 0px; 
+}
 
 table { 
     width: 100%; 
@@ -128,6 +146,19 @@ h1 {
 }
 
 .makePDF { 
+    margin: 0px; 
+    height: 30px; 
+    padding: 0px 15px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.seeLogs { 
     margin: 0px; 
     height: 30px; 
     padding: 0px 15px; 

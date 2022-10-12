@@ -40,6 +40,11 @@ def library():
 def reportStudents():
     return render_template('reports/student_search.html')
 
+@app.route('/reports/logs')
+#@login_required
+def studentLogs():
+    return render_template('reports/logs.html')
+
 @app.route('/reports/student/<studentid>')
 #@login_required
 def reportStudent(studentid):
