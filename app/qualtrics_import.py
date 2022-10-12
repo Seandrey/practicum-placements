@@ -13,17 +13,19 @@ import requests
 
 from sqlalchemy.orm.scoping import scoped_session
 from app import db
-from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor
+from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor, Unit
 
 # constants: question names (exact website match) as strings
-STUDENT_NAME = "Student First Name + Last Name<em>(*ensure you use the same name each time your enter a log)</em>"
-SERVICE_DATE = "Date of service<br />\n<br />\n<span style=\"font-size:13px;\">( If entering a bulk hours, please enter start date ONLY)</span>"
-PLACEMENT_LOCATION = "Placement Location"
-PLACEMENT_SUPERVISOR = "Placement Supervisor:"
-NUM_ACTIVITY_LOGS = "How many activity logs will you be adding today?<br />\n<em>This is the number of separate logs to a maximum of 10 per shift/day.</em>"
-CATEGORY = "Category"
-AEP_DOMAIN = "Client Domain"
-MINUTES_SPENT = "Minutes spent on activity:<div>[eg. 1.5 hours = entered as 90] </div>"
+STUDENT_NAME = "Name"
+STUDENT_NUMBER = "Student Number"
+UNIT_CODE = "Unit Code"
+SERVICE_DATE = "Service Date"
+PLACEMENT_LOCATION = "Location"
+PLACEMENT_SUPERVISOR = "Supervisor"
+NUM_ACTIVITY_LOGS = "Number of Logs"
+CATEGORY = "Activity Type"
+AEP_DOMAIN = "Domain"
+MINUTES_SPENT = "Minutes"
 
 
 def download_zip(survey_id: str, api_token: str, data_centre: str):
@@ -182,32 +184,58 @@ def get_or_add_db(type: Type[dbModel], fdict: dict[str, Any]) -> dbModel:
         db.session.add(db_row)
     return db_row
 
-def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup, format: dict[str, dict]) -> list[DummyLogModel]:
+def add_known_choices_from_q(question_id: str, questions_map: dict, type: Type[dbModel], fdict_key: str):
+    """Adds all known values from a 'choice' question, if values aren't added already"""
+    choices: dict = questions_map[question_id]["choices"]
+    for key, value in choices.items():
+        get_or_add_db(type, {fdict_key: value["description"]})
+        # TODO: is there a difference between "description" and "choiceText"?
+
+def add_known_choices(label_lookup: LabelLookup, format: dict[str, dict]):
+    """Adds all known activities, AEP domains, regardless of whether used in response"""
+
+    questions_map: dict = format["result"]["questions"]
+
+    # activity
+    """activity_data = questions_map[label_lookup[CATEGORY]]
+    activity_choices: dict = activity_data["choices"]
+    for key, value in activity_choices.items():
+        get_or_add_db(Activity, {"activity": value["description"]})
+        # TODO: is there a difference between "description" and "choiceText"?"""
+    add_known_choices_from_q(label_lookup[CATEGORY], questions_map, Activity, "activity")
+
+    add_known_choices_from_q(label_lookup[AEP_DOMAIN], questions_map, Domain, "domain")
+
+def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup, format: dict[str, dict]) -> None:
     """Try to parse JSON representation of dict? Assumed format below"""
 
-    rows: list[DummyLogModel] = []
-
     for response in json_file["responses"]:
+        response_id = response["responseId"]
         response_val = response["values"]
-        
-        """unsure what field names are. Qualtrics docs seem to mention there is an "export mapper" that remaps field names to readable 
-        ones. Excel spreadsheet definitely doesn't match the camelCase examples here, so presuming that this has happened. As such,
-        trying to use names from there. Or possibly the Excel just uses the 'labels' section? In which case, could just edit 
-        json to replace unreadable names with labels ones.
-        
-        Actually, labels are the data labels, not the question number labels. Question number labels must be something else.""" 
 
         session: scoped_session = db.session
 
-        # I believe these should all have constant question descriptions. If not, could allow a "mapping" thing like Sean suggested
+        # if already seen a response with same ID in database, skip
+        same_response_id: list[ActivityLog] = ActivityLog.query.filter_by(responseid=response_id).all()
+        if len(same_response_id) != 0:
+            print(f"Found response ID {response_id} in DB already! Skipping response")
+            continue
 
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
-        # FIXME: survey does not allowing input of student ID, so technically can't disambiguate between students with same name. Here, select "one or none" to cause error if multiple students with a name exist
-        """student: Optional[Student] = Student.query.filter_by(name=student_name).one_or_none()
+        student_number = lookup_embedded_text(response_val, label_lookup, STUDENT_NUMBER)
+        student_number_int: int = 0
+        try:
+            student_number_int = int(student_number, base=10)
+        except ValueError:
+            print(f"failed to parse '{student_number}' to int (student number). skipping response")
+            continue
+        student: Optional[Student] = Student.query.filter_by(student_number=student_number_int).one_or_none()
         if student is None:
-            student = Student(name=student_name)
-            session.add(student)"""
-        student = get_or_add_db(Student, {"name": student_name})
+            student = Student(student_number=student_number_int, name=student_name)
+            db.session.add(student)
+        # TODO changes in how differing student names for same ID are handled? currently just ignores name change
+        if student.name != student_name:
+            print(f"Warning: student ID {student.student_number} previously named as '{student.name}', new response names as '{student_name}'")
 
         service_date = lookup_embedded_text(response_val, label_lookup, SERVICE_DATE)
         service_date_datetime: datetime = 0
@@ -219,20 +247,19 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         service_date_date: date = service_date_datetime.date()
 
         placement_loc = get_answer_label(response, label_lookup[PLACEMENT_LOCATION])
-        """location: Optional[Location] = Location.query.filter_by(location=placement_loc).one_or_none()
-        if location is None:
-            location = Location(location=placement_loc)
-            session.add(location)"""
         location = get_or_add_db(Location, {"location": placement_loc})
 
         # supervisor is more complicated as has multiple questions as implementation. so use multi lookup
         supervisor_lookup = get_multi_lookup(format, PLACEMENT_SUPERVISOR)
         supervisor_name = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
-        """supervisor: Optional[Supervisor] = Supervisor.query.filter_by(name=supervisor_name).one_or_none()
-        if supervisor is None:
-            supervisor = Supervisor(name=supervisor_name)
-            session.add(supervisor)"""
         supervisor = get_or_add_db(Supervisor, {"name": supervisor_name})
+
+        unit_code = get_answer_label(response, label_lookup[UNIT_CODE])
+        # ensure unit already exists, otherwise ignore with warning
+        unit: Unit = Unit.query.filter_by(unit=unit_code).one_or_none()
+        if unit is None:
+            print(f"Unknown unit '{unit_code}'! Skipping response")
+            continue
 
         num_logs = lookup_embedded_text(response_val, label_lookup, NUM_ACTIVITY_LOGS) 
         num_logs_int: int = 0
@@ -242,13 +269,11 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             print(f"failed to parse '{num_logs}' to int (num logs). skipping response")
             continue
 
-        # commit any added tables
+        # commit any added rows
         session.commit()
 
         # TODO: alternatively, could just start with "1" and keep going if finds more
         for i in range(1, num_logs_int + 1):
-            # would likely have to look these up by label
-
             # FIXME: to preserve order (important for tables later), modify "Activity" and "Domain" to instead be imported from export questions map (or similar). only allow lookup here
 
             # note inconsistent spacing of "- " vs " - "
@@ -259,6 +284,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
                 session.add(activity)
                 session.commit()
                 session = db.session
+            # TODO: probably don't need this anymore
 
             aep_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
             domain: Optional[Domain] = Domain.query.filter_by(domain=aep_domain).one_or_none()
@@ -267,6 +293,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
                 session.add(domain)
                 session.commit()
                 session = db.session
+            # TODO: probably don't need this anymore
 
             minutes = response_val[make_n_text(label_lookup.get_text(MINUTES_SPENT), i)]
             minutes_int: int = 0
@@ -275,17 +302,10 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             except ValueError:
                 print(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
                 continue
-            
-            # make a student record now
-            #model = DummyLogModel(student_name, supervisor, placement_loc, category, domain, minutes)
-            #rows.append(model)
 
-            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date)
+            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date, unitid=unit.unitid, responseid=response_id)
             session.add(log_row)
-            # FIXME: also check response ID to prevent duplicates. save response ID to allow reconstruction
         session.commit()
-
-    return rows
 
 def get_survey_format(survey_id: str, api_token: str, data_centre: str) -> dict[str, dict]:
     """Gets format of survey (question name mapping, etc.). Adapted from https://api.qualtrics.com/ZG9jOjg3NzY3Mw-managing-surveys"""
@@ -322,14 +342,18 @@ def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
 
 def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
     """Gets label lookup map in form: {"Student Name": "QID1"}. Will not work correctly if names are not unique."""
-    questions_map = survey_format_json["result"]["questions"]
+    questions_map: dict = survey_format_json["result"]["questions"]
 
     print("DEBUG: export questions map---")
     print(questions_map)
     print("DEBUG: end questions column map---")
 
     # now, extract a str-str dictionary from that
-    label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
+    #label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
+    label_lookup: dict[str, str] = {}
+    for key, value in questions_map.items():
+        if "questionLabel" in value and value["questionLabel"] is not None:
+            label_lookup[value["questionLabel"]] = key
 
     # TODO: unsure how best to deal with HTML things. Current approach is just include it in text to search. Better approach could be to remove from survey altogether
     #label_lookup = {re.sub("<div>|</div>|<br>", "", key): value for (key, value) in label_lookup.items()}
@@ -339,10 +363,11 @@ def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
 def get_multi_lookup(survey_format_json: dict[str, dict], desired_key: str) -> list[str]:
     """Gets a list of all values that correspond to the desired key. Designed for use with Placement Supervisor, which is 
     modelled in Qualtrics as many separate questions with the same name."""
-    questions_map = survey_format_json["result"]["questions"]
+    questions_map: dict = survey_format_json["result"]["questions"]
 
     # now, list comprehend this
-    multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionText"] == desired_key]
+    #multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionText"] == desired_key]
+    multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionLabel"] == desired_key]
 
     return multi_lookup
 

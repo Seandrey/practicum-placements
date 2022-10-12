@@ -156,17 +156,27 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     return graph
 
 
-def get_student_info(studentid: int) -> dict[str, Any]:
-    """Generates data used for student page"""
+def get_student_info(student_number: int) -> dict[str, Any]:
+    """Generates data used for student page. Gets student number as external student number, not internal DB number!"""
 
-    domains = get_domain_table([ActivityLog.studentid == studentid])
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+
+    # assume unit is one in which most recent added hours are
+    recent_hours: ActivityLog = ActivityLog.query.filter_by(studentid=studentid).order_by(ActivityLog.record_date.desc()).first()
+    unit: Unit = Unit.query.filter_by(unitid=recent_hours.unitid).one()
+
+    domain_list = [ActivityLog.studentid == studentid]
+    # if unit does not count all previous ones, restrict to a certain unit as well
+    if not unit.counts_prev:
+        domain_list.append(ActivityLog.unitid == unit.unitid)
+    domains = get_domain_table(domain_list)
 
     activity_names: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()
 
     total_row = gen_total_row(domains, activity_names)
 
-    s = Student.query.filter_by(studentid=studentid).one()
     data = {
         "date_generated": date.today().isoformat(),
         "student": s,
@@ -174,7 +184,8 @@ def get_student_info(studentid: int) -> dict[str, Any]:
         "locations": get_location_hours(studentid),
         "activity_names": activity_names,
         "total_row": total_row,
-        "graph": build_chart_from_table(f"{s.name}", domains, activity_names),
+        "required_min": unit.required_minutes,
+        "graph": build_chart_from_table(f"{s.name}", domains, activity_names)
     }
     print(data['locations'])
     # here we should also add data for location and domain, currently only gains graphs
@@ -278,16 +289,5 @@ def get_location_info(location_id: int):
     }
     return data
 
-def get_location_hours(studentid):
-    locations = db.session.query(Location.location).all()
-    studlocation = db.session.query(Location.location, func.sum(ActivityLog.minutes_spent)).join(ActivityLog, Location.locationid == ActivityLog.locationid).filter(ActivityLog.studentid==studentid).group_by(Location.location).all()
-
-    #convert list object into tuple
-    location = {}
-
-    for loc, minutes in studlocation:
-        location[loc] = round(minutes  / 60.0, 2)
-    for loc in locations:
-        if loc.location not in location:
-            location[loc.location] = 0.00
-    return location
+def get_location_hours(studentid: int) -> list:
+    return db.session.query(Location.location, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter(ActivityLog.studentid == studentid).group_by(Location.locationid).all()

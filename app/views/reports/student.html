@@ -10,7 +10,7 @@
 
 {% block content %}
 <div class='row'>
-  <h3 class='title'><small>Student Report:</small> {{data.student.name}} ({{data.student.studentid}})</h3>
+  <h3 class='title'><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
 </div>
 <div class='row'>
     <div class='three columns vertical-fill'>
@@ -23,13 +23,13 @@
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{[(40 - data.graph.total), 0] | max  | round(2, 'common') }}</td>
+                  <td>{{[(data.required_min - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
         <div class='card'>
             <h5>CHECK</h5>
-            <h2>{{ 'PASSED' if ((40 - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
+            <h2>{{ 'PASSED' if ((data.required_min - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
         </div>
     </div>
     <div class='nine columns vertical-fill'>
@@ -43,10 +43,10 @@
             </tr>
           </thead>
           <tbody>
-            {%- for location, hours in data.locations.items() %}
+            {% for location in data.locations %}
             <tr>
-              <td>{{location}}</td>
-              <td>{{ hours | round(2, 'common') }}</td>
+              <td>{{ location.location }}</td>
+              <td>{{ location.hours | round(2, 'common') }}</td>
             </tr>
             {% endfor %}
           </tbody>

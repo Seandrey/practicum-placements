@@ -1,5 +1,5 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
-# Author: Joel Phillips (22967051), David Norris (22690264)
+# Author: David Norris (22690264), Joel Phillips (22967051) 
 
 import os
 from typing import Any, Optional
@@ -39,7 +39,7 @@ def library():
 @app.route('/reports/student')
 # @login_required
 def reportStudents():
-    students = db.session.query(Student.studentid.label('id'), Student.name).all()
+    students = db.session.query(Student.student_number.label('id'), Student.name).all()
     return render_template('reports/student_search.html', students=students)
 
 
@@ -108,6 +108,8 @@ def update_db_qualtrics():
 
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
     label_lookup = qualtrics_import.get_label_lookup(format)
+
+    qualtrics_import.add_known_choices(label_lookup, format)
 
     qualtrics_import.download_zip(survey_id, api_key, data_centre)
 
