@@ -29,7 +29,7 @@ def edit():
     return render_template('edit.html')
 
 
-@app.route('/library')
+@app.route('/library') 
 @login_required
 def library():
     return render_template('library.html')

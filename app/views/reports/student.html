@@ -8,7 +8,9 @@
 {% endblock %}
 
 {% block content %}
-<h3>Student Reports</h3>
+
+<h3 style="display:inline-block">Student Reports</h3>
+<a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
 <div class='row'>
     <div class='three columns vertical-fill'>
         <div class='card'>
@@ -45,7 +47,7 @@
     <div class='nine columns vertical-fill'>
       <div class='card'>
         <h5>HOURS BY PLACEMENT LOCATION</h5>
-        <table class="u-full-width">
+        <table class="u-full-width placement-location-table">
           <thead>
             <tr>
               <th>Location</th>
@@ -81,11 +83,12 @@
       </div>
       <div class='card'>
         <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
-        <table class="u-full-width">
+        <table class="u-full-width activity-aep-table">
             <thead>
                 <tr>
                     <th></th>
-                    <th colspan="5" style="text-align:left">Activity Type</th>
+                    <!-- <th colspan="5" style="text-align:left">Activity Type</th> -->
+                    <th colspan="5" style="text-align: center;">Activity Type</th>
                 </tr>
                 <tr>
                     <th>AEP Domains</th>

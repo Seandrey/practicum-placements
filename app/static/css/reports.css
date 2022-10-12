@@ -1,7 +1,8 @@
+
 table { 
     width: 100%; 
     background-color: white;
-    border: 1px solid #E1E1E1; 
+    /* border: 1px solid #E1E1E1;  */
     border-radius: 8px;
     border-collapse: separate;
 }
@@ -123,6 +124,7 @@ h1 {
     box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
     border-color:  rgb(31, 69, 163); 
     transition-duration: 0.3s;
+    font-size: 12px;
 }
 
 .makePDF { 
@@ -135,6 +137,7 @@ h1 {
     box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
     border-color:  rgb(31, 69, 163); 
     transition-duration: 0.3s;
+    font-size: 12px;
 }
 
 .makeReport:hover{ 
