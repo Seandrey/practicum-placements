@@ -1,3 +1,4 @@
+<!-- Author: David Norris (22690264), Lara Posel (22972221) -->
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
@@ -6,18 +7,83 @@
 
 {% block header %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+    <script>
+        const downloadFile = (blob, fileName) => {
+          // Author David Norris (22690264),
+          const link = document.createElement('a');
+          // make blobURI that points to blob
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          // for compatibility, some browsers require a link
+          document.body.append(link);
+          link.click();
+          link.remove();
+          // save memory if blob is using a lot
+          setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+        };
+
+        const getChartPng = (studentID) => {
+            // Author David Norris (22690264)
+            let printWindow = window.open(`/reports/student/pdf/${studentID}`, '', 'height=1000,width=1000');
+            printWindow.onload = () => {
+                let chartImg = printWindow.document.getElementById('chartImage')
+                const awaitChart = () => {
+                    // we need the charts api to of converted image to uri in img.src
+                    if (chartImg.src === '') {
+                        // timeout to come back in 50 ms and don't exec until re-test
+                        setTimeout(awaitChart, 50);
+                        return;
+                    }
+                    fetch('/makepdf', {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/pdf',
+                          'Content-Type': 'text/html'
+                        },
+                        body: printWindow.document.getElementById('wrapper').innerHTML
+                    })
+                    .then((response) => {
+                        printWindow.close();
+                        return response.blob();
+                    })
+                    .then((data) => {
+                        downloadFile(data, `Report-${studentID}.pdf`);
+                    })
+                }
+                awaitChart();
+            };
+        }
+
+        const searchFilterStudents = () => {
+            // Author David Norris (22690264), Sean Ledesma (22752771)
+            const filter = document.getElementById("myInput").value;
+            const reg = new RegExp(`(^|\\s)${filter}`, 'gi');
+
+            const studentRows = document.querySelectorAll("#studTable > tbody > tr");
+
+            for (const i = 0; i < studentRows.length; i++) {
+                let studentRow = studentRows[i];
+                const name = studentRow.children[1].textContent || studentRow.children[1].innerText;
+                const id = studentRow.children[0].textContent || studentRow.children[0].innerText;
+                if (name || id)
+                    studentRow.style.display = reg.test(name) || reg.test(id) ? "" : "none";
+            }
+        }
+    </script>
 {% endblock %}
 
 {% block content %}
-<h3 id="studentTitle">Student Reports</h3>
+<h3 id="studentTitle"><div>Student Reports</div></h3>
 
 <div id = "searchContainer">
 <i class="fa fa-search searchIcon" aria-hidden="true"></i>
-<input type="text" class="searchBox" placeholder="Enter student name or ID...">
-</div>
 
+<input type="text" class="searchBox" onkeyup="searchFilterStudents()" id="myInput" placeholder="Enter student name or ID...">
+</div>
+<div id='pdfcontainer'></div>
 <div class="tableContainer card">
-<table>
+<table id="studTable">
+    <thead>
     <tr id="headerRow">
         <th>Results</th>
         <th></th>
@@ -25,6 +91,7 @@
         <th><button class="functionButton"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</button></th>
         <th><button class="functionButton"><i class="fa fa-filter" aria-hidden="true"></i>  Filter</button></th>
     </tr>
+    
     <tr id="headerRow2">
         <th>Student ID</th>
         <th>Student Name</th>
@@ -32,27 +99,18 @@
         <th></th>
         <th></th>
     </tr>
+    </thead>
+    <tbody>
+    {%- for student in students %}
     <tr>
-        <td>22000000</td>
-        <td>Lara Posel</td>
-        <td><a href='./student/22000000'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
-        <td><a href='./logs'><button class="seeLogs">See Logs</button></a></td>
+        <td>{{(student.id|string).zfill(8)}}</td>
+        <td>{{student.name}}</td>
+        <td><a href='./student/{{student.id}}'><button class="makeReport">See Report</button></a></td>
+        <td><button onClick='getChartPng({{student.id}})' class="makePDF">Download PDF</button></td>
+        <td><a href="./logs/{{student.id}}"><button class="seeLogs">See Logs</button></a></td>
     </tr>
-    <tr>
-        <td>22000001</td>
-        <td>Harry Potter</td>
-        <td><a href='./student/22000001'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
-        <td><a href="./logs"><button class="seeLogs">See Logs</button></a></td>
-    </tr>
-    <tr>
-        <td>22000002</td>
-        <td>Jeremy Williams</td>
-        <td><a href='./student/22000001'><button class="makeReport">See Report</button></a></td>
-        <td><button class="makePDF">Download PDF</button></td>
-        <td><a href="./logs"><button class="seeLogs">See Logs</button></a></td>
-    </tr>
+    {%- endfor %}
+    </tbody>
 </table>
 
 {% endblock %}

@@ -1,16 +1,18 @@
+<!-- Author: David Norris (22690264), Lara Posel (22972221) -->
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
 {% import "macros/charts.jinja" as charts %}
 
 {% block head %}
-    {{ charts.chart_head(data) }}
+    {{ charts.chart_head(data, '') }}
 {% endblock %}
 
 {% block content %}
-
-<h3 style="display:inline-block">Student Reports</h3>
-<a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
+<div class='row'>
+  <h3 class='title' style="display:inline-block"><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
+  <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
+</div>
 <div class='row'>
     <div class='three columns vertical-fill'>
         <div class='card'>
@@ -18,30 +20,17 @@
             <table class='u-full-width'>
                 <tr>
                   <th>Total</th>
-                  <td>{{data.core.total  | round(2, 'common') }}</td>
+                  <td>{{data.graph.total  | round(2, 'common') }}</td>
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{(200 - data.core.total)  | round(2, 'common') }}</td>
-                </tr>
-            </table>
-        </div>
-        <div class='card'>
-            <h5>Additional</h5>
-            <table class='u-full-width'>
-                <tr>
-                  <th>Total</th>
-                  <td>{{ data.additional.total | round(2, 'common') }}</td>
-                </tr>
-                <tr>
-                  <th>Remaining</th>
-                  <td>{{ (100.0 - data.additional.total) | round(2, 'common') }}</td>
+                  <td>{{[(data.required_min - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
         <div class='card'>
             <h5>CHECK</h5>
-            <h2>PASS</h2>
+            <h2>{{ 'PASSED' if ((data.required_min - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
         </div>
     </div>
     <div class='nine columns vertical-fill'>
@@ -55,27 +44,10 @@
             </tr>
           </thead>
           <tbody>
-            {%- for location in [
-            'UWA Exercise & Performance Centre',
-            'WACRH (Geraldton)',
-            'Agility Rehabilitation',
-            'Curtin Stadium'
-            'Fiona Stanley Hospital',
-            'Guardian Exercise Rehabilitation',
-            'Health Care WA',
-            'HFRC',
-            'Made to Move Rehabilitation Gym',
-            'Neuromoves',
-            'O2 Active',
-            'Redimed',
-            'Reps Movement',
-            'The Exercise Therapist',
-            'Other/Self Directed',
-            'Shenton College'
-            ] %}
+            {% for location in data.locations %}
             <tr>
-              <td>{{location}}</td>
-              <td>0.0</td>
+              <td>{{ location.location }}</td>
+              <td>{{ location.hours | round(2, 'common') }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -92,50 +64,38 @@
                 </tr>
                 <tr>
                     <th>AEP Domains</th>
-                    {% for a in data.core.activities %}
-                    <th>{{a}}</th>
+                    {% for activity in data.activity_names %}
+                    <th>{{activity.activity}}</th>
                     {% endfor %}
                     <th>TOTAL</th>
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(1, data.core.len + 1) %}
-                <tr>
-                    <td>{{data.core.graph[0][i]}}</td>
-                    {% set total = namespace(value=0) %}
-                    {% for j in range(1, data.core.activities|length + 1) %}
-                        <td>{{data.core.graph[j][i] | round(2, 'common')}}</td>
-                        {% set total.value = total.value + data.core.graph[j][i] %}
-                    {% endfor %}
-                    <td>{{total.value | round(2, 'common')}}</td>
-                </tr>
-                {% endfor %}
-                {% for i in range(1, data.additional.len + 1) %}
-                <tr>
-                    <td>{{data.additional.graph[0][i]}}</td>
-                    {% set total = namespace(value=0) %}
-                    {% for j in range(1, data.core.activities|length + 1) %}
-                        <td>{{data.additional.graph[j][i] | round(2, 'common')}}</td>
-                        {% set total.value = total.value + data.additional.graph[j][i] %}
-                    {% endfor %}
-                    <td>{{total.value | round(2, 'common')}}</td>
-                </tr>
-                {% endfor %}
-
-            </tbody>
+              {% for domain in data.domains %}
+              <tr>
+                  <td>{{domain.domain}}</td>
+                  {% for activity in data.activity_names %}
+                  <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
+                  {% endfor %}
+                  <td>{{domain.total | round(2, 'common')}}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                  <td>{{data.total_row.domain}}</td>
+                  {% for activity in data.activity_names %}
+                  <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+                  {% endfor %}
+                  <td>{{data.total_row.total | round(2, 'common')}}</td>
+              </tr>
+          </tbody>
         </table>
       </div>
     </div>
 </div>
 <div class='row'>
     <div class='twelve columns card'>
-        {{ charts.chart_div('core')}}
+        {{ charts.chart_div()}}
     </div>
 </div>
-<div class='row'>
-    <div class='twelve columns card'>
-        {{ charts.chart_div('additional')}}
-    </div>
-</div>
-{% endblock %}
 
+{% endblock %}

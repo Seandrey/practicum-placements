@@ -22,18 +22,16 @@ table {
     background-color: white;
     /* border: 1px solid #E1E1E1;  */
     border-radius: 8px;
-    border-collapse: separate;
 }
 
 .container { 
     height: 90%; 
-    /* overflow-y: auto;  */
+     overflow-y: auto;
 }
 
 .tableContainer { 
     height: 85%; 
     width: 100%; 
-    overflow-y: scroll; 
 }
 
 h1 { 

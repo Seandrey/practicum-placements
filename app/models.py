@@ -36,13 +36,18 @@ def load_user(uid):
 
 class Student(db.Model):
     """Used to represent student info"""
-    # TODO: determine if can (or should) match student ID, like 22967051
+
     studentid = db.Column(db.Integer, primary_key=True) 
+    """The internal student ID used by DB. Not the '22552255' ID."""
+
+    student_number = db.Column(db.Integer, unique=True, index=True)
+    """The external student number, i.e. '22552525' or whatever"""
+
     name = db.Column(db.String(64))
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
-        return f'<Student {self.studentid} with name {self.name}>'
+        return f'<Student {self.studentid} with ID {self.student_number} and name {self.name}>'
 
 class Location(db.Model):
     """Used to represent student location"""
@@ -75,11 +80,23 @@ class Domain(db.Model):
     """Used to represent AEP domain"""
     domainid = db.Column(db.Integer, primary_key=True)
     domain = db.Column(db.String(64))
-    core = db.Column(db.Boolean())
     logs = db.relationship("ActivityLog")
 
     def __repr__(self):
         return f'<Domain {self.domainid} with name {self.domain}>'
+
+class Unit(db.Model):
+    """Used to represent which unit hours are being calculated for"""
+    unitid = db.Column(db.Integer, primary_key=True)
+    unit = db.Column(db.String(64))
+    required_minutes = db.Column(db.Integer)
+    """Minutes that this unit requires to be completed."""
+    counts_prev = db.Column(db.Boolean, default=False)
+    """Whether the required minutes of this unit are contributed to by hours in previous units"""
+    logs = db.relationship("ActivityLog")
+
+    def __repr__(self):
+        return f"<Unit {self.unitid} with name {self.unit}>"
 
 class ActivityLog(db.Model):
     """Used to represent a single activity log entry"""
@@ -91,6 +108,10 @@ class ActivityLog(db.Model):
     domainid = db.Column(db.Integer, db.ForeignKey(Domain.domainid))
     minutes_spent = db.Column(db.Integer)
     record_date = db.Column(db.Date)
+    """The date the service was recorded for"""
+    unitid = db.Column(db.Integer, db.ForeignKey(Unit.unitid))
+    responseid = db.Column(db.String(64))
+    """ID of original Qualtrics survey response. TODO is this long enough to match?"""
 
     def __repr__(self):
-        return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, location {self.locationid}, activity {self.activityid}, domain {self.domainid} of {self.minutes_spent} m on {self.record_date}>'
+        return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, location {self.locationid}, activity {self.activityid}, domain {self.domainid}, unit {self.unitid}, of {self.minutes_spent} m on {self.record_date} (response {self.responseid})>'
