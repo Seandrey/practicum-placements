@@ -16,7 +16,7 @@
 
 
 <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
-    <h3>Activity Logs for Lara Posel</h3>
+    <h3>Activity Logs for {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
     <h6>Double click a table cell to edit it, hit enter to exit editing mode.</h6>
     <div class="card">
         <table id="activity-log-table">
@@ -31,13 +31,14 @@
             </tr>
             {% for log in logs %}
             <tr>
-                <td>{{log.record_date}}</td>
-                <td class="select location-field"></td>
-                <td class="select supervisor-field"></td>
-                <td class="select exercise-prescription-field"></td>
-                <td class="select domain-field"></td>
-                <td class="text-field">{{log.minutes_spent}}</td>
-                <th><button class="seeLogs" onclick="submitUpdate({{log.logid}})">Submit</button></th>
+                <td class="date-field">{{log.record_date}}</td>
+                <td class="select location-field">{{log.locationid}}</td>
+                <td class="select supervisor-field">{{log.supervisorid}}</td>
+                <td class="select exercise-prescription-field">{{log.activityid}}</td>
+                <td class="select domain-field">{{log.domainid}}</td>
+                <td class="text-field minutes-field">{{log.minutes_spent}}</td>
+                <th><button class="seeLogs" onclick="submitUpdate({{log.logid}}, this)">Submit</button></th>
+                <!-- TODO: unit ID -->
             </tr>
             {% endfor %}
             <tr>

@@ -54,16 +54,20 @@ def studentLogs(student_number):
         "student_db_id": 0
     }
 
-    return render_template('reports/logs.html', logs=logs, subst_data=subst_data)
+    data = {
+        "student": s
+    }
+
+    return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
 
 @app.route("/reports/submit_edit", methods=['POST'])
 def submit_edit():
-    if request.method == 'POST':
-        data = request.get_json()
+    data = request.get_json()
 
-        print(data)
+    print(data)
 
-        # TODO: do more stuff
+    # TODO: do more stuff
+    return jsonify({"success": True})
 
 @app.route('/reports/student/<studentid>')
 # @login_required

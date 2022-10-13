@@ -1,203 +1,199 @@
 // Functions used for editing page
 // Author: Lara Posel (22972221), Joel Phillips (22967051)
 
+/**
+ * Append drop down to each field table cell of the class given
+ * @param {string} className name of associated class
+ * @param {*} dbQueryResults database query results
+ * @param {string} idFieldName name of id field in DB query results
+ * @param {string} nameFieldName name of "name" field in DB query results
+ */
+function setupDropdown(className, dbQueryResults, idFieldName, nameFieldName) {
+    const dropdownToClone = document.createElement("select");
+    for (const result of dbQueryResults) {
+        const choice = document.createElement("option");
+        choice.value = result[idFieldName]; // TODO: replace "value" with location ID
+        choice.text = result[nameFieldName];
+        dropdownToClone.appendChild(choice);
+    }
+    dropdownToClone.disabled = true;
+
+    const toSetup = document.getElementsByClassName(className);
+    for (const node of toSetup) {
+        const existingId = node.textContent;
+        if (existingId !== null && existingId !== "") {
+            const dropDownCopy = dropdownToClone.cloneNode(true);
+            dropDownCopy.value = existingId;
+
+            // remove node text contents
+            node.textContent = "";
+
+            node.appendChild(dropDownCopy);
+        } else {
+            // TODO: remove this else branch thing once remove old stuff
+            const dropDownCopy = dropdownToClone.cloneNode(true);
+            dropDownCopy.value = 0;
+            node.appendChild(dropDownCopy);
+        }
+    }
+}
+
 function setup() {
     // -------------------------------------------------------------------------------------
     // Create 'Locations' drop down box: 
     // -------------------------------------------------------------------------------------
-    
-    const locations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "WACRH (Geraldton)", "Agility Rehabilitation", "Curtin Stadium"]; 
-    // Which locations must be selected when the page loads (i.e. what the student submitted)
-    const selectedLocations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "Agility Rehabilitation"]; 
-    
-    let locationDropDown = document.createElement("select"); 
-    
-    for (const location of locations) {
-        const choice = document.createElement("option");
-        choice.value = location; 
-        choice.text = location; 
-        locationDropDown.appendChild(choice); 
-    }
 
-    locationDropDown.disabled = true; 
-    const locationFields = document.getElementsByClassName('location-field'); 
+    // TODO: replace this with DB query of all locations
+    //const locations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "WACRH (Geraldton)", "Agility Rehabilitation", "Curtin Stadium"]; 
+    const locations = [{ id: 0, location: "West Coast Eagles" }, { id: 1, location: "UWA Exercise & Performance Centre" }, { id: 2, location: "WACRH (Geraldton)" }, { id: 3, location: "Agility Rehabilitation" }, { id: 4, location: "Curtin Stadium" }];
 
-    // Append drop down to each location field table cell: 
-    for (let i = 0; i < locationFields.length; i++) {
-        const locationDropDownCopy = locationDropDown.cloneNode(true); 
-        locationDropDownCopy.value = selectedLocations[i]; 
-        locationFields[i].appendChild(locationDropDownCopy); 
-    }
+    setupDropdown("location-field", locations, "id", "location");
 
     // -------------------------------------------------------------------------------------
     // Create 'supervisors' drop down box: 
     // -------------------------------------------------------------------------------------
 
-    const supervisors = ["Jarryd Heasman", "Joel Young", "Ben Green", "Emma Philipe", "Kane Greenaway"]; 
-    const selectedSupervisors = ["Jarryd Heasman", "Joel Young", "Emma Philipe"]; 
+    // TODO: replace this with DB query of all supervisors
+    const supervisors = [{ id: 0, supervisor: "Jarryd Heasman" }, { id: 1, supervisor: "Joel Young" }, { id: 2, supervisor: "Ben Green" }, { id: 3, supervisor: "Emma Philipe" }, { id: 4, supervisor: "Kane Greenaway" }];
 
-    let supervisorDropDown = document.createElement("select"); 
-    
-    for (const supervisor of supervisors) {
-        const choice = document.createElement("option");
-        choice.value = supervisor; 
-        choice.text = supervisor; 
-        supervisorDropDown.appendChild(choice); 
-    }
-
-    supervisorDropDown.disabled = true; 
-    const supervisorFields = document.getElementsByClassName('supervisor-field'); 
-
-    // Append drop down to each supervisor field table cell: 
-    for (let i = 0; i < supervisorFields.length; i++) {
-        var supervisorDropDownCopy = supervisorDropDown.cloneNode(true); 
-        supervisorDropDownCopy.value = selectedSupervisors[i]; 
-        supervisorFields[i].appendChild(supervisorDropDownCopy); 
-    }
+    setupDropdown("supervisor-field", supervisors, "id", "supervisor");
 
     // -------------------------------------------------------------------------------------
     // Create 'exercise-prescription' drop down box: 
     // -------------------------------------------------------------------------------------
 
-    const exercisePrescription = ["Exercise Prescription", "Other"]
-    const selectedExercisePrescription = ["Exercise Prescription", "Other", "Exercise Prescription"]; 
+    const exercisePrescription = [{ id: 0, activity: "Exercise Prescription" }, { id: 1, activity: "Other" }]
 
-    let exercisePrescriptionDropDown = document.createElement("select"); 
-    
-    for (const prescription of exercisePrescription) {
-        const choice = document.createElement("option");
-        choice.value = prescription; 
-        choice.text = prescription; 
-        exercisePrescriptionDropDown.appendChild(choice); 
-    }
-
-    exercisePrescriptionDropDown.disabled = true; 
-    const exercisePrescriptionFields = document.getElementsByClassName('exercise-prescription-field'); 
-
-    // Append drop down to each exercise prescription field table cell: 
-    for (let i = 0; i < exercisePrescriptionFields.length; i++) {
-        var exercisePrescriptionDropDownCopy = exercisePrescriptionDropDown.cloneNode(true); 
-        exercisePrescriptionDropDownCopy.value = selectedExercisePrescription[i]; 
-        exercisePrescriptionFields[i].appendChild(exercisePrescriptionDropDownCopy); 
-    }
+    setupDropdown("exercise-prescription-field", exercisePrescription, "id", "activity");
 
     // -------------------------------------------------------------------------------------
     // Create 'domain' drop down box: 
     // -------------------------------------------------------------------------------------
 
-    const domains = ["Health & Fitness", "Sport & Performance", "Healthy Aging", "Paediatrics & Young People", "Mental Health & Wellness"] 
-    const selectedDomains = ["Health & Fitness", "Sport & Performance", "Mental Health & Wellness"]; 
+    const domains = [{ id: 0, domain: "Health & Fitness" }, { id: 1, domain: "Sport & Performance" }, { id: 2, domain: "Healthy Aging" }, { id: 3, domain: "Paediatrics & Young People" }, { id: 4, domain: "Mental Health & Wellness" }]
 
-    let domainsDropDown = document.createElement("select"); 
-    
-    for (const domain of domains) {
-        const choice = document.createElement("option");
-        choice.value = domain; 
-        choice.text = domain; 
-        domainsDropDown.appendChild(choice); 
-    }
-
-    domainsDropDown.disabled = true; 
-    const domainsFields = document.getElementsByClassName('domain-field'); 
-
-    // Append drop down to each domain field table cell: 
-    for (let i = 0; i < domainsFields.length; i++) {
-        var domainsDropDownCopy = domainsDropDown.cloneNode(true); 
-        domainsDropDownCopy.value = selectedDomains[i]; 
-        domainsFields[i].appendChild(domainsDropDownCopy); 
-    }
+    setupDropdown("domain-field", domains, "id", "domain");
 
     // -------------------------------------------------------------------------------------
     // Add event listeners to all drop downs to enable/disable editing
     // -------------------------------------------------------------------------------------
 
     const allSelects = document.getElementsByClassName('select');
-    for (const tableData of allSelects) { 
-        tableData.addEventListener('dblclick', function(event) { 
-            const dropDown = this.firstElementChild; 
+    for (const tableData of allSelects) {
+        tableData.addEventListener('dblclick', function (event) {
+            const dropDown = this.firstElementChild;
             dropDown.removeAttribute("disabled");
         });
 
-        tableData.addEventListener('change', function() { 
-            const dropDown = this.firstElementChild; 
+        tableData.addEventListener('change', function () {
+            const dropDown = this.firstElementChild;
             dropDown.removeAttribute("disabled");
-            this.style.backgroundColor = 'rgb(220, 227, 255)'; 
-            dropDown.style.backgroundColor = 'rgb(220, 227, 255)'; 
+            this.style.backgroundColor = 'rgb(220, 227, 255)';
+            dropDown.style.backgroundColor = 'rgb(220, 227, 255)';
         });
 
-        tableData.addEventListener('mouseout', function() { 
-            const dropDown = this.firstElementChild; 
+        tableData.addEventListener('mouseout', function () {
+            const dropDown = this.firstElementChild;
             dropDown.removeAttribute("disabled");
         });
     }
 
-    const minutesFields = document.getElementsByClassName('text-field'); 
-    const initialMinutes = []; 
+    const minutesFields = document.getElementsByClassName('text-field');
+    const initialMinutes = [];
 
-    for (let i = 0; i < minutesFields.length; i++) { 
-        initialMinutes.push(minutesFields[i].innerText); 
+    for (let i = 0; i < minutesFields.length; i++) {
+        initialMinutes.push(minutesFields[i].innerText);
 
-        minutesFields[i].addEventListener('dblclick', function() { 
-            this.contentEditable = 'true'; 
-            this.focus(); 
-            this.style.backgroundColor = '#ffcccc'; 
-            this.style.color = 'black'; 
+        minutesFields[i].addEventListener('dblclick', function () {
+            this.contentEditable = 'true';
+            this.focus();
+            this.style.backgroundColor = '#ffcccc';
+            this.style.color = 'black';
         });
 
-        minutesFields[i].addEventListener('blur', function() { 
-            this.contentEditable = 'false'; 
-            this.style.backgroundColor = ''; 
-            this.style.color = 'rgb(165, 164, 164)'; 
+        minutesFields[i].addEventListener('blur', function () {
+            this.contentEditable = 'false';
+            this.style.backgroundColor = '';
+            this.style.color = 'rgb(165, 164, 164)';
             if (validateInput(this.innerText)) {
                 this.style.color = "red";
             } else {
-                if (this.innerText != initialMinutes[i]) 
-                    this.style.backgroundColor = 'rgb(220, 227, 255)'; 
+                if (this.innerText != initialMinutes[i])
+                    this.style.backgroundColor = 'rgb(220, 227, 255)';
             }
         });
 
-        minutesFields[i].addEventListener('keypress', function(event) { 
-            if (event.key == "Enter") { 
-                this.contentEditable = 'false'; 
-                this.style.backgroundColor = ''; 
-                if (this.innerText != initialMinutes[i]) 
-                    this.style.backgroundColor = 'rgb(220, 227, 255)'; 
-            } 
+        minutesFields[i].addEventListener('keypress', function (event) {
+            if (event.key == "Enter") {
+                this.contentEditable = 'false';
+                this.style.backgroundColor = '';
+                if (this.innerText != initialMinutes[i])
+                    this.style.backgroundColor = 'rgb(220, 227, 255)';
+            }
         });
-        
+
     }
 }
 
 // -------------------------------------------------------------------------------------
 // Event listeners to edit text fields (only minutes for now, still need to add date editing) 
 // -------------------------------------------------------------------------------------
-function validateInput(value) { 
-    const number = Number(value); 
+function validateInput(value) {
+    const number = Number(value);
     if (!(Number.isInteger(number))) {
-        alert("Please enter a positive integer in the minutes field."); 
-        return true; 
-    } else { 
-        return false; 
+        alert("Please enter a positive integer in the minutes field.");
+        return true;
+    } else {
+        return false;
     }
+}
+
+/**
+ * 
+ * @param {HTMLTableRowElement} rowElem row to search inside
+ * @param {string} className class to search for
+ * @returns select value
+ */
+function getSelectValue(rowElem, className) {
+    const select_parent = rowElem.getElementsByClassName(className);
+    console.assert(select_parent.length === 1);
+    console.assert(select_parent[0].classList.contains("select"));
+
+    const selectItself = select_parent[0].getElementsByTagName("select");
+    console.assert(selectItself.length === 1);
+
+    const actualSelect = selectItself[0];
+
+    const parsedInt = parseInt(actualSelect.value);
+    console.assert(!isNaN(parsedInt));
+
+    return parsedInt;
 }
 
 /**
  * Submits update for a given row.
  * @param {number} id id of row
+ * @param {HTMLButtonElement} button_elem button element clicked
  */
-function submitUpdate(id) {
+function submitUpdate(id, button_elem) {
+    // get table row
+    const row_elem = button_elem.parentElement.parentElement;
+    console.assert(row_elem instanceof HTMLTableRowElement);
+    console.log(row_elem);
+
     // make object
     const gameObj = {
         logid: id,
         studentid: studentid,
-        locationid: 0,
-        supervisorid: 0,
-        activityid: 0,
-        domainid: 0,
+        locationid: getSelectValue(row_elem, "location-field"),
+        supervisorid: getSelectValue(row_elem, "supervisor-field"),
+        activityid: getSelectValue(row_elem, "exercise-prescription-field"),
+        domainid: getSelectValue(row_elem, "domain-field"),
         minutes_spent: 0,
         record_date: "",
         unitid: 0
     };
+    console.log(gameObj);
 
     fetch("/reports/submit_edit", {
         method: "POST",
