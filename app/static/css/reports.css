@@ -1,7 +1,26 @@
+#activity-log-table th, #activity-log-table td{ 
+    padding: 4px; 
+    text-align: center; 
+}
+
+#activity-log-table td { 
+    color: rgb(165, 164, 164); 
+}
+
+#activity-log-table select { 
+    appearance: none;
+}
+
+#activity-log-table select { 
+    border-style: none; 
+    width: 100%; 
+    padding: 0px; 
+}
+
 table { 
     width: 100%; 
     background-color: white;
-    border: 1px solid #E1E1E1; 
+    /* border: 1px solid #E1E1E1;  */
     border-radius: 8px;
 }
 
@@ -121,6 +140,7 @@ h1 {
     box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
     border-color:  rgb(31, 69, 163); 
     transition-duration: 0.3s;
+    font-size: 12px;
 }
 
 .makePDF { 
@@ -133,6 +153,20 @@ h1 {
     box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
     border-color:  rgb(31, 69, 163); 
     transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.seeLogs { 
+    margin: 0px; 
+    height: 30px; 
+    padding: 0px 15px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
 }
 
 .makeReport:hover{ 
@@ -160,4 +194,9 @@ h1 {
 .functionButton { 
     border-style: none;
     padding: 0px; 
+}
+
+/* dodgy stuff to make firefox events fire with disabled selects */
+select:disabled {
+    pointer-events: none;
 }

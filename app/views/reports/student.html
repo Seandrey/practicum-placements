@@ -1,4 +1,4 @@
-<!-- Author David Norris (22690264) -->
+<!-- Author: David Norris (22690264), Lara Posel (22972221) -->
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
@@ -10,7 +10,8 @@
 
 {% block content %}
 <div class='row'>
-  <h3 class='title'><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
+  <h3 class='title' style="display:inline-block"><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
+  <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
 </div>
 <div class='row'>
     <div class='three columns vertical-fill'>
@@ -35,7 +36,7 @@
     <div class='nine columns vertical-fill'>
       <div class='card'>
         <h5>HOURS BY PLACEMENT LOCATION</h5>
-        <table class="u-full-width">
+        <table class="u-full-width placement-location-table">
           <thead>
             <tr>
               <th>Location</th>
@@ -54,11 +55,12 @@
       </div>
       <div class='card'>
         <h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
-        <table class="u-full-width">
+        <table class="u-full-width activity-aep-table">
             <thead>
                 <tr>
                     <th></th>
-                    <th colspan="5" style="text-align:left">Activity Type</th>
+                    <!-- <th colspan="5" style="text-align:left">Activity Type</th> -->
+                    <th colspan="5" style="text-align: center;">Activity Type</th>
                 </tr>
                 <tr>
                     <th>AEP Domains</th>

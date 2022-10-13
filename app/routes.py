@@ -30,7 +30,7 @@ def edit():
     return render_template('edit.html')
 
 
-@app.route('/library')
+@app.route('/library') 
 @login_required
 def library():
     students = studentRep()
@@ -42,6 +42,11 @@ def reportStudents():
     students = db.session.query(Student.student_number.label('id'), Student.name).all()
     return render_template('reports/student_search.html', students=students)
 
+
+@app.route('/reports/logs')
+#@login_required
+def studentLogs():
+    return render_template('reports/logs.html')
 
 @app.route('/reports/student/<studentid>')
 # @login_required
