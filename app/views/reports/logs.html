@@ -22,6 +22,7 @@
         <table id="activity-log-table">
             <tr>
                 <th>Date</th>
+                <th>Unit</th>
                 <th>Placement Location</th>
                 <th>Primary Supervisor</th>
                 <th>Category</th>
@@ -32,17 +33,18 @@
             {% for log in logs %}
             <tr>
                 <td class="date-field">{{log.record_date}}</td>
+                <td class="select unit-field">{{log.unitid}}</td>
                 <td class="select location-field">{{log.locationid}}</td>
                 <td class="select supervisor-field">{{log.supervisorid}}</td>
                 <td class="select exercise-prescription-field">{{log.activityid}}</td>
                 <td class="select domain-field">{{log.domainid}}</td>
                 <td class="text-field minutes-field">{{log.minutes_spent}}</td>
                 <th><button class="seeLogs" onclick="submitUpdate({{log.logid}}, this)">Submit</button></th>
-                <!-- TODO: unit ID -->
             </tr>
             {% endfor %}
             <tr>
                 <td>1/8/22</td>
+                <td class = "select unit-field"></td>
                 <td class = "select location-field"></td>
                 <td class = "select supervisor-field"></td>
                 <td class = "select exercise-prescription-field"></td>
@@ -52,6 +54,7 @@
             </tr>
             <tr>
                 <td>10/8/22</td>
+                <td class = "select unit-field"></td>
                 <td class = "select location-field"></td>
                 <td class = "select supervisor-field"></td>
                 <td class = "select exercise-prescription-field"></td>
@@ -61,6 +64,7 @@
             </tr>
             <tr>
                 <td>15/8/22</td>
+                <td class = "select unit-field"></td>
                 <td class = "select location-field"></td>
                 <td class = "select supervisor-field"></td>
                 <td class = "select exercise-prescription-field"></td>

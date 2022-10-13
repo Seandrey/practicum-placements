@@ -74,6 +74,10 @@ function setup() {
 
     setupDropdown("domain-field", domains, "id", "domain");
 
+    // unit dropdown box
+    const units = [{id: 0, unit: "Unit1"}, {id: 1, unit: "Unit2"}, {id: 2, unit: "Unit3"}, {id: 3, unit: "Unit4"}];
+    setupDropdown("unit-field", units, "id", "unit");
+
     // -------------------------------------------------------------------------------------
     // Add event listeners to all drop downs to enable/disable editing
     // -------------------------------------------------------------------------------------
@@ -149,7 +153,7 @@ function validateInput(value) {
 }
 
 /**
- * 
+ * Get numerical value of selected option for given class in given row
  * @param {HTMLTableRowElement} rowElem row to search inside
  * @param {string} className class to search for
  * @returns select value
@@ -171,6 +175,47 @@ function getSelectValue(rowElem, className) {
 }
 
 /**
+ * Get text value of certain field in a certain row
+ * @param {HTMLTableRowElement} rowElem row to search inside
+ * @param {string} className class to search for
+ * @returns text value
+ */
+function getTextField(rowElem, className) {
+    const textParent = rowElem.getElementsByClassName(className);
+    console.assert(textParent.length === 1);
+    
+    return textParent[0].textContent;
+}
+
+/**
+ * Gets numerical value of minutes field in certain row
+ * @param {HTMLTableRowElement} rowElem row to search inside
+ * @returns numerical value in minutes
+ */
+function getMinutesField(rowElem) {
+    const text = getTextField(rowElem, "minutes-field");
+
+    const parsedInt = parseInt(text);
+    console.assert(!isNaN(parsedInt));
+
+    return parsedInt;
+}
+
+/**
+ * Gets date value of date field in certain row
+ * @param {HTMLTableRowElement} rowElem row to search inside
+ * @returns date value
+ */
+function getDateField(rowElem) {
+    const text = getTextField(rowElem, "date-field");
+
+    const parsedDate = new Date(text);
+    console.assert(!isNaN(parsedDate));
+
+    return parsedDate.toJSON();
+}
+
+/**
  * Submits update for a given row.
  * @param {number} id id of row
  * @param {HTMLButtonElement} button_elem button element clicked
@@ -189,9 +234,9 @@ function submitUpdate(id, button_elem) {
         supervisorid: getSelectValue(row_elem, "supervisor-field"),
         activityid: getSelectValue(row_elem, "exercise-prescription-field"),
         domainid: getSelectValue(row_elem, "domain-field"),
-        minutes_spent: 0,
-        record_date: "",
-        unitid: 0
+        minutes_spent: getMinutesField(row_elem),
+        record_date: getDateField(row_elem),
+        unitid: getSelectValue(row_elem, "unit-field")
     };
     console.log(gameObj);
 
