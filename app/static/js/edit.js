@@ -1,3 +1,6 @@
+// Functions used for editing page
+// Author: Lara Posel (22972221), Joel Phillips (22967051)
+
 function setup() {
     // -------------------------------------------------------------------------------------
     // Create 'Locations' drop down box: 
@@ -176,6 +179,34 @@ function validateInput(value) {
     } else { 
         return false; 
     }
+}
+
+/**
+ * Submits update for a given row.
+ * @param {number} id id of row
+ */
+function submitUpdate(id) {
+    // make object
+    const gameObj = {
+        logid: id,
+        studentid: studentid,
+        locationid: 0,
+        supervisorid: 0,
+        activityid: 0,
+        domainid: 0,
+        minutes_spent: 0,
+        record_date: "",
+        unitid: 0
+    };
+
+    fetch("/reports/submit_edit", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(gameObj)
+    });
+    // TODO: reload page afterwards?
 }
 
 setup();

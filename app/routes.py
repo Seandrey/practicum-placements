@@ -33,8 +33,8 @@ def edit():
 @app.route('/library') 
 @login_required
 def library():
-    students = studentRep()
-    return render_template('library.html', students=students)
+    #students = studentRep()
+    return render_template('library.html', students=[])
 
 @app.route('/reports/student')
 # @login_required
@@ -43,10 +43,27 @@ def reportStudents():
     return render_template('reports/student_search.html', students=students)
 
 
-@app.route('/reports/logs')
+@app.route('/reports/logs/<student_number>')
 #@login_required
-def studentLogs():
-    return render_template('reports/logs.html')
+def studentLogs(student_number):
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+    logs = ActivityLog.query.filter_by(studentid=studentid).all()
+
+    subst_data = {
+        "student_db_id": 0
+    }
+
+    return render_template('reports/logs.html', logs=logs, subst_data=subst_data)
+
+@app.route("/reports/submit_edit", methods=['POST'])
+def submit_edit():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        print(data)
+
+        # TODO: do more stuff
 
 @app.route('/reports/student/<studentid>')
 # @login_required

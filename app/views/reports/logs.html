@@ -6,6 +6,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 
     <script src="{{ url_for('static', filename='js/edit.js') }}" defer></script>
+    <script>
+        // script used for Jinja variable substitution
+        const studentid = {{subst_data.student_db_id}};
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -25,6 +29,17 @@
                 <th>Minutes</th>
                 <th>Submit Changes</th>
             </tr>
+            {% for log in logs %}
+            <tr>
+                <td>{{log.record_date}}</td>
+                <td class="select location-field"></td>
+                <td class="select supervisor-field"></td>
+                <td class="select exercise-prescription-field"></td>
+                <td class="select domain-field"></td>
+                <td class="text-field">{{log.minutes_spent}}</td>
+                <th><button class="seeLogs" onclick="submitUpdate({{log.logid}})">Submit</button></th>
+            </tr>
+            {% endfor %}
             <tr>
                 <td>1/8/22</td>
                 <td class = "select location-field"></td>
