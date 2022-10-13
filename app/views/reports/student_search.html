@@ -57,15 +57,15 @@
         const searchFilterStudents = () => {
             // Author David Norris (22690264), Sean Ledesma (22752771)
             const filter = document.getElementById("myInput").value;
-            const reg = new RegExp(`(^|\\s)${filter}`, 'gi');
+            const reg = new RegExp(`(^|\\s)${filter}`, 'i');
 
             const studentRows = document.querySelectorAll("#studTable > tbody > tr");
-
-            for (const i = 0; i < studentRows.length; i++) {
+            for (let i = 0; i < studentRows.length; i++) {
                 let studentRow = studentRows[i];
-                const name = studentRow.children[1].textContent || studentRow.children[1].innerText;
-                const id = studentRow.children[0].textContent || studentRow.children[0].innerText;
-                if (name || id)
+                const id = studentRow.getElementsByClassName("student-id-field")[0].textContent;
+                const name = studentRow.getElementsByClassName("student-name-field")[0].textContent;
+
+                if (name !== "" || id !== "") 
                     studentRow.style.display = reg.test(name) || reg.test(id) ? "" : "none";
             }
         }
@@ -103,8 +103,8 @@
     <tbody>
     {%- for student in students %}
     <tr>
-        <td>{{(student.id|string).zfill(8)}}</td>
-        <td>{{student.name}}</td>
+        <td class="student-id-field">{{(student.id|string).zfill(8)}}</td>
+        <td class="student-name-field">{{student.name}}</td>
         <td><a href='./student/{{student.id}}'><button class="makeReport">See Report</button></a></td>
         <td><button onClick='getChartPng({{student.id}})' class="makePDF">Download PDF</button></td>
         <td><a href="./logs/{{student.id}}"><button class="seeLogs">See Logs</button></a></td>

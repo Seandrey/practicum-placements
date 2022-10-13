@@ -195,3 +195,8 @@ h1 {
     border-style: none;
     padding: 0px; 
 }
+
+/* dodgy stuff to make firefox events fire with disabled selects */
+select:disabled {
+    pointer-events: none;
+}
