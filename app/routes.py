@@ -129,11 +129,15 @@ def reportStaff():
 
 @app.route('/reports/location')
 # @login_required
-def reportLocations():
-    # hardcoded location for now: whatever "1" is
-    location_id = 1
+def reportLocationsSearch():
+    locations = db.session.query(Location.locationid.label('id'), Location.location).all()
+    return render_template('reports/location_search.html', locations=locations)
+
+@app.route('/reports/location/<locationid>')
+# @login_required
+def reportLocations(locationid):
     # TODO: also filter based on year/semester if relevant
-    data = get_location_info(location_id)
+    data = get_location_info(locationid)
 
     return render_template('reports/location.html', data=data)
 
