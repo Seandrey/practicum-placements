@@ -1,5 +1,5 @@
 # Routes for app, adapted from drtnf/cits3403-pair-up
-# Author: David Norris (22690264), Joel Phillips (22967051) 
+# Author: David Norris (22690264), Joel Phillips (22967051), Sean Ledesma (22752771), Lara Posel (22972221)
 
 import os
 from tkinter import UNITS
@@ -63,9 +63,11 @@ def studentLogs(student_number):
         Supervisor.supervisorid).all()
     domains: list[Domain] = Domain.query.order_by(
         Domain.domainid).all()
+    activities: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
 
     subst_data = {
-        "student_db_id": 0
+        "student_db_id": studentid
     }
 
     data = {
@@ -73,7 +75,8 @@ def studentLogs(student_number):
         "locations": locations,
         "supervisors": supervisors,
         "domains": domains,
-        "units": units
+        "units": units,
+        "activities": activities
     }
 
     return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
@@ -84,14 +87,14 @@ def studentLogs(student_number):
 def submit_edit():
     data = request.get_json()
 
-    # print(data)
+    print(data)
     
     #Update Row with new Data
-    new_log = ActivityLog.query.filter_by(logid=data['logid']).first()
-    new_log.studentid = data["studentid"]
+    new_log: ActivityLog = ActivityLog.query.filter_by(logid=data['logid']).one()
+    assert new_log.studentid == data["studentid"], f"DB has edit request for {data['logid']} with student {new_log.studentid}, while request has {data['studentid']}"
     new_log.locationid = data["locationid"]
     new_log.supervisorid = data["supervisorid"]
-    new_log.activityid= data["activityid"]
+    new_log.activityid = data["activityid"]
     new_log.domainid =  data["domainid"]
     new_log.minutes_spent = data["minutes_spent"]
     # new_log.record_date = data["record_date"]

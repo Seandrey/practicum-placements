@@ -1,15 +1,40 @@
-<!-- Author: Lara Posel (22972221) -->
+<!-- Author: Lara Posel (22972221), Joel Phillips (22967051) -->
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 
-    <script src="{{ url_for('static', filename='js/edit.js') }}" defer></script>
     <script>
         // script used for Jinja variable substitution
         const studentid = {{subst_data.student_db_id}};
+        const locations = [
+            {% for location in data.locations %}
+            {id: {{location.locationid}}, name: "{{location.location}}"},
+            {% endfor %}
+        ];
+        const units = [
+            {% for unit in data.units %}
+            {id: {{unit.unitid}}, name: "{{unit.unit}}"},
+            {% endfor %}
+        ];
+        const supervisors = [
+            {% for supervisor in data.supervisors %}
+            {id: {{supervisor.supervisorid}}, name: "{{supervisor.name}}"},
+            {% endfor %}
+        ];
+        const domains = [
+            {% for domain in data.domains %}
+            {id: {{domain.domainid}}, name: "{{domain.domain}}"},
+            {% endfor %}
+        ];
+        const activities = [
+            {% for activity in data.activities %}
+            {id: {{activity.activityid}}, name: "{{activity.activity}}"},
+            {% endfor %}
+        ];
     </script>
+    <script src="{{ url_for('static', filename='js/edit.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -42,36 +67,6 @@
                 <th><button class="seeLogs" onclick="submitUpdate({{log.logid}}, this)">Submit</button></th>
             </tr>
             {% endfor %}
-            <tr>
-                <td>1/8/22</td>
-                <td class = "select unit-field"></td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">119</td>
-                <th><button class="seeLogs">Submit</button></th>
-            </tr>
-            <tr>
-                <td>10/8/22</td>
-                <td class = "select unit-field"></td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">60</td>
-                <th><button class="seeLogs">Submit</button></th>
-            </tr>
-            <tr>
-                <td>15/8/22</td>
-                <td class = "select unit-field"></td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">90</td>
-                <th><button class="seeLogs">Submit</button></th>
-            </tr>
         </table>
     </div>
 {% endblock %}

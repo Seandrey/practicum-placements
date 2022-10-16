@@ -4,16 +4,14 @@
 /**
  * Append drop down to each field table cell of the class given
  * @param {string} className name of associated class
- * @param {*} dbQueryResults database query results
- * @param {string} idFieldName name of id field in DB query results
- * @param {string} nameFieldName name of "name" field in DB query results
+ * @param {{id: number, name: string}[]} dbQueryResults database query results
  */
-function setupDropdown(className, dbQueryResults, idFieldName, nameFieldName) {
+function setupDropdown(className, dbQueryResults) {
     const dropdownToClone = document.createElement("select");
     for (const result of dbQueryResults) {
         const choice = document.createElement("option");
-        choice.value = result[idFieldName]; // TODO: replace "value" with location ID
-        choice.text = result[nameFieldName];
+        choice.value = result.id; 
+        choice.text = result.name;
         dropdownToClone.appendChild(choice);
     }
     dropdownToClone.disabled = true;
@@ -45,38 +43,44 @@ function setup() {
 
     // TODO: replace this with DB query of all locations
     //const locations = ["West Coast Eagles", "UWA Exercise & Performance Centre", "WACRH (Geraldton)", "Agility Rehabilitation", "Curtin Stadium"]; 
-    const locations = [{ id: 0, location: "West Coast Eagles" }, { id: 1, location: "UWA Exercise & Performance Centre" }, { id: 2, location: "WACRH (Geraldton)" }, { id: 3, location: "Agility Rehabilitation" }, { id: 4, location: "Curtin Stadium" }];
+    //const locations = [{ id: 0, location: "West Coast Eagles" }, { id: 1, location: "UWA Exercise & Performance Centre" }, { id: 2, location: "WACRH (Geraldton)" }, { id: 3, location: "Agility Rehabilitation" }, { id: 4, location: "Curtin Stadium" }];
 
-    setupDropdown("location-field", locations, "id", "location");
+    // DEBUG
+    if (locations == undefined) {
+        console.log("locations undefined");
+        console.log(locations);
+    }
+
+    setupDropdown("location-field", locations);
 
     // -------------------------------------------------------------------------------------
     // Create 'supervisors' drop down box: 
     // -------------------------------------------------------------------------------------
 
     // TODO: replace this with DB query of all supervisors
-    const supervisors = [{ id: 0, supervisor: "Jarryd Heasman" }, { id: 1, supervisor: "Joel Young" }, { id: 2, supervisor: "Ben Green" }, { id: 3, supervisor: "Emma Philipe" }, { id: 4, supervisor: "Kane Greenaway" }];
+    //const supervisors = [{ id: 0, supervisor: "Jarryd Heasman" }, { id: 1, supervisor: "Joel Young" }, { id: 2, supervisor: "Ben Green" }, { id: 3, supervisor: "Emma Philipe" }, { id: 4, supervisor: "Kane Greenaway" }];
 
-    setupDropdown("supervisor-field", supervisors, "id", "supervisor");
+    setupDropdown("supervisor-field", supervisors);
 
     // -------------------------------------------------------------------------------------
     // Create 'exercise-prescription' drop down box: 
     // -------------------------------------------------------------------------------------
 
-    const exercisePrescription = [{ id: 0, activity: "Exercise Prescription" }, { id: 1, activity: "Other" }]
+    //const exercisePrescription = [{ id: 0, activity: "Exercise Prescription" }, { id: 1, activity: "Other" }]
 
-    setupDropdown("exercise-prescription-field", exercisePrescription, "id", "activity");
+    setupDropdown("exercise-prescription-field", activities);
 
     // -------------------------------------------------------------------------------------
     // Create 'domain' drop down box: 
     // -------------------------------------------------------------------------------------
 
-    const domains = [{ id: 0, domain: "Health & Fitness" }, { id: 1, domain: "Sport & Performance" }, { id: 2, domain: "Healthy Aging" }, { id: 3, domain: "Paediatrics & Young People" }, { id: 4, domain: "Mental Health & Wellness" }]
+    //const domains = [{ id: 0, domain: "Health & Fitness" }, { id: 1, domain: "Sport & Performance" }, { id: 2, domain: "Healthy Aging" }, { id: 3, domain: "Paediatrics & Young People" }, { id: 4, domain: "Mental Health & Wellness" }]
 
-    setupDropdown("domain-field", domains, "id", "domain");
+    setupDropdown("domain-field", domains);
 
     // unit dropdown box
-    const units = [{id: 0, unit: "Unit1"}, {id: 1, unit: "Unit2"}, {id: 2, unit: "Unit3"}, {id: 3, unit: "Unit4"}];
-    setupDropdown("unit-field", units, "id", "unit");
+    //const units = [{id: 0, unit: "Unit1"}, {id: 1, unit: "Unit2"}, {id: 2, unit: "Unit3"}, {id: 3, unit: "Unit4"}];
+    setupDropdown("unit-field", units);
 
     // -------------------------------------------------------------------------------------
     // Add event listeners to all drop downs to enable/disable editing
