@@ -18,6 +18,9 @@ from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
 import pdfkit
 
+@app.route('/')
+def redirects():
+    return redirect(url_for('home'))
 
 @app.route('/home')
 @login_required
@@ -81,15 +84,17 @@ def studentLogs(student_number):
 def submit_edit():
     data = request.get_json()
 
-    print(data)
-    new_log = ActivityLog.query.filter_by(ActivityLog.logid==data["logid"]).first()
+    # print(data)
+    
+    #Update Row with new Data
+    new_log = ActivityLog.query.filter_by(logid=data['logid']).first()
     new_log.studentid = data["studentid"]
     new_log.locationid = data["locationid"]
     new_log.supervisorid = data["supervisorid"]
     new_log.activityid= data["activityid"]
     new_log.domainid =  data["domainid"]
     new_log.minutes_spent = data["minutes_spent"]
-    new_log.record_date = data["record_date"]
+    # new_log.record_date = data["record_date"]
     new_log.unitid = data["unitid"]
 
     session: scoped_session = db.session
