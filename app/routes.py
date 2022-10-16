@@ -2,6 +2,7 @@
 # Author: David Norris (22690264), Joel Phillips (22967051) 
 
 import os
+from tkinter import UNITS
 from typing import Any, Optional
 import flask
 from flask import Flask, Response, redirect, render_template, request, make_response, jsonify, url_for
@@ -50,24 +51,53 @@ def studentLogs(student_number):
     studentid = s.studentid
     logs = ActivityLog.query.filter_by(studentid=studentid).all()
 
+    #Get Queries   
+    units: list[Unit] = Unit.query.order_by(
+        Unit.unitid).all()
+    locations: list[Location] = Location.query.order_by(
+        Location.locationid).all()
+    supervisors: list[Supervisor] = Supervisor.query.order_by(
+        Supervisor.supervisorid).all()
+    domains: list[Domain] = Domain.query.order_by(
+        Domain.domainid).all()
+
     subst_data = {
         "student_db_id": 0
     }
 
     data = {
-        "student": s
+        "student": s,
+        "locations": locations,
+        "supervisors": supervisors,
+        "domains": domains,
+        "units": units
     }
 
     return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
 
 @app.route("/reports/submit_edit", methods=['POST'])
+
+# Send Post Request to that page, on the client has JSON file. Extracts json file from body
 def submit_edit():
     data = request.get_json()
 
     print(data)
+    new_log = ActivityLog.query.filter_by(ActivityLog.logid==data["logid"]).first()
+    new_log.studentid = data["studentid"]
+    new_log.locationid = data["locationid"]
+    new_log.supervisorid = data["supervisorid"]
+    new_log.activityid= data["activityid"]
+    new_log.domainid =  data["domainid"]
+    new_log.minutes_spent = data["minutes_spent"]
+    new_log.record_date = data["record_date"]
+    new_log.unitid = data["unitid"]
+
+    session: scoped_session = db.session
+    session.commit()
 
     # TODO: do more stuff
     return jsonify({"success": True})
+
 
 @app.route('/reports/student/<studentid>')
 # @login_required
