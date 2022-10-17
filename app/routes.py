@@ -140,19 +140,33 @@ def reportLocations(locationid):
 
     return render_template('reports/location.html', data=data)
 
+@app.route('/reports/location/pdf/<int:locationid>')
+@login_required
+def reportLocationPdf(locationid):
+    # TODO: also filter based on year/semester if relevant
+    data = get_location_info(locationid)
+
+    return render_template('reports/location_pdf.jinja', data=data)
+
 
 @app.route('/reports/cohort')
 @login_required
-def reportCohorts():
+def reportCohortsSearch():
     #years = db.session.query(func.year(ActivityLog.record_date)).group_by(func.year(ActivityLog.record_date)).all()
     cohorts = db.session.query(ActivityLog.year, ActivityLog.unitid, Unit.unit).join(Unit).group_by(ActivityLog.year, ActivityLog.unitid).all()
     return render_template('reports/cohort_search.html', cohorts=cohorts)
 
 @app.route('/reports/cohort/<int:cohort_unit>/<int:cohort_year>')
 @login_required
-def reportCohortsSearch(cohort_unit, cohort_year):
+def reportCohorts(cohort_unit, cohort_year):
     data = get_cohort_info(cohort_unit, cohort_year)
     return render_template('reports/cohort.html', data=data)
+
+@app.route('/reports/cohort/pdf/<int:cohort_unit>/<int:cohort_year>')
+@login_required
+def reportCohortPdf(cohort_unit, cohort_year):
+    data = get_cohort_info(cohort_unit, cohort_year)
+    return render_template('reports/cohort_pdf.jinja', data=data)
 
 
 @app.route('/signup', methods=['GET', 'POST'])

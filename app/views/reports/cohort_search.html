@@ -103,7 +103,7 @@
         <td class="cohort-unit-field">{{cohort.unit}}</td>
         <td class="cohort-year-field">{{cohort.year}}</td>
         <td><a href='./cohort/{{cohort.unitid}}/{{cohort.year}}'><button class="makeReport">See Report</button></a></td>
-        <td><button onClick='getChartPng({{cohort.unit}}, {{cohort.unitid}} {{cohort.year}})' class="makePDF">Download PDF</button></td>
+        <td><button onClick='getChartPng("{{cohort.unit}}", {{cohort.unitid}}, {{cohort.year}})' class="makePDF">Download PDF</button></td>
     </tr>
     {%- endfor %}
     </tbody>
