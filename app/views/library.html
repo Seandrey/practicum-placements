@@ -1,0 +1,33 @@
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'library' %}
+
+<!-- What appears in the tab title after 'Logbook Database'. -->>
+{% block title %} - Home Page{% endblock %}
+
+<!-- Header Inserts, e.g. CSS, Scripts -->
+{% block head %}
+{% endblock %}
+
+<!-- Body of the page -->>
+{% block content %}
+    <h3>Library</h3>
+    <form action="/reports/student" method="POST">
+        <p> Search Student:</p>
+        <input type="text" name="studname" placeholder="John Smith">
+        <button type="submit">
+    </form>
+    <table>
+        <tr>
+        <th>Student Name</th>
+        <th>Activity Logs</th>
+    </tr>
+    {% for student in students %}
+    <tr>
+        <td>{{student.name}}</td>
+        {% for log in student.logs %}
+        <td> {{log}}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

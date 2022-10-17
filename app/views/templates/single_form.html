@@ -1,0 +1,13 @@
+{% extends 'templates/base.html' %}
+
+{% block header %}
+    {% block head%}{% endblock %}
+{% endblock %}
+
+{% block body %}
+<div class="onecard">
+    <div class="card">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

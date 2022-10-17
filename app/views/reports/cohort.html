@@ -1,0 +1,59 @@
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'cohort' %}
+
+{% import "macros/charts.jinja" as charts %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+{{ charts.chart_head(data) }}
+{% endblock %}
+
+{% block content %}
+
+<h3>Cohort Reports</h3>
+<p>Year: {{data.year}}</p>
+<p>Unit: {{data.unit.unit}}</p>
+<a href='/reports/cohort'><button class="backButton" style="float: right">Back to search</button></a>
+
+<h5>HOURS BY ACTIVITY AND AEP DOMAIN</h5>
+<table class="u-full-width">
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="5" style="text-align:left">Activity Type</th>
+        </tr>
+        <tr>
+            <th>AEP Domains</th>
+            {% for activity in data.activity_names %}
+            <th>{{activity.activity}}</th>
+            {% endfor %}
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for domain in data.domains %}
+        <tr>
+            <td>{{domain.domain}}</td>
+            {% for activity in data.activity_names %}
+            <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
+            {% endfor %}
+            <td>{{domain.total | round(2, 'common')}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>{{data.total_row.domain}}</td>
+            {% for activity in data.activity_names %}
+            <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+            {% endfor %}
+            <td>{{data.total_row.total | round(2, 'common')}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class='row'>
+    <div class='twelve columns card'>
+        {{ charts.chart_div()}}
+    </div>
+</div>
+
+{% endblock %}

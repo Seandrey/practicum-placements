@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Logbook Database - {% block title %}{% endblock %}</title>
+        <meta name="author" content="Joel Phillips (22967051), Sean Ledesma (22752771), Lara Posel (22972221), Coen Miller (22982841), Jesse Yang (23307563), David Norris (22690264)">
+
+        <!-- See https://flaviocopes.com/javascript-async-defer/ as for what 'defer' does.-->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/skeleton.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/normalize.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+        <!-- TODO: add favicon -->
+        <link rel="shortcut icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+        {% block header %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>

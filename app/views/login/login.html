@@ -1,0 +1,20 @@
+{% extends 'templates/single_form.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+<!-- Header Inserts, e.g. CSS, Scripts -->
+{% block head %}
+    <!-- Page Specific CSS-->
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}"> -->
+{% endblock %}
+
+{% block content %}
+<h3>Login</h3>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username, class_="u-full-width") }}
+    {{ wtf.form_field(form.password, class_="u-full-width") }}
+    {{ wtf.form_field(form.rememberMe) }}
+    <button class="button button-primary u-full-width" type="submit" id="loginButton">Login</button>
+    <p style="margin-top: 2rem">Need an account? <a href="/signup">Go to sign up.</a></p>
+</form>
+{% endblock %}

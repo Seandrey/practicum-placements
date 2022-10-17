@@ -1,0 +1,84 @@
+## Author: David Norris (22690264)
+## An array of dicts each with a title key, an id key and a bars key
+{% macro chart_head(data, imgDiv) %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+/* Get google Visualisation API and include ColumnChart */
+google.load('visualization', '1', {'packages':['corechart']});
+
+/* Set callback for once API loads */
+google.setOnLoadCallback(drawCharts);
+function drawCharts() {
+  var graph, title, max;
+
+  graph = {{data['graph']['rows']}};
+  max = {{data['graph']['total'] / 4 | round(2, 'common')}};
+
+  drawChart(graph, max, {{imgDiv}});
+}
+
+/* This is the callback that draws after load */
+function drawChart(graph, max, imgDiv) {
+  var options = {
+    title: 'Activity Hours Totals', /* title from dict */
+    titleTextStyle: {
+      fontSize: 20,
+      bold: true
+    },
+    isStacked: true,
+    legend: {position: 'right'},
+    chartArea: {width: '50%'},
+    vAxis: {
+      title: 'Hours',
+      maxValue: max,
+    },
+    annotations: {
+      stem: {
+        color: "transparent",
+        length: 5
+      },
+      textStyle: {
+        color: "#000000",
+        fontSize: 14,
+        bold: true
+      }
+    },
+    colors: [
+      '#EA7369',
+      '#DC4BB3',
+      '#7D3AC0',
+      '#176CA1',
+      '#18ABDD',
+      '#1AC9E7',
+      '#1CD4D4',
+      '#1DE5BC',
+      '#6EF0D2',
+      '#C7F9ED'
+    ]
+  }
+
+  /* Each chart in the div is processed using same data var and drawn */
+  data = new google.visualization.arrayToDataTable(graph);
+  var mainGraph = document.getElementById('graph');
+  var view = new google.visualization.DataView(data);
+  var chart = new google.visualization.ColumnChart(
+      mainGraph); /* chart div id from dict */
+
+  if (typeof imgDiv != 'undefined') {
+    google.visualization.events.addListener(chart, 'ready', function () {
+      var imgUri = chart.getImageURI();
+      imgDiv.src = imgUri;
+      mainGraph.remove();
+    });
+  }
+
+  chart.draw(view, options);
+}
+</script>
+{% endmacro %}
+
+## Creates a chart container, must have same id as dict
+## Also styles the chart with a chart class
+{% macro chart_div() %}
+  <div class="chart" id="graph"></div>
+{% endmacro %}

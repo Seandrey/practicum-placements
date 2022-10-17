@@ -1,0 +1,202 @@
+#activity-log-table th, #activity-log-table td{ 
+    padding: 4px; 
+    text-align: center; 
+}
+
+#activity-log-table td { 
+    color: rgb(165, 164, 164); 
+}
+
+#activity-log-table select { 
+    appearance: none;
+}
+
+#activity-log-table select { 
+    border-style: none; 
+    width: 100%; 
+    padding: 0px; 
+}
+
+table { 
+    width: 100%; 
+    background-color: white;
+    /* border: 1px solid #E1E1E1;  */
+    border-radius: 8px;
+}
+
+.container { 
+    height: 90%; 
+     overflow-y: auto;
+}
+
+.tableContainer { 
+    height: 85%; 
+    width: 100%; 
+}
+
+h1 { 
+    font-size: 28px;
+    margin-bottom: 30px; 
+}
+
+#studentTitle {
+    display: inline-block; 
+    margin-bottom: 5px; 
+}
+
+#headerRow2 th {
+    border-bottom: 2px solid #E1E1E1; 
+    color:  #9a9999; 
+}
+
+#headerRow i {
+    color: #a6a5a5; 
+}
+
+#headerRow th:first-child {
+    padding-left: 20px; 
+}
+
+#headerRow th:nth-child(3) {
+    text-align: right;
+    font-weight: 100; 
+}
+
+#headerRow th:nth-child(4) {
+    text-align: center; 
+    font-weight: 100; 
+}
+
+.tableContainer th:first-child {
+    padding-left: 50px; 
+    width: 30%; 
+}
+
+.tableContainer th:nth-child(2) {
+    width: 50%; 
+}
+
+.tableContainer td:first-child {
+    padding-left: 50px; 
+}
+
+.tableContainer td:nth-child(2) {
+    font-weight: bold;
+    font-size: 15px; 
+}
+
+.tableContainer th {
+    padding-top: 10px; 
+    padding-right: 10px;  
+    padding-bottom: 5px; 
+}
+
+.tableContainer #headerRow th {
+    border-style: none; 
+}
+
+.tableContainer #headerRow th:first-child {
+    font-size: 25px;
+    font-weight: 200; 
+}
+
+.tableContainer td {
+    padding-top: 10px; 
+    padding-right: 10px; 
+    padding-bottom: 10px;  
+    /* border: 1px solid black;  */
+}
+
+#searchContainer input { 
+    float: right; 
+    width: 300px;
+    margin-bottom: 0px; 
+    border-style: none; 
+}
+
+.searchIcon { 
+    float: right; 
+    font-size: 22px;
+    padding: 8px; 
+    color: #a6a5a5; 
+}
+
+#searchContainer { 
+    border: 1px solid #D1D1D1;
+    border-radius: 6px; 
+    display: block; 
+    float: right; 
+    margin-bottom: 5px; 
+    background-color: #fff;
+}
+
+.makeReport { 
+    margin: 0px; 
+    padding: 0px 15px; 
+    height: 30px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.makePDF { 
+    margin: 0px; 
+    height: 30px; 
+    padding: 0px 15px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.seeLogs { 
+    margin: 0px; 
+    height: 30px; 
+    padding: 0px 15px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.makeReport:hover{ 
+    color: rgb(31, 69, 163);
+    background-color: white; 
+}
+
+.makePDF:hover{ 
+    color: rgb(31, 69, 163);
+    background-color: white; 
+}
+
+#headerRow2 ~ tr:hover { 
+    background-color: rgba(163, 178, 244, 0.2);
+}
+
+.makePDF:focus { 
+    color: white; 
+}
+
+.makeReport:focus { 
+    color: white; 
+}
+
+.functionButton { 
+    border-style: none;
+    padding: 0px; 
+}
+
+/* dodgy stuff to make firefox events fire with disabled selects */
+select:disabled {
+    pointer-events: none;
+}

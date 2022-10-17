@@ -1,0 +1,30 @@
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'home' %}
+
+<!-- What appears in the tab title after 'Logbook Database'. -->>
+{% block title %}Home Page{% endblock %}
+
+<!-- Header Inserts, e.g. CSS, Scripts -->
+{% block head %}
+<script>
+    function updateQualtricsData() {
+        const update_text = document.getElementById("qualtrics-update-txt");
+        update_text.innerText = "Updating...";
+        fetch("/update", {
+            method: "POST"
+        }).then((response) => {
+            if (response.ok) 
+                update_text.innerText = "Updated!";
+            else
+                update_text.innerText = "Failed. Please try again later.";
+        });
+    }
+</script>
+{% endblock %}
+
+<!-- Body of the page -->>
+{% block content %}
+    <p>Welcome to Logbook Database</p>
+    <button onclick="updateQualtricsData()">Update data from Qualtrics</button>
+    <p id="qualtrics-update-txt"></p>
+{% endblock %}

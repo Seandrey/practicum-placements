@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+:root {
+    font-size: 10px;
+    font-family: 'Roboto', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+body {
+    height: 100vh;
+    background: #363740;
+}
+.container {
+    padding-bottom: 4rem;
+}
+/* td:last-child, th:last-child {
+    text-align: right;
+} */
+tbody tr:last-child td, tbody tr:last-child th {
+    border: none;
+}
+td, th {
+    padding: 0 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
+
+/* Cards
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.onecard {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.onecard .card {
+    width: 360px;
+    margin: auto;
+}
+
+.card {
+  margin-bottom: 4rem;
+  padding: 2rem;
+  padding-bottom: 1rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03),
+              0 4px 8px rgba(0,0,0,0.03),
+              0 8px 16px rgba(0,0,0,0.03),
+              0 16px 32px rgba(0,0,0,0.03),
+              0 32px 64px rgba(0,0,0,0.03);
+  overflow-x: auto;
+}
+
+.card-heading,
+.card-description {
+  margin-bottom: 1.2rem;
+}
+
+.vertical-fill {
+    display: flex;
+    flex-direction: column;
+}
+.vertical-fill > div {
+    flex-grow: 1;
+}
+main {
+    margin-left: 25rem;
+    padding-top: 4rem;
+    background-color: rgb(245, 245, 245);
+    min-height: 100%;
+    width: calc(100% - 25rem);
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 25rem;
+    color: white;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    padding: 15px;
+    font-size: 15px;
+}
+
+.nav-link:hover {
+    color: rgb(163, 178, 244);
+}
+
+.nav-link.active {
+    background-color: rgba(163, 178, 244, 0.2);
+    border-left: 2px solid rgb(163, 178, 244);
+    color: rgb(163, 178, 244);
+}
+
+.uwa {
+    width: 74px;
+    height: 78px;
+    margin: 3rem auto;
+    background: url(../assets/uwa.png);
+    background-size: 74px 78px;
+}
+
+.chart {
+    min-height: 400px;
+}
+
+/* ---------------------------------------------------- */
+/* Styling the report tables */
+/* ---------------------------------------------------- */
+
+
+.activity-aep-table td, .activity-aep-table th { 
+    text-align: center; 
+    padding: 0px; 
+}
+
+/* Selects first column  */
+.activity-aep-table tbody td:first-child, .activity-aep-table thead th:first-child{ 
+    width: 160px; 
+    border-right: 1px solid #E1E1E1; 
+    padding: 0px 5px 0px 5px; 
+}
+
+/* Selects 'activity type' names, including 'TOTAL' */
+.activity-aep-table thead tr:nth-child(2) th:first-child ~ th{ 
+    font-weight: lighter; 
+}
+
+/* Selects all table data cells, not including the table header cells */
+.activity-aep-table tbody td{ 
+    height: 50px; 
+}
+
+/* Define width of table cells, but exclude the first column (AEP domain column) */
+.activity-aep-table tbody td:first-child ~ td { 
+    width: 100px; 
+}
+
+/* Colour every second cell in the 'TOTAL' column, make slightly darker to match the alternating row colours */
+.activity-aep-table tr:nth-child(2n) td:last-child { 
+    background-color: rgb(235, 236, 244);
+}
+
+/* Colour every (other) second cell in 'TOTAL' column */
+.activity-aep-table tr:nth-child(2n+1) td:last-child { 
+    background-color: rgb(239, 241, 253);
+}
+
+/* Alternate colour of every second row */
+.activity-aep-table tbody tr:nth-child(2n) { 
+    background-color: rgba(167, 168, 172, 0.1);
+}
+
+/* Colour the header row */
+.activity-aep-table thead tr:nth-child(2) { 
+    background-color: rgba(167, 168, 172, 0.2);
+}
+
+/* Colour the 'TOTAL' cell */
+.activity-aep-table thead tr:nth-child(2) th:last-child{ 
+    background-color: rgb(224, 225, 237);
+}
+
+.placement-location-table tr { 
+    height: 30px; 
+}
+
+.placement-location-table td:last-child { 
+    text-align: center;
+}
+
+.placement-location-table th:last-child { 
+    text-align: center
+}
+
+.placement-location-table tr:nth-child(2n) { 
+    background-color: rgba(167, 168, 172, 0.1);
+}
+
+.placement-location-table th { 
+    background-color: rgba(167, 168, 172, 0.1);
+}
+
+/* ---------------------------------------------------- */
+/* Styling other elements */
+/* ---------------------------------------------------- */
+
+.backButton { 
+    margin: 0px; 
+    padding: 0px 15px; 
+    height: 30px; 
+    border-radius: 10px; 
+    background-color: rgb(31, 69, 163);
+    color: white; 
+    box-shadow: rgb(107, 142, 230) 0px 2px 3px 0px;
+    border-color:  rgb(31, 69, 163); 
+    transition-duration: 0.3s;
+    font-size: 12px;
+}
+
+.backButton:hover{ 
+    color: rgb(31, 69, 163);
+    background-color: white; 
+}

@@ -1,0 +1,18 @@
+{% extends 'templates/single_form.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h3>Sign Up</h3>
+<form class="u-full-width" method="POST" action="/signup">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_field(form.username, class_="u-full-width") }}
+    {{ wtf.form_field(form.email, class_="u-full-width")}}
+    {{ wtf.form_field(form.password, class_="u-full-width") }}
+    {{ wtf.form_field(form.confirmPassword, class_="u-full-width") }}
+    <button class="button button-primary u-full-width" type="submit">Sign Up</button>
+    <p style="margin-top: 2rem">Have an account? <a href="/login">Take me to login.</a></p>
+</form>
+{% endblock %}
