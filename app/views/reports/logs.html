@@ -1,10 +1,39 @@
-<!-- Author: Lara Posel (22972221) -->
+<!-- Author: Lara Posel (22972221), Joel Phillips (22967051) -->
 {% extends 'templates/auth_area.html' %}
 {% set active_page = 'student' %}
 
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
 
+    <script>
+        // script used for Jinja variable substitution
+        const studentid = {{subst_data.student_db_id}};
+        const locations = [
+            {% for location in data.locations %}
+            {id: {{location.locationid}}, name: "{{location.location}}"},
+            {% endfor %}
+        ];
+        const units = [
+            {% for unit in data.units %}
+            {id: {{unit.unitid}}, name: "{{unit.unit}}"},
+            {% endfor %}
+        ];
+        const supervisors = [
+            {% for supervisor in data.supervisors %}
+            {id: {{supervisor.supervisorid}}, name: "{{supervisor.name}}"},
+            {% endfor %}
+        ];
+        const domains = [
+            {% for domain in data.domains %}
+            {id: {{domain.domainid}}, name: "{{domain.domain}}"},
+            {% endfor %}
+        ];
+        const activities = [
+            {% for activity in data.activities %}
+            {id: {{activity.activityid}}, name: "{{activity.activity}}"},
+            {% endfor %}
+        ];
+    </script>
     <script src="{{ url_for('static', filename='js/edit.js') }}" defer></script>
 {% endblock %}
 
@@ -12,12 +41,13 @@
 
 
 <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
-    <h3>Activity Logs for Lara Posel</h3>
+    <h3>Activity Logs for {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
     <h6>Double click a table cell to edit it, hit enter to exit editing mode.</h6>
     <div class="card">
         <table id="activity-log-table">
             <tr>
                 <th>Date</th>
+                <th>Unit</th>
                 <th>Placement Location</th>
                 <th>Primary Supervisor</th>
                 <th>Category</th>
@@ -25,33 +55,18 @@
                 <th>Minutes</th>
                 <th>Submit Changes</th>
             </tr>
+            {% for log in logs %}
             <tr>
-                <td>1/8/22</td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">119</td>
-                <th><button class="seeLogs">Submit</button></th>
+                <td class="date-field">{{log.record_date}}</td>
+                <td class="select unit-field">{{log.unitid}}</td>
+                <td class="select location-field">{{log.locationid}}</td>
+                <td class="select supervisor-field">{{log.supervisorid}}</td>
+                <td class="select exercise-prescription-field">{{log.activityid}}</td>
+                <td class="select domain-field">{{log.domainid}}</td>
+                <td class="text-field minutes-field">{{log.minutes_spent}}</td>
+                <th><button class="seeLogs" onclick="submitUpdate({{log.logid}}, this)">Submit</button></th>
             </tr>
-            <tr>
-                <td>10/8/22</td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">60</td>
-                <th><button class="seeLogs">Submit</button></th>
-            </tr>
-            <tr>
-                <td>15/8/22</td>
-                <td class = "select location-field"></td>
-                <td class = "select supervisor-field"></td>
-                <td class = "select exercise-prescription-field"></td>
-                <td class = "select domain-field"></td>
-                <td class = "text-field">90</td>
-                <th><button class="seeLogs">Submit</button></th>
-            </tr>
+            {% endfor %}
         </table>
     </div>
 {% endblock %}

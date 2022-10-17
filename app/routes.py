@@ -1,5 +1,5 @@
-# Routes for app, adapted from drtnf/cits3403-pair-up
-# Author: David Norris (22690264), Joel Phillips (22967051) 
+# Routes for app
+# Author: David Norris (22690264), Joel Phillips (22967051), Sean Ledesma (22752771), Lara Posel (22972221)
 
 import os
 from typing import Any, Optional
@@ -17,6 +17,9 @@ from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
 import pdfkit
 
+@app.route('/')
+def redirects():
+    return redirect(url_for('home'))
 
 @app.route('/home')
 @login_required
@@ -33,29 +36,95 @@ def edit():
 @app.route('/library') 
 @login_required
 def library():
-    students = studentRep()
-    return render_template('library.html', students=students)
+    #students = studentRep()
+    return render_template('library.html', students=[])
 
 @app.route('/reports/student')
-# @login_required
+@login_required
 def reportStudents():
     students = db.session.query(Student.student_number.label('id'), Student.name).all()
     return render_template('reports/student_search.html', students=students)
 
 
-@app.route('/reports/logs')
-#@login_required
-def studentLogs():
-    return render_template('reports/logs.html')
+@app.route('/reports/logs/<int:student_number>')
+@login_required
+def studentLogs(student_number):
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+    logs = ActivityLog.query.filter_by(studentid=studentid).all()
 
-@app.route('/reports/student/<studentid>')
-# @login_required
+    #Get Queries   
+    units: list[Unit] = Unit.query.order_by(
+        Unit.unitid).all()
+    locations: list[Location] = Location.query.order_by(
+        Location.locationid).all()
+    supervisors: list[Supervisor] = Supervisor.query.order_by(
+        Supervisor.supervisorid).all()
+    domains: list[Domain] = Domain.query.order_by(
+        Domain.domainid).all()
+    activities: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    subst_data = {
+        "student_db_id": studentid
+    }
+
+    data = {
+        "student": s,
+        "locations": locations,
+        "supervisors": supervisors,
+        "domains": domains,
+        "units": units,
+        "activities": activities
+    }
+
+    return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
+
+@app.route("/reports/submit_edit", methods=['POST'])
+@login_required
+def submit_edit():
+    """Send Post Request to that page, on the client has JSON file. Extracts json file from body"""
+    data = request.get_json()
+
+    print(data)
+    
+    #Update Row with new Data
+    new_log: ActivityLog = ActivityLog.query.filter_by(logid=data['logid']).one()
+    assert new_log.studentid == data["studentid"], f"DB has edit request for {data['logid']} with student {new_log.studentid}, while request has {data['studentid']}"
+    new_log.locationid = data["locationid"]
+    new_log.supervisorid = data["supervisorid"]
+    new_log.activityid = data["activityid"]
+    new_log.domainid =  data["domainid"]
+    new_log.minutes_spent = data["minutes_spent"]
+    # new_log.record_date = data["record_date"]
+    new_log.unitid = data["unitid"]
+
+    service_date_datetime: datetime = 0
+    try:
+        #service_date_datetime = datetime.strptime(data["record_date"], "%Y-%m-%d")
+        # strip weird "Z" character
+        processed_date = data["record_date"].replace("Z", "")
+        service_date_datetime = datetime.fromisoformat(processed_date)
+        service_date_date = service_date_datetime.date()
+        new_log.record_date = service_date_date
+    except ValueError:
+        print(f"failed to parse '{data['record_date']}' to datetime (record date). ignoring any changes")
+
+    session: scoped_session = db.session
+    session.commit()
+
+    # TODO: do more stuff
+    return jsonify({"success": True})
+
+
+@app.route('/reports/student/<int:studentid>')
+@login_required
 def reportStudent(studentid):
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
 
-@app.route('/reports/student/pdf/<studentid>')
-# @login_required
+@app.route('/reports/student/pdf/<int:studentid>')
+@login_required
 def reportStudentPdf(studentid):
     data = get_student_info(studentid)
 
@@ -69,23 +138,46 @@ def reportStaff():
 
 
 @app.route('/reports/location')
-# @login_required
-def reportLocations():
-    # hardcoded location for now: whatever "1" is
-    location_id = 1
+@login_required
+def reportLocationsSearch():
+    locations = db.session.query(Location.locationid.label('id'), Location.location).all()
+    return render_template('reports/location_search.html', locations=locations)
+
+@app.route('/reports/location/<int:locationid>')
+@login_required
+def reportLocations(locationid):
     # TODO: also filter based on year/semester if relevant
-    data = get_location_info(location_id)
+    data = get_location_info(locationid)
 
     return render_template('reports/location.html', data=data)
+
+@app.route('/reports/location/pdf/<int:locationid>')
+@login_required
+def reportLocationPdf(locationid):
+    # TODO: also filter based on year/semester if relevant
+    data = get_location_info(locationid)
+
+    return render_template('reports/location_pdf.jinja', data=data)
 
 
 @app.route('/reports/cohort')
 @login_required
-def reportCohorts():
-    # hardcoded cohort for now: 2022
-    year = date.today().year
-    data = get_cohort_info(year)
+def reportCohortsSearch():
+    #years = db.session.query(func.year(ActivityLog.record_date)).group_by(func.year(ActivityLog.record_date)).all()
+    cohorts = db.session.query(ActivityLog.year, ActivityLog.unitid, Unit.unit).join(Unit).group_by(ActivityLog.year, ActivityLog.unitid).all()
+    return render_template('reports/cohort_search.html', cohorts=cohorts)
+
+@app.route('/reports/cohort/<int:cohort_unit>/<int:cohort_year>')
+@login_required
+def reportCohorts(cohort_unit, cohort_year):
+    data = get_cohort_info(cohort_unit, cohort_year)
     return render_template('reports/cohort.html', data=data)
+
+@app.route('/reports/cohort/pdf/<int:cohort_unit>/<int:cohort_year>')
+@login_required
+def reportCohortPdf(cohort_unit, cohort_year):
+    data = get_cohort_info(cohort_unit, cohort_year)
+    return render_template('reports/cohort_pdf.jinja', data=data)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -127,7 +219,7 @@ def update_db_qualtrics():
     os.remove(json_path)
     os.rmdir("MyQualtricsDownload")
 
-@app.route('/update', methods=['GET', 'POST'])
+@app.route('/update', methods=['POST'])
 def updateroute():
     """Temporary route: to manually update DB from Qualtrics. Remove GET later as not idempotent"""
     update_db_qualtrics()
