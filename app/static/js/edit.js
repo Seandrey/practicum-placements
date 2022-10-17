@@ -36,6 +36,18 @@ function setupDropdown(className, dbQueryResults) {
     }
 }
 
+/**
+ * Restore an input to text form.
+ * @param {HTMLInputElement} input 
+ */
+function restoreDateInput(input) {
+    // restore upon exit
+    const parent = input.parentElement;
+    const dateVal = input.value;
+    parent.removeChild(input);
+    parent.textContent = dateVal;
+}
+
 function setup() {
     // -------------------------------------------------------------------------------------
     // Create 'Locations' drop down box: 
@@ -88,7 +100,7 @@ function setup() {
 
     const allSelects = document.getElementsByClassName('select');
     for (const tableData of allSelects) {
-        tableData.addEventListener('dblclick', function (event) {
+        tableData.addEventListener('dblclick', function () {
             const dropDown = this.firstElementChild;
             dropDown.removeAttribute("disabled");
         });
@@ -140,6 +152,26 @@ function setup() {
             }
         });
 
+    }
+
+    const dateFields = document.getElementsByClassName("date-field");
+    for (const dateField of dateFields) {
+        dateField.addEventListener("dblclick", () => {
+            // check if has input already
+            if (dateField.getElementsByTagName("input").length === 0) {
+                const dateText = dateField.textContent;
+
+                // create input with type date
+                const input = document.createElement("input");
+                input.type = "date";
+                input.value = dateText;
+                input.addEventListener("blur", () => restoreDateInput(input));
+                
+                // remove text and add input
+                dateField.textContent = "";
+                dateField.appendChild(input);
+            }
+        });
     }
 }
 
@@ -211,6 +243,13 @@ function getMinutesField(rowElem) {
  * @returns date value
  */
 function getDateField(rowElem) {
+    // first, ensure date is in text form. if not, make it
+    const dateFields = rowElem.getElementsByClassName("date-field");
+    console.assert(dateFields.length === 1);
+    const input = dateFields[0].getElementsByTagName("input");
+    if (input.length !== 0) 
+        restoreDateInput(input[0]);
+
     const text = getTextField(rowElem, "date-field");
 
     const parsedDate = new Date(text);
@@ -228,7 +267,6 @@ function submitUpdate(id, button_elem) {
     // get table row
     const row_elem = button_elem.parentElement.parentElement;
     console.assert(row_elem instanceof HTMLTableRowElement);
-    console.log(row_elem);
 
     // make object
     const gameObj = {
