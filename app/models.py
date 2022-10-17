@@ -6,7 +6,7 @@ from datetime import date, time, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login, db
-from sqlalchemy import JSON, func
+from sqlalchemy import JSON, func, extract
 from sqlalchemy.ext.hybrid import hybrid_property
 
 class User(UserMixin, db.Model):
@@ -115,3 +115,12 @@ class ActivityLog(db.Model):
 
     def __repr__(self):
         return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, location {self.locationid}, activity {self.activityid}, domain {self.domainid}, unit {self.unitid}, of {self.minutes_spent} m on {self.record_date} (response {self.responseid})>'
+
+    @hybrid_property
+    def year(self):
+        #return func.year(self.record_date)
+        return self.record_date.year
+
+    @year.expression
+    def year(cls):
+        return extract("year", cls.record_date)

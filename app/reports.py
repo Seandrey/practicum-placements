@@ -238,10 +238,15 @@ def get_year_flist(year: int) -> list:
     """Returns an flist for the year given, to pass into get_domain_table()"""
     return [ActivityLog.record_date.between(date(year, 1, 1), date(year, 12, 31))]
 
+def get_cohort_flist(unitid: int, year: int) -> list:
+    """Returns an flist for year and unit given, to pass into get_domain_table()"""
+    year_flist = get_year_flist(year)
+    year_flist.append(ActivityLog.unitid == unitid)
+    return year_flist
 
-def get_cohort_info(year: int) -> dict[str, Any]:
+def get_cohort_info(unitid: int, year: int) -> dict[str, Any]:
     """Generates data used for cohort page"""
-    domains = get_domain_table(get_year_flist(year))
+    domains = get_domain_table(get_cohort_flist(unitid, year))
 
     activity_names: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()
@@ -249,12 +254,14 @@ def get_cohort_info(year: int) -> dict[str, Any]:
     # add "total" row at bottom
     total_row = gen_total_row(domains, activity_names)
 
+    unit: Unit = Unit.query.filter_by(unitid=unitid).one()
     data = {
         "year": year,
         "domains": domains,
         "activity_names": activity_names,
         "total_row": total_row,
-        "graph": build_chart_from_table(f"Cohort {year}", domains, activity_names),
+        "graph": build_chart_from_table(f"Cohort {year} ({unit.unit})", domains, activity_names),
+        "unit": unit
     }
     return data
 

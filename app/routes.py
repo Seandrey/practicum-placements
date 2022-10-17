@@ -47,7 +47,7 @@ def reportStudents():
     return render_template('reports/student_search.html', students=students)
 
 
-@app.route('/reports/logs/<student_number>')
+@app.route('/reports/logs/<int:student_number>')
 #@login_required
 def studentLogs(student_number):
     s: Student = Student.query.filter_by(student_number=student_number).one()
@@ -82,9 +82,8 @@ def studentLogs(student_number):
     return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
 
 @app.route("/reports/submit_edit", methods=['POST'])
-
-# Send Post Request to that page, on the client has JSON file. Extracts json file from body
 def submit_edit():
+    """Send Post Request to that page, on the client has JSON file. Extracts json file from body"""
     data = request.get_json()
 
     print(data)
@@ -107,13 +106,13 @@ def submit_edit():
     return jsonify({"success": True})
 
 
-@app.route('/reports/student/<studentid>')
+@app.route('/reports/student/<int:studentid>')
 # @login_required
 def reportStudent(studentid):
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
 
-@app.route('/reports/student/pdf/<studentid>')
+@app.route('/reports/student/pdf/<int:studentid>')
 # @login_required
 def reportStudentPdf(studentid):
     data = get_student_info(studentid)
@@ -133,7 +132,7 @@ def reportLocationsSearch():
     locations = db.session.query(Location.locationid.label('id'), Location.location).all()
     return render_template('reports/location_search.html', locations=locations)
 
-@app.route('/reports/location/<locationid>')
+@app.route('/reports/location/<int:locationid>')
 # @login_required
 def reportLocations(locationid):
     # TODO: also filter based on year/semester if relevant
@@ -145,9 +144,14 @@ def reportLocations(locationid):
 @app.route('/reports/cohort')
 @login_required
 def reportCohorts():
-    # hardcoded cohort for now: 2022
-    year = date.today().year
-    data = get_cohort_info(year)
+    #years = db.session.query(func.year(ActivityLog.record_date)).group_by(func.year(ActivityLog.record_date)).all()
+    cohorts = db.session.query(ActivityLog.year, ActivityLog.unitid, Unit.unit).join(Unit).group_by(ActivityLog.year, ActivityLog.unitid).all()
+    return render_template('reports/cohort_search.html', cohorts=cohorts)
+
+@app.route('/reports/cohort/<int:cohort_unit>/<int:cohort_year>')
+@login_required
+def reportCohortsSearch(cohort_unit, cohort_year):
+    data = get_cohort_info(cohort_unit, cohort_year)
     return render_template('reports/cohort.html', data=data)
 
 

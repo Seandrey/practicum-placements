@@ -1,0 +1,112 @@
+<!-- Author: David Norris (22690264), Lara Posel (22972221), Joel Phillips (22967051) -->
+{% extends 'templates/auth_area.html' %}
+{% set active_page = 'cohort' %}
+
+{% block head %}
+{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reports.css') }}">
+    <script>
+        const downloadFile = (blob, fileName) => {
+          // Author David Norris (22690264),
+          const link = document.createElement('a');
+          // make blobURI that points to blob
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          // for compatibility, some browsers require a link
+          document.body.append(link);
+          link.click();
+          link.remove();
+          // save memory if blob is using a lot
+          setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+        };
+
+        const getChartPng = (cohortUnit, cohortUnitId, cohortYear) => {
+            // Author David Norris (22690264)
+            let printWindow = window.open(`/reports/cohort/pdf/${cohortUnitId}/${cohortYear}`, '', 'height=1000,width=1000');
+            printWindow.onload = () => {
+                let chartImg = printWindow.document.getElementById('chartImage');
+                const awaitChart = () => {
+                    // we need the charts api to of converted image to uri in img.src
+                    if (chartImg.src === '') {
+                        // timeout to come back in 50 ms and don't exec until re-test
+                        setTimeout(awaitChart, 50);
+                        return;
+                    }
+                    fetch('/makepdf', {
+                        method: 'POST',
+                        headers: {
+                          'Accept': 'application/pdf',
+                          'Content-Type': 'text/html'
+                        },
+                        body: printWindow.document.getElementById('wrapper').innerHTML
+                    })
+                    .then((response) => {
+                        printWindow.close();
+                        return response.blob();
+                    })
+                    .then((data) => {
+                        downloadFile(data, `Report-Cohort-${cohortUnit}-${cohortYear}.pdf`);
+                    })
+                };
+                awaitChart();
+            };
+        }
+
+        const searchFilterLocations = () => {
+            // Author David Norris (22690264), Sean Ledesma (22752771)
+            const filter = document.getElementById("myInput").value;
+            const reg = new RegExp(`(^|\\s)${filter}`, 'i');
+
+            const locationRows = document.querySelectorAll("#cohortTable > tbody > tr");
+            for (const locationRow of locationRows) {
+                const id = locationRow.getElementsByClassName("cohort-unit-field")[0].textContent;
+                const name = locationRow.getElementsByClassName("cohort-year-field")[0].textContent;
+
+                if (name !== "" || id !== "") 
+                    locationRow.style.display = reg.test(name) || reg.test(id) ? "" : "none";
+            }
+        };
+    </script>
+{% endblock %}
+
+{% block content %}
+<h3 id="cohortTitle"><div>Cohort Reports</div></h3>
+
+<div id = "searchContainer">
+<i class="fa fa-search searchIcon" aria-hidden="true"></i>
+
+<input type="text" class="searchBox" onkeyup="searchFilterLocations()" id="myInput" placeholder="Enter cohort unit or year...">
+</div>
+<div id='pdfcontainer'></div>
+<div class="tableContainer card">
+<table id="cohortTable">
+    <thead>
+    <tr id="headerRow">
+        <th>Results</th>
+        <th></th>
+        <th><button class="functionButton"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i>  Sort</button></th>
+        <th><button class="functionButton"><i class="fa fa-filter" aria-hidden="true"></i>  Filter</button></th>
+    </tr>
+    
+    <tr id="headerRow2">
+        <th>Cohort Unit</th>
+        <th>Cohort Year</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {%- for cohort in cohorts %}
+    <tr>
+        <td class="cohort-unit-field">{{cohort.unit}}</td>
+        <td class="cohort-year-field">{{cohort.year}}</td>
+        <td><a href='./cohort/{{cohort.unitid}}/{{cohort.year}}'><button class="makeReport">See Report</button></a></td>
+        <td><button onClick='getChartPng({{cohort.unit}}, {{cohort.unitid}} {{cohort.year}})' class="makePDF">Download PDF</button></td>
+    </tr>
+    {%- endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
