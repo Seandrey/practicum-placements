@@ -1,7 +1,7 @@
 # Python code to import survey data from Qualtrics
 # Author: Joel Phillips (22967051)
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import io
 import json
 import os
@@ -13,7 +13,7 @@ import requests
 
 from sqlalchemy.orm.scoping import scoped_session
 from app import db
-from app.models import Activity, ActivityLog, Domain, Location, Student, Supervisor, Unit
+from app.models import Activity, ActivityLog, Domain, LastDbUpdate, Location, Student, Supervisor, Unit
 
 # constants: question names (exact website match) as strings
 STUDENT_NAME = "Name"
@@ -43,11 +43,25 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
         "x-api-token": api_token
     }
 
+    # get last import date
+    last_update: Optional[LastDbUpdate] = LastDbUpdate.query.one_or_none()
+    if last_update is None:
+        # set to some value to import everything ever - set as 2019 here, but could be older
+        some_old_date = datetime.fromisoformat("2019-04-30T07:31:43")
+        last_update = LastDbUpdate(updatedate=some_old_date)
+        db.session.add(last_update)
+        db.session.commit()
+
+    # get to UTC
+    last_date_utc = last_update.updatedate - timedelta(hours=8)
+    print(last_date_utc.isoformat())
+
     # 1: create data export
     data = {
         "format": "json", # JSON seems more difficult to use. See if can parse CSV adequately
         #"seenUnansweredRecode": 2, # converts questions that weren't answered to "2", can't be used for JSON
-        "startDate": "2019-04-30T07:31:43Z", # only export after given date, inclusive
+        #"startDate": "2019-04-30T07:31:43Z", # only export after given date, inclusive
+        "startDate": last_date_utc.isoformat() + "Z"
         #"useLabels": True # shows text shown to user instead of internal numbers. can't use for JSON
         #"compress": False # can not make it a zip file
     }
@@ -305,7 +319,15 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
             log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date, unitid=unit.unitid, responseid=response_id)
             session.add(log_row)
-        session.commit()
+
+    # update date
+    last_update: LastDbUpdate = LastDbUpdate.query.one()
+    # make this a bit before current in case responses received in meantime
+    last_update.updatedate = datetime.now() - timedelta(hours=1)
+    print(last_update)
+
+    session: scoped_session = db.session
+    session.commit()
 
 def get_survey_format(survey_id: str, api_token: str, data_centre: str) -> dict[str, dict]:
     """Gets format of survey (question name mapping, etc.). Adapted from https://api.qualtrics.com/ZG9jOjg3NzY3Mw-managing-surveys"""

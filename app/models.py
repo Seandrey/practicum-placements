@@ -124,3 +124,11 @@ class ActivityLog(db.Model):
     @year.expression
     def year(cls):
         return extract("year", cls.record_date)
+
+class LastDbUpdate(db.Model):
+    """Used to store the datetime of the last update from Qualtrics. Here instead of in server to enable better concurrency"""
+    updateid = db.Column(db.Integer, primary_key=True)
+    updatedate = db.Column(db.DateTime, unique=True, index=True)
+
+    def __repr__(self):
+        return f'<LastDBUpdate {self.updatedate} (id {self.updateid})>'

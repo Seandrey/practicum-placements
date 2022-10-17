@@ -25,12 +25,12 @@
         ];
         const domains = [
             {% for domain in data.domains %}
-            {id: {{domain.domainid}}, name: "{{domain.domain}}"},
+            {id: {{domain.domainid}}, name: '{{domain.domain}}'.replace("&amp;", "&")},
             {% endfor %}
         ];
         const activities = [
             {% for activity in data.activities %}
-            {id: {{activity.activityid}}, name: "{{activity.activity}}"},
+            {id: {{activity.activityid}}, name: '{{activity.activity}}'},
             {% endfor %}
         ];
     </script>

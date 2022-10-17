@@ -1,5 +1,5 @@
 # Build charts for google charts to display and report tables
-# Author: David Norris (22690264), Joel Phillips (22967051)
+# Author: David Norris (22690264), Joel Phillips (22967051), Sean Ledesma (22752771)
 
 from typing import Any, Optional
 from sqlalchemy.orm.scoping import scoped_session
