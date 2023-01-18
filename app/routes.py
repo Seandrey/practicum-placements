@@ -17,6 +17,14 @@ from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
 import pdfkit
 
+#Chaning survey data based on Survery reference
+API_KEY = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
+DATA_CENTRE = "ca1"
+SURVEY_ID = "SV_9XIDg01qrekuOWi"
+SURVEY_NAME = "Computer Science - Exercise Science Logbook Joels copy"
+
+
+
 @app.route('/')
 def redirects():
     return redirect(url_for('home'))
@@ -196,12 +204,14 @@ def loginroute():
 def logoutroute():
     return logoutredirect()
 
+#IMPORTANT
+
 def update_db_qualtrics():
     """TODO: move to another .py file. Updates DB from Qualtrics"""
     # api key, data centre, and survey ID for Joel test survey
-    api_key = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
-    data_centre = "ca1"
-    survey_id = "SV_9XIDg01qrekuOWi"
+    api_key = API_KEY
+    data_centre = DATA_CENTRE
+    survey_id = SURVEY_ID
 
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
     label_lookup = qualtrics_import.get_label_lookup(format)
@@ -210,7 +220,7 @@ def update_db_qualtrics():
 
     qualtrics_import.download_zip(survey_id, api_key, data_centre)
 
-    json_path = "MyQualtricsDownload/Computer Science - Exercise Science Logbook TRIAL - Copy 2.json"
+    json_path = f"MyQualtricsDownload/{SURVEY_NAME}.json"
     assert os.path.isfile(json_path), "failed to find downloaded .json"
     json = qualtrics_import.load_json(json_path)
     qualtrics_import.test_parse_json(json, label_lookup, format)
