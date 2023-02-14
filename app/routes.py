@@ -20,8 +20,8 @@ import pdfkit
 #Chaning survey data based on Survery reference
 API_KEY = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
 DATA_CENTRE = "ca1"
-SURVEY_ID = "SV_9XIDg01qrekuOWi"
-SURVEY_NAME = "Computer Science - Exercise Science Logbook Joels copy"
+SURVEY_ID = "SV_e2MzVI6odZyLabs"
+SURVEY_NAME = "2023 Activity Log Practicum"
 
 
 
