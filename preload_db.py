@@ -24,6 +24,11 @@ def import_units():
     get_or_add_unit("SSEH3393", 140, True)
     get_or_add_unit("SSEH3394", 140, True)
 
+    # Added prac units, later have website add and make changes to db backend
+    get_or_add_unit("Practicum 1", 40, False)
+    get_or_add_unit("Practicum 2", 40, False)
+    get_or_add_unit("Practicum 3", 0, False)
+
     # note that some units do not have cumulative hours from previous units counted. for example, 
     """
         Units as described by Jo:
