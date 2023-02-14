@@ -20,9 +20,11 @@ import pdfkit
 #Chaning survey data based on Survery reference
 API_KEY = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
 DATA_CENTRE = "ca1"
-SURVEY_ID = "SV_9XIDg01qrekuOWi"
-SURVEY_NAME = "Computer Science - Exercise Science Logbook Joels copy"
+SURVEY_ID = "SV_e2MzVI6odZyLabs"
+SURVEY_NAME = "2023 Activity Log Practicum"
 
+# SV_e2MzVI6odZyLabs
+# 2023 Activity Log Practicum
 
 
 @app.route('/')
@@ -30,32 +32,32 @@ def redirects():
     return redirect(url_for('home'))
 
 @app.route('/home')
-@login_required
+# @login_required
 def home():
     return render_template('home.html')
 
 
 @app.route('/edit')
-@login_required
+# @login_required
 def edit():
     return render_template('edit.html')
 
 
 @app.route('/library') 
-@login_required
+# @login_required
 def library():
     #students = studentRep()
     return render_template('library.html', students=[])
 
 @app.route('/reports/student')
-@login_required
+# @login_required
 def reportStudents():
     students = db.session.query(Student.student_number.label('id'), Student.name).all()
     return render_template('reports/student_search.html', students=students)
 
 
 @app.route('/reports/logs/<int:student_number>')
-@login_required
+# @login_required
 def studentLogs(student_number):
     s: Student = Student.query.filter_by(student_number=student_number).one()
     studentid = s.studentid
@@ -89,7 +91,7 @@ def studentLogs(student_number):
     return render_template('reports/logs.html', logs=logs, subst_data=subst_data, data=data)
 
 @app.route("/reports/submit_edit", methods=['POST'])
-@login_required
+# @login_required
 def submit_edit():
     """Send Post Request to that page, on the client has JSON file. Extracts json file from body"""
     data = request.get_json()
@@ -126,13 +128,13 @@ def submit_edit():
 
 
 @app.route('/reports/student/<int:studentid>')
-@login_required
+# @login_required
 def reportStudent(studentid):
     data = get_student_info(studentid)
     return render_template('reports/student.html', data=data)
 
 @app.route('/reports/student/pdf/<int:studentid>')
-@login_required
+# @login_required
 def reportStudentPdf(studentid):
     data = get_student_info(studentid)
 
@@ -140,19 +142,19 @@ def reportStudentPdf(studentid):
 
 
 @app.route('/reports/staff')
-@login_required
+# @login_required
 def reportStaff():
     return render_template('reports/staff.html')
 
 
 @app.route('/reports/location')
-@login_required
+# @login_required
 def reportLocationsSearch():
     locations = db.session.query(Location.locationid.label('id'), Location.location).all()
     return render_template('reports/location_search.html', locations=locations)
 
 @app.route('/reports/location/<int:locationid>')
-@login_required
+# @login_required
 def reportLocations(locationid):
     # TODO: also filter based on year/semester if relevant
     data = get_location_info(locationid)
@@ -160,7 +162,7 @@ def reportLocations(locationid):
     return render_template('reports/location.html', data=data)
 
 @app.route('/reports/location/pdf/<int:locationid>')
-@login_required
+# @login_required
 def reportLocationPdf(locationid):
     # TODO: also filter based on year/semester if relevant
     data = get_location_info(locationid)
@@ -169,20 +171,20 @@ def reportLocationPdf(locationid):
 
 
 @app.route('/reports/cohort')
-@login_required
+# @login_required
 def reportCohortsSearch():
     #years = db.session.query(func.year(ActivityLog.record_date)).group_by(func.year(ActivityLog.record_date)).all()
     cohorts = db.session.query(ActivityLog.year, ActivityLog.unitid, Unit.unit).join(Unit).group_by(ActivityLog.year, ActivityLog.unitid).all()
     return render_template('reports/cohort_search.html', cohorts=cohorts)
 
 @app.route('/reports/cohort/<int:cohort_unit>/<int:cohort_year>')
-@login_required
+# @login_required
 def reportCohorts(cohort_unit, cohort_year):
     data = get_cohort_info(cohort_unit, cohort_year)
     return render_template('reports/cohort.html', data=data)
 
 @app.route('/reports/cohort/pdf/<int:cohort_unit>/<int:cohort_year>')
-@login_required
+# @login_required
 def reportCohortPdf(cohort_unit, cohort_year):
     data = get_cohort_info(cohort_unit, cohort_year)
     return render_template('reports/cohort_pdf.jinja', data=data)
