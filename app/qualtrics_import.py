@@ -26,7 +26,10 @@ NUM_ACTIVITY_LOGS = "Number of Logs"
 CATEGORY = "Activity Type"
 AEP_DOMAIN = "Domain"
 MINUTES_SPENT = "Minutes"
+ACTIVITY_DESCRIPTION = "3_QID11_TEXT"
 
+# Just Find on of the description as they have all the same Lookup ID
+DOMAIN_DESCRIPTION = "'Assessment' activity?"
 
 def download_zip(survey_id: str, api_token: str, data_centre: str):
     """
@@ -54,7 +57,7 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
 
     # get to UTC
     last_date_utc = last_update.updatedate - timedelta(hours=8)
-    print(last_date_utc.isoformat())
+    # print(last_date_utc.isoformat())
 
     # 1: create data export
     data = {
@@ -67,7 +70,7 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     }
 
     download_req_response = requests.request("POST", url, json=data, headers=headers)
-    print(download_req_response.json())
+    print(f'req response: {download_req_response.json()} \n')
 
     try:
         progress_id = download_req_response.json()["result"]["progressId"]
@@ -123,6 +126,15 @@ def load_json(filename: str) -> dict[str, list[dict]]:
         return data
     # TODO: delete JSON file
 
+# Create New Database
+
+# 1_Q9	1_Q9	1_Q9	1_Q9 - Corresponding Lookup Tables
+# 1 - 'Assessment' activity?	1 - 'Prescription' activity?	1 - 'Delivery' activity?	1 - 'Other' activity? - 60 hours allowed only
+
+
+# 1 - 'Assessment' activity?	1 - 'Prescription' activity?	1 - 'Delivery' activity?	1 - 'Other' activity? - 60 hours allowed only	1 - Minutes
+
+
 class DummyLogModel:
     """Temporary class to act as model for log book main - has some fields required"""
 
@@ -133,6 +145,7 @@ class DummyLogModel:
         self.activity = activity
         self.domain = domain
         self.min_spent = min_spent
+        # TODO: DO I ADD ACTIVITY_DESCRIPTION HERE?
     
     def __repr__(self) -> str:
         return f"<{self.student}, {self.supervisor}, {self.location}, {self.activity}, {self.domain}, {self.min_spent}>"
@@ -168,6 +181,7 @@ def get_answer_label_n(json_response: dict[str, dict[str, str]], key: str, itera
     """Gets answer label for a given question name key of a given iteration"""
     return get_answer_label(json_response, make_n_text(key, iteration))
 
+# Called By ...
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
 
@@ -237,6 +251,10 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
         student_number = lookup_embedded_text(response_val, label_lookup, STUDENT_NUMBER)
+        
+        # Get Description Brief Notes
+
+
         student_number_int: int = 0
         try:
             student_number_int = int(student_number, base=10)
@@ -300,10 +318,10 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
                 session = db.session
             # TODO: probably don't need this anymore
 
-            aep_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
-            domain: Optional[Domain] = Domain.query.filter_by(domain=aep_domain).one_or_none()
+            aes_domain = get_answer_label_n(response, label_lookup[AEP_DOMAIN], i)
+            domain: Optional[Domain] = Domain.query.filter_by(domain=aes_domain).one_or_none()
             if domain is None:
-                domain = Domain(domain=aep_domain)
+                domain = Domain(domain=aes_domain)
                 session.add(domain)
                 session.commit()
                 session = db.session
@@ -316,8 +334,19 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             except ValueError:
                 print(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
                 continue
+            
+            # TODO: ADD FEATURE TO DESCRIPTION ACITIVTY MAKE SURE LABEL LOOKUP ADDS VALUE OF DESCRIPTION_ACTIVITY
+            # activity_description = label_lookup[DESCRIPTION_ACTIVITY]
+            notes = ""
+            try:
+                notes = response_val[ACTIVITY_DESCRIPTION]
+            except KeyError:
+                print("No Description")
+                notes = "No Description"
 
-            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date, unitid=unit.unitid, responseid=response_id)
+            log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date, unitid=unit.unitid, responseid=response_id, \
+                                  activitydesc= notes
+                                  )
             session.add(log_row)
 
     # update date
@@ -337,43 +366,47 @@ def get_survey_format(survey_id: str, api_token: str, data_centre: str) -> dict[
     headers = {"x-api-token": api_token}
 
     response = requests.get(base_url, headers=headers)
-    print("DEBUG: response start---")
-    print(response.text)
-    print("DEBUG: response end---")
+    # print("DEBUG: response start---")
+    # print(response.text)
+    # print("DEBUG: response end---")
 
     # should have a json form, with "result" field. Under "result", has exportColumnMap
+    # Find Activity Description
     return response.json()
 
-def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
-    """Gets label lookup map from less useful Qualtrics form.
-    NOTE: this implementation abandoned. exportColumnMap seems to have less useful data than I thought - 
-    does not have textual column description. Instead trying another way"""
+# def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
+#     """Gets label lookup map from less useful Qualtrics form.
+#     NOTE: this implementation abandoned. exportColumnMap seems to have less useful data than I thought - 
+#     does not have textual column description. Instead trying another way"""
 
-    bad_map = survey_format_json["result"]["exportColumnMap"]
+#     bad_map = survey_format_json["result"]["exportColumnMap"]
 
-    print("DEBUG: export column map---")
-    print(bad_map)
-    print("DEBUG: end export column map---")
+#     print("DEBUG: export column map---")
+#     print(bad_map)
+#     print("DEBUG: end export column map---")
 
-    print(type(bad_map["Q1"]))
-    print(type(bad_map["Q1"]["question"]))
+#     print(type(bad_map["Q1"]))
+#     print(type(bad_map["Q1"]["question"]))
     
-    # now, extract a str-str dictionary from that
-    label_lookup: dict[str, str] = {key: value["question"] for (key, value) in bad_map.items()}
-    return label_lookup
+#     # now, extract a str-str dictionary from that
+#     label_lookup: dict[str, str] = {key: value["question"] for (key, value) in bad_map.items()}
+#     return label_lookup
 
+
+# Called By get Survey Format
 def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
     """Gets label lookup map in form: {"Student Name": "QID1"}. Will not work correctly if names are not unique."""
     questions_map: dict = survey_format_json["result"]["questions"]
 
-    print("DEBUG: export questions map---")
-    print(questions_map)
-    print("DEBUG: end questions column map---")
+    # print("DEBUG: export questions map---")
+    # print(questions_map)
+    # print("DEBUG: end questions column map---")
 
     # now, extract a str-str dictionary from that
     #label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
     label_lookup: dict[str, str] = {}
     for key, value in questions_map.items():
+        print(f'val:{value} key{key}')
         if "questionLabel" in value and value["questionLabel"] is not None:
             label_lookup[value["questionLabel"]] = key
 
@@ -392,6 +425,9 @@ def get_multi_lookup(survey_format_json: dict[str, dict], desired_key: str) -> l
     multi_lookup: list[str] = [key for (key, value) in questions_map.items() if value["questionLabel"] == desired_key]
 
     return multi_lookup
+
+
+# 
 
 # JSON format (apparently):
 """

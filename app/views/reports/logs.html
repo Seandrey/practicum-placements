@@ -44,7 +44,10 @@
     <h3>Activity Logs for {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
     <h6>Double click a table cell to edit it, hit enter to exit editing mode.</h6>
     <div class="card">
-        <table id="activity-log-table">
+        <table id="activity-log-table" .activity-log-table {
+            position: absolute;
+            left: 0;
+          }>
             <tr>
                 <th>Date</th>
                 <th>Unit</th>
@@ -53,17 +56,19 @@
                 <th>Category</th>
                 <th>Domain</th>
                 <th>Minutes</th>
+                <th>Activity Description</th>
                 <th>Submit Changes</th>
             </tr>
             {% for log in logs %}
-            <tr>
-                <td class="date-field">{{log.record_date}}</td>
-                <td class="select unit-field">{{log.unitid}}</td>
+            <tr >
+                <td id =rowDisplay class="date-field"">{{log.record_date}}</td>
+                <td id =rowDisplay class="select unit-field">{{log.unitid}}</td>
                 <td class="select location-field">{{log.locationid}}</td>
                 <td class="select supervisor-field">{{log.supervisorid}}</td>
-                <td class="select exercise-prescription-field">{{log.activityid}}</td>
-                <td class="select domain-field">{{log.domainid}}</td>
+                <td id =rowDisplay class="select exercise-prescription-field">{{log.activityid}}</td>
+                <td id =rowDisplay class="select domain-field">{{log.domainid}}</td>
                 <td class="text-field minutes-field">{{log.minutes_spent}}</td>
+                <td id =rowDisplay class="select activity-field">{{log.activitydesc}}</td>
                 <th><button class="seeLogs" onclick="submitUpdate({{log.logid}}, this)">Submit</button></th>
             </tr>
             {% endfor %}

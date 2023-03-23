@@ -107,7 +107,7 @@ def gen_total_row(domains: list, activity_names: list[Activity]) -> dict:
     for activity in activity_names:
         sum: int = 0
         for row in domains:
-            sum += row[f"{activity.activityid}"]
+            sum += row[activity.activityid]
         total_row[activity.activityid] = sum
         total += sum
     total_row["total"] = total

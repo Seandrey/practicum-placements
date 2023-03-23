@@ -19,7 +19,8 @@ import pdfkit
 
 #Chaning survey data based on Survery reference
 API_KEY = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
-DATA_CENTRE = "ca1"
+API_KEY_2 = "YThuWnPU1PYJwJUQuf0rWYqPJvdTaeGrELNbPZPK"
+DATA_CENTRE = "yul1"
 SURVEY_ID = "SV_e2MzVI6odZyLabs"
 SURVEY_NAME = "2023 Activity Log Practicum"
 
@@ -208,15 +209,35 @@ def logoutroute():
 
 #IMPORTANT
 
+def lookup_manual():
+    "Gets the QID for the Domain Descriptions Since All Domain Descriptions contain the same value we only need to find one"
+    manual_lookup = {}
+
+    questionText = "'Assessment' activity?"
+    for sub in map:
+        if(sub[questionText] == "'Assessment' activity?"):
+            # get question name
+            manual_lookup[DomainDescription] = sub["questionName"]
+            break
+    return manual_lookup
+    # Use Export Questions Map to get QID for values
+
+    # Temporary Solution: Manual Lookup
+
 def update_db_qualtrics():
     """TODO: move to another .py file. Updates DB from Qualtrics"""
     # api key, data centre, and survey ID for Joel test survey
-    api_key = API_KEY
+    api_key = API_KEY_2
     data_centre = DATA_CENTRE
     survey_id = SURVEY_ID
 
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
+    # Get Survey Format
     label_lookup = qualtrics_import.get_label_lookup(format)
+    print(f'LABEL LOOKUP:{label_lookup}')
+
+    
+
 
     qualtrics_import.add_known_choices(label_lookup, format)
 

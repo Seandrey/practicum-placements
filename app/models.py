@@ -108,6 +108,10 @@ class ActivityLog(db.Model):
     domainid = db.Column(db.Integer, db.ForeignKey(Domain.domainid))
     minutes_spent = db.Column(db.Integer)
     record_date = db.Column(db.Date)
+
+    "Description of Notes"
+    activitydesc = db.Column(db.String(255))
+
     """The date the service was recorded for"""
     unitid = db.Column(db.Integer, db.ForeignKey(Unit.unitid))
     responseid = db.Column(db.String(64))
@@ -132,3 +136,10 @@ class LastDbUpdate(db.Model):
 
     def __repr__(self):
         return f'<LastDBUpdate {self.updatedate} (id {self.updateid})>'
+
+# Description of Other, Prescription, Delivery, Assesment 
+class DomainDescription(db.Model):
+    "Stores the corresponding DomainDescriptions for each domain"
+    domain_description = db.Column(db.String(180))
+    domainid = db.Column(db.Integer, db.ForeignKey(Domain.domainid))
+    domain_descid = db.Column(db.Integer, primary_key=True)
