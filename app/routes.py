@@ -28,6 +28,19 @@ SURVEY_NAME = "2023 Activity Log Practicum"
 # 2023 Activity Log Practicum
 
 
+
+
+from flask import Flask, request, redirect, url_for
+
+@app.route('/submit', methods=['GET','POST'])
+def submit():
+    # Do something with the form data
+    if request.method == 'POST':
+        form_data = request.form.getlist('vehicle')
+        print('Form data:', form_data)
+        return redirect(url_for('run', form_data=form_data))
+    return render_template('reports/new_template.html')
+
 @app.route('/')
 def redirects():
     return redirect(url_for('home'))
@@ -57,7 +70,43 @@ def reportStudents():
     return render_template('reports/student_search.html', students=students)
 
 
-@app.route('/reports/logs/<int:student_number>')
+
+
+
+@app.route('/reports/student/<int:student_number>/<unit_values>')
+# @login_required
+def reportStudent(student_number, unit_values):
+    print("unitid", unit_values) # <----- unitid's in Local DB
+    new_list = [int(x) for x in unit_values.split('-')]
+    print("student_number", student_number)
+    data = get_student_info(student_number, new_list)
+    return render_template('reports/student.html', data=data, student_number=student_number)
+
+@app.route('/reports/student/<int:student_number>/', methods=["GET","POST"])
+def students_units(student_number):
+    if request.method == 'POST':
+        unit_values = request.form.getlist('units')
+        print('Form data:', unit_values)
+        for i in unit_values:
+            print("id:", i)
+        return redirect(url_for('reportStudent', student_number=student_number, unit_values='-'.join(unit_values)))
+        # Convert list of unit_values to a string with '-' as separator
+        
+    result = db.session.query(Unit.unitid, Unit.unit).\
+            join(ActivityLog).\
+            join(Student).\
+            filter(Student.student_number==student_number).\
+            distinct().all()
+
+    data = {
+        "units": result
+    }
+    return render_template('reports/selectunits.html', data=data, student_number=student_number)
+
+
+
+
+@app.route('/reports/logs/<int:student_number>/')
 # @login_required
 def studentLogs(student_number):
     s: Student = Student.query.filter_by(student_number=student_number).one()
@@ -128,16 +177,15 @@ def submit_edit():
     return jsonify({"success": True})
 
 
-@app.route('/reports/student/<int:studentid>')
-# @login_required
-def reportStudent(studentid):
-    data = get_student_info(studentid)
-    return render_template('reports/student.html', data=data)
 
-@app.route('/reports/student/pdf/<int:studentid>')
+# WORKING ON IT
+@app.route('/reports/student/pdf/<int:student_number>/<unit_values>')
 # @login_required
-def reportStudentPdf(studentid):
-    data = get_student_info(studentid)
+def reportStudentPdf(studentid, unit_values):
+    print(request.args.get('units'))
+    print("touched")
+    new_list = [int(x) for x in unit_values.split('-')]
+    data = get_student_info(studentid, new_list)
 
     return render_template('reports/student_pdf.jinja', data=data)
 
@@ -207,7 +255,8 @@ def loginroute():
 def logoutroute():
     return logoutredirect()
 
-#IMPORTANT
+
+
 
 def lookup_manual():
     "Gets the QID for the Domain Descriptions Since All Domain Descriptions contain the same value we only need to find one"

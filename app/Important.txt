@@ -1,0 +1,34 @@
+1. Create a Practicum Placement Page after the Student. 
+2. Make it so that the Person has to select which placements to Aggregate Together.
+
+	2.1 Page sends post request json, somthing like {Units: "Practium 1", "Prac 2", "Prac 3" ...},
+	function receives Request,
+	2.2 Create Report Function Receives the Dictionary of String,
+	2.3 get request for units
+	2.4 psuedo "Filter_by(unitid=unitlist)
+	2.5 Sum unit times together, Return value fields of minutes, Domain, Cat,
+	2.6 Pass Values to Page,
+	2.7. Page Values Reads 3 Reports pages, Displays Passes and Hours for each unit
+	2.8 Remove 0.0 Values
+
+3.1 Add post request for clearing and reloading database
+3.2 Create Listener For Description, Don't Wrap until event listener mouse presses Description then display Full Message
+
+3.3 Add Batch Report Full Hours
+
+3. Practicum Placements for Students add page
+
+4.1 Add Unit for Placements
+
+4. Create Log Page
+
+5. Edit Feature For description Change String
+
+Hours Notes
+Batch Changes
+
+
+1. Unit Page
+	1.1 Query Units for Activity Logs, Refer to Django
+	1.2 Create Page of Selection of units
+	1.3 Create Page where units selected are reflected

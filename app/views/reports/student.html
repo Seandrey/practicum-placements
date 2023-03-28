@@ -9,9 +9,17 @@
 {% endblock %}
 
 {% block content %}
+
+<style>
+  .highlight {
+      background-color: #ccbb22;
+  }
+</style>
+
 <div class='row'>
   <h3 class='title' style="display:inline-block"><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
-  <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
+  <a href='/reports/student/{{student_number}}'><button class="backButton" style="float: right">Back to search</button></a>
+  <a><button onClick='getChartPng({{student_number}})' class="makePDF" style="float: right">Download PDF</button></td></a>
 </div>
 <div class='row'>
     <div class='three columns vertical-fill'>
@@ -24,13 +32,32 @@
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                  <td>{{[(data.required_min - data.graph.total), 0] | max  | round(2, 'common') }}</td>
+                    <td>{{[(data.units[0] - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
         <div class='card'>
             <h5>CHECK</h5>
-            <h2>{{ 'PASSED' if ((data.required_min - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
+            <h4>{{ 'PASSED' if ((data.units[0] - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
+        </div>
+        <div class='card'>
+          <h5>Selected Units</h5>
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  Units
+                </th>
+                <td>Hours Done</td>
+              </tr>
+            </thead>
+          {% for unit_names in data.results%}
+            <tr>
+              <th>{{unit_names[0]}}</th>
+              <td>{{unit_names[1] | round(2, 'common')}}</td>
+            </tr>
+          {% endfor %}
+          </table>
         </div>
     </div>
     <div class='nine columns vertical-fill'>
@@ -58,36 +85,51 @@
         <table class="u-full-width activity-aep-table">
             <thead>
                 <tr>
-                    <th></th>
-                    <!-- <th colspan="5" style="text-align:left">Activity Type</th> -->
                     <th colspan="5" style="text-align: center;">Activity Type</th>
+                    <th>Total</th>
                 </tr>
                 <tr>
                     <th>AES Domains</th>
                     {% for activity in data.activity_names %}
                     <th>{{activity.activity}}</th>
                     {% endfor %}
-                    <th>TOTAL</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-              {% for domain in data.domains %}
-              <tr>
-                  <td>{{domain.domain}}</td>
-                  {% for activity in data.activity_names %}
-                  <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
-                  {% endfor %}
-                  <td>{{domain.total | round(2, 'common')}}</td>
-              </tr>
-              {% endfor %}
-              <tr>
-                  <td>{{data.total_row.domain}}</td>
-                  {% for activity in data.activity_names %}
-                  <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
-                  {% endfor %}
-                  <td>{{data.total_row.total | round(2, 'common')}}</td>
-              </tr>
-          </tbody>
+                {% for domain in data.domains %}
+                <tr>
+                    <td>{{domain.domain}}</td>
+                    {% for activity in data.activity_names %}
+                    {% if domain[activity.activityid] == 0 %}
+                    <td>{{domain[activity.activityid] | round(2, 'common')}}</td>
+                    {% else %}
+                    <td class="highlight">{{domain[activity.activityid] | round(2, 'common')}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    {% if domain.total == 0 %}
+                    <td>{{domain.total | round(2, 'common')}}</td>
+                    {% else %}
+                    <td class="highlight">{{domain.total | round(2, 'common')}}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td>{{data.total_row.domain}}</td>
+                    {% for activity in data.activity_names %}
+                    {% if data.total_row[activity.activityid] == 0 %}
+                    <td>{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+                    {% else %}
+                    <td class="highlight">{{data.total_row[activity.activityid] | round(2, 'common')}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    {% if data.total_row.total == 0 %}
+                    <td>{{data.total_row.total | round(2, 'common')}}</td>
+                    {% else %}
+                    <td class="highlight">{{data.total_row.total | round(2, 'common')}}</td>
+                    {% endif %}
+                </tr>
+            </tbody>
         </table>
       </div>
     </div>

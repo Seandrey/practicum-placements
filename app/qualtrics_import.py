@@ -27,10 +27,22 @@ CATEGORY = "Activity Type"
 AEP_DOMAIN = "Domain"
 MINUTES_SPENT = "Minutes"
 ACTIVITY_DESCRIPTION = "3_QID11_TEXT"
-
 # Just Find on of the description as they have all the same Lookup ID
 DOMAIN_DESCRIPTION = "'Assessment' activity?"
 
+DEBUG_FILE_NAME = datetime.now().strftime("%d/%m/%Y-%H:%M")
+
+def Debuggerlog(error_string: str):
+    try:
+        with open(DEBUG_FILE_NAME, "a") as file:
+            file.write(error_string)
+    except FileNotFoundError:
+        with open(DEBUG_FILE_NAME, "w") as file:
+            file.write(error_string)
+
+
+
+# Downloads Respective QID and Survery Name Title for Label Lookup
 def download_zip(survey_id: str, api_token: str, data_centre: str):
     """
     Code based on Qualtrics API example: https://api.qualtrics.com/ZG9jOjg3NzY3Nw-new-survey-response-export-guide
@@ -112,6 +124,7 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     zipfile.ZipFile(io.BytesIO(request_download.content)).extractall("MyQualtricsDownload")
     print("complete")
 
+# Downloads Response Survey Detecting Key 
 def load_json(filename: str) -> dict[str, list[dict]]:
     """Loads JSON file to python dictionary"""
     with open(filename) as file:
@@ -127,11 +140,8 @@ def load_json(filename: str) -> dict[str, list[dict]]:
     # TODO: delete JSON file
 
 # Create New Database
-
 # 1_Q9	1_Q9	1_Q9	1_Q9 - Corresponding Lookup Tables
 # 1 - 'Assessment' activity?	1 - 'Prescription' activity?	1 - 'Delivery' activity?	1 - 'Other' activity? - 60 hours allowed only
-
-
 # 1 - 'Assessment' activity?	1 - 'Prescription' activity?	1 - 'Delivery' activity?	1 - 'Other' activity? - 60 hours allowed only	1 - Minutes
 
 
@@ -150,6 +160,7 @@ class DummyLogModel:
     def __repr__(self) -> str:
         return f"<{self.student}, {self.supervisor}, {self.location}, {self.activity}, {self.domain}, {self.min_spent}>"
 
+# Looksup Labels Class
 class LabelLookup:
     """Class to lookup labels in more intelligent way"""
 
@@ -167,6 +178,10 @@ class LabelLookup:
     def get_text(self, key: str) -> str:
         """Based on JSON having '_TEXT' suffix for text"""
         return f'{self[key]}_TEXT'
+
+def DescActivityLookup():
+    """Lookup Description Activity for activities"""
+    return ''
 
 def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
     """Gets answer label for given question name key"""
@@ -192,13 +207,17 @@ def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup
 
     return response_val[label_lookup.get_text(label_name)]
 
+# Looks at where it is called
 def get_multi_label(json_response: dict[str, dict[str, str]], multi_lookup: list[str], original_lookup: str) -> str:
     """Lookup answer label for a multi-label question (i.e. many mutually-exclusive questions sharing same label)"""
     labels = json_response["labels"]
+
+
     for qid in multi_lookup:
+        # Error could be that it didnt find ANY QID for Supervisor Lookup BECAUSE THE SURVEY DOESNT HAVE A SUPERVISOR SELECTED
         if qid in labels:
             return labels[qid]
-    raise Exception(f"failed to find key '{original_lookup}' in labels")
+    raise Exception(f"Failed to find QID Key for Supervisor, Does the response have a Supervisor? Response ID: {json_response['responseid']} \n printing Original Lookup: '{original_lookup}' in labels  \n Printing qid: {qid} \n Printing Label Logs {labels} \n {json_response} \n")
     return ""
 
 dbModel = TypeVar("dbModel", bound=db.Model)
@@ -283,6 +302,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
         # supervisor is more complicated as has multiple questions as implementation. so use multi lookup
         supervisor_lookup = get_multi_lookup(format, PLACEMENT_SUPERVISOR)
+        # print(f'Supervisor Lookup f{supervisor_lookup}')
         supervisor_name = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
         supervisor = get_or_add_db(Supervisor, {"name": supervisor_name})
 

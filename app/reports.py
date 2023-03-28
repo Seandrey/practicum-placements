@@ -8,6 +8,7 @@ from app import db
 import random
 import contextlib
 from sqlalchemy import MetaData
+from sqlalchemy import func
 
 # 500 Random names
 names_list = ["Brandon Bell", "Victoria Little", "Samuel Wilkinson", "Charles Taylor", "Stephen Hopkins", "Justin Chan", "Matthew Hobbs", "George Morgan", "Donald Ritter", "Margaret Hamilton", "William Mullen", "Keith Simmons", "Roberta Boyle", "Tammy Matthews", "Ryan Stephens", "Helen Thompson", "Judith Smith", "Timothy Mack", "Lisa Hernandez", "Gabriel Willis", "Zachary Smith", "Sylvia Chen", "Sydney Johnson", "Cheryl Miller", "Casey Green", "Justin Miller", "Robert Welch", "Jesse Farley", "Courtney Wilson", "Craig Brown", "Christine Mendoza", "Danielle Juarez", "Bridget Blake", "Bailey Brown", "Juan Shannon", "Eric Mcclure", "Rachel Hudson", "Melissa Garcia", "Andrew Tran", "James Gonzalez", "Rachel Smith", "Christopher Morrow", "Shane Stark", "Earl Johnson", "Larry Moss", "Laurie Case", "Jennifer Garner", "Robert Ramos", "Chris Wilkins", "Maria Rice", "Margaret Jenkins", "Charles Ferguson", "Seth Jones", "Alex Thompson", "James Mcbride", "Annette Brown", "Jennifer Orozco", "Daniel Cannon", "Caleb Christensen", "Kathleen Smith", "Laura Hernandez", "Douglas Johnson", "Theresa Taylor", "Cynthia Mann", "Angelica Spencer", "Eileen Patel", "Elizabeth Thompson", "Richard Lee", "Sierra Daniels", "Christine Perez", "Barry Daniel", "Justin Bates", "Edwin Stone", "Paul Garner", "Randy Chapman", "Jamie Jones", "Alex Rose", "Melissa Williams", "Michelle Reed", "John Salinas", "Debra Michael", "Donna Hendricks", "Thomas Romero", "Robert Cochran", "Ryan Grant", "Terry Hunter", "Micheal Brooks", "Tricia Mathis", "Leslie House", "Andrew Davis", "Belinda Wade", "Nicole Wiggins", "Lisa Ferguson", "Taylor Hanson", "Mrs. Pamela Fleming", "Matthew Miles", "Toni Small", "Jordan Davis", "Tyler Drake", "Ralph Barber", "Paige Cook", "Penny Santos", "Amy King", "Anthony Smith", "Sarah Munoz", "Amy Howard", "Paul Butler", "Joshua Matthews", "Robin Phillips", "Angela Horton", "Michele Arnold", "Emily White", "David Bishop", "William Lewis", "Alison Klein", "Cory Jenkins", "Brian Moore", "John Ryan", "Clarence Ruiz", "Angel Holland", "Justin Schneider", "Matthew Jones", "James Acosta", "Miguel Walker", "Kathleen Long", "Megan Armstrong", "Sheena Mcdaniel", "Matthew Parker", "Benjamin Carter", "Ariel Vasquez", "Brett Kidd", "Suzanne Powers", "Justin Little", "Maxwell Meza", "Erica Vega", "Kimberly Miller", "Brittany Kelly", "Trevor Osborne", "John Hester", "Eric Baldwin", "Danielle Mccoy", "Evan Bailey", "Stephen Anderson", "Brian Hill", "Dustin Smith", "Dennis Melton", "Misty Jimenez", "Duane Rodriguez", "Andrew Silva", "Casey Collins", "Sarah Hines", "Laura Bradford", "Heather Myers", "Andrew Soto", "Jennifer Mendoza", "Amanda Wolf", "Mr. Cory Morrison MD", "Emily James", "Jennifer Gonzalez", "Stephanie Miller", "Jeffery Jones", "Danielle George", "Antonio Yang", "John Harris", "Linda Garcia", "Richard Flynn", "Allen Wright", "Michael Williams", "Joshua Kelley", "Samantha Rojas", "Christopher Ewing", "Andrew Li", "Madeline Davenport", "Roy Myers", "George Martin", "Michael Kelley", "Kristin Patterson", "Christopher Flores", "Michael Phillips", "Mrs. Julie Hudson", "Claire Baker", "Jeffrey Palmer DDS", "Arthur Hanna", "Richard King", "Wendy Wilson", "Jo Cooper", "Tara Brown", "Brett Pitts", "Matthew Butler", "Benjamin Johnson", "Paul Fox", "Michael Richard", "Jennifer Smith", "Bonnie Chase", "Sara Mcknight", "Robert Short", "Michelle Tanner", "Karen Villanueva", "Eric Walters", "Allen Weber", "Robin Parrish", "Julie Hutchinson DVM", "Veronica Russell", "Sarah Weaver", "Ronnie Griffith", "Brenda Ramirez", "John Goodman", "Tiffany Wagner", "Michael Richardson", "Samuel Williams", "Christopher Hill", "Nathan Lynch", "Michael Powers", "Patricia Banks", "Deanna Baldwin", "Joshua Torres", "Earl Dalton", "Charles Munoz", "Douglas Evans", "Matthew Garcia", "Julia Hubbard", "Andrea White", "Jerry Dodson", "Angela Morris", "Sherri Reid", "Nicole Jones DVM", "Gloria James", "Steven Blake", "Paul Bradley", "Mary Guerrero", "Andrew Cruz", "Paul Scott", "Misty Hicks", "Tracy Hunter", "Mackenzie Carroll", "Amy Collins", "Shannon Vargas", "Katrina Anderson", "David Anderson", "Natalie Brown DDS", "Ashley Hughes", "Brian Richardson", "Lisa Bentley", "Colton Fernandez", "Susan Singh", "John Leonard", "Mark Turner", "Jeremy Garcia", "Sydney Richard", "Shannon Cooper", "Willie Briggs",
@@ -100,13 +101,18 @@ def fill_db_student_random_hours(studentid, name):
 
     db.session.commit()
 
+# Create Filter For Unit Reports
 def gen_total_row(domains: list, activity_names: list[Activity]) -> dict:
-    """Sums activities and AEP domain/activity table to generate a total row"""
+    """Sums activities and AES domain/activity table to generate a total row"""
+    # print("domains:--->", domains)
     total_row = {"domain": "Total"}
     total: int = 0
+    # print("activity_names", activity_names)
     for activity in activity_names:
         sum: int = 0
+        # print('activity L: ', activity)
         for row in domains:
+            # print("activity LL:", row[activity.activityid])
             sum += row[activity.activityid]
         total_row[activity.activityid] = sum
         total += sum
@@ -123,6 +129,7 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
 
     weird_activity_map: list[list] = [domain_names]
     for activity in activities:
+        print("weird activity map", activity)
         weird_activity_map.append([activity.activity])
 
     for domain in domain_table:
@@ -156,9 +163,10 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     return graph
 
 
-def get_student_info(student_number: int) -> dict[str, Any]:
-    """Generates data used for student page. Gets student number as external student number, not internal DB number!"""
 
+
+def get_student_info_aggregate(unitlist: dict[str:str],student_number: int) -> dict[str, Any]:
+    
     s: Student = Student.query.filter_by(student_number=student_number).one()
     studentid = s.studentid
 
@@ -172,10 +180,17 @@ def get_student_info(student_number: int) -> dict[str, Any]:
         domain_list.append(ActivityLog.unitid == unit.unitid)
     domains = get_domain_table(domain_list)
 
+    # Gets all activity names regardless of whether used by Student
     activity_names: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()
 
+    print('activity_names:', activity_names)
+
+    # Sum Row at bottom of Page, Returns totals for domain types 4, and Sums of AES Types
     total_row = gen_total_row(domains, activity_names)
+
+
+
 
     data = {
         "date_generated": date.today().isoformat(),
@@ -191,13 +206,76 @@ def get_student_info(student_number: int) -> dict[str, Any]:
     # here we should also add data for location and domain, currently only gains graphs
     return data
 
+    return ''
 
-def get_domain_col(activity: Optional[str], flist: list):
-    """Gets the single AEP domain/activity type table column specified as a partial query"""
+
+# THIS ONE IMPORTANT
+def get_student_info(student_number: int, unit_list: list[Any]) -> dict[str, Any]:
+    """Generates data used for student page. Gets student number as external student number, not internal DB number!"""
+
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+
+    query = db.session.query(
+        Unit.unit,
+        (func.sum(ActivityLog.minutes_spent).label('total_hours')/60.0)
+    ).join(
+        ActivityLog,
+        ActivityLog.unitid == Unit.unitid
+    ).filter(
+        Unit.unitid.in_(unit_list),
+        ActivityLog.studentid == studentid
+    ).group_by(
+        ActivityLog.studentid,
+        Unit.unitid
+    )
+    student_unit_hours = query.all()
+    
+    # Table of Logs by Student
+    recent_hours: ActivityLog = ActivityLog.query.filter_by(studentid=studentid).order_by(ActivityLog.record_date.desc()).first()
+    
+    # list of Unit Objects
+    (func.sum(Unit.required_minutes).label('total_required_mins')/60.0)
+    units = db.session.query(func.sum(Unit.required_minutes).label('required_minutes')).filter(Unit.unitid.in_(unit_list)).first()
+
+    # Select Activity Logs based on filter
+    domain_list = [ActivityLog.studentid == studentid]
+    print("domain_list:", domain_list)
+    # Get all domain list from student
+    domains = get_domain_table(domain_list, unit_list)
+
+
+    activity_names: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    total_row = gen_total_row(domains, activity_names)
+    
+    data = {
+        "date_generated": date.today().isoformat(),
+        "student": s,
+        "domains": domains,
+        "locations": get_location_hours(studentid, unit_list),
+        "activity_names": activity_names,
+        "total_row": total_row,
+        "units": units, # <--- turned into list
+        "graph": build_chart_from_table(f"{s.name}", domains, activity_names),
+        "results": student_unit_hours #Change it so it is the sum of the unit hours
+    }
+    # print("locations:::",data['locations'])
+    print(data["units"])
+    # here we should also add data for location and domain, currently only gains graphs
+    
+    return data
+
+# Added unit_list filter, now acceptable
+# Focus on this function, flist represents activities of a Acitivity Type
+def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
+    """Gets the single AES domain/activity type table column specified as a partial query"""
     session: scoped_session = db.session
 
     boilerplate = session.query(
-        ActivityLog, Activity).join(Activity).filter(*flist)
+        ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) ) #Added Unit_list for filtering units
+    
     # if no activity, don't include in subquery (assume any activity)
     col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
     ) if activity is not None else boilerplate.subquery()
@@ -207,21 +285,36 @@ def get_domain_col(activity: Optional[str], flist: list):
     return cols
 
 
-def get_domain_table(flist: Optional[list]) -> list:
-    """Gets AEP domain/activity type table and number of activity columns"""
+# Search By Activity Log and Aggregate all values by Domain Name based on Passed Unitid
+# This function is FINE Acceptable
+def get_domain_table(flist: Optional[list], unit_list: list) -> list:
+    """Gets AES domain/activity type table and number of activity columns"""
+
+    # four columns
+
     session: scoped_session = db.session
     if flist is None:
         flist = []
 
+
     # ensure this is in desired order
     activities: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()
+    # print("activity",activities)
+    
+    # Activity Represens 4 Acticity Types for each column
+
     # list of subqueries for each column (i.e. each activity type)
     col_subqs: list = []
     for activity in activities:
-        col = get_domain_col(activity.activity, flist)
+
+        # print("Parsing Acticity Column's Rows:", activity.activity)
+
+        # Most important function at the bottom here
+        col = get_domain_col(activity.activity, flist, unit_list)
+        # Grabs each Domain Row for Respective Activity
         col_subqs.append(col)
-    total = get_domain_col(None, flist)
+    total = get_domain_col(None, flist, unit_list)
 
     table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(
         f"{activities[i].activityid}") for i in range(0, len(col_subqs))], total.c.hours.label("total"))
@@ -296,5 +389,5 @@ def get_location_info(location_id: int):
     }
     return data
 
-def get_location_hours(studentid: int) -> list:
-    return db.session.query(Location.location, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter(ActivityLog.studentid == studentid).group_by(Location.locationid).all()
+def get_location_hours(studentid: int, unit_list: list) -> list:
+    return db.session.query(Location.location, (func.sum(ActivityLog.minutes_spent) / 60.0).label("hours")).join(ActivityLog).filter(ActivityLog.studentid == studentid, ActivityLog.unitid.in_(unit_list)).group_by(Location.locationid).all()

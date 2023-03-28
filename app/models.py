@@ -1,5 +1,5 @@
 # Database models
-# Author: Joel Phillips (22967051)
+# Author: Joel Phillips (22967051), Sean Ledesma (22752771)
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date, time, datetime
