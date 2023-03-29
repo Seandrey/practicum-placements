@@ -80,7 +80,7 @@ def reportStudent(student_number, unit_values):
     new_list = [int(x) for x in unit_values.split('-')]
     print("student_number", student_number)
     data = get_student_info(student_number, new_list)
-    return render_template('reports/student.html', data=data, student_number=student_number)
+    return render_template('reports/student.html', data=data, student_number=student_number, unit_values=unit_values)
 
 @app.route('/reports/student/<int:student_number>/', methods=["GET","POST"])
 def students_units(student_number):
@@ -181,11 +181,12 @@ def submit_edit():
 # WORKING ON IT
 @app.route('/reports/student/pdf/<int:student_number>/<unit_values>')
 # @login_required
-def reportStudentPdf(studentid, unit_values):
+def reportStudentPdf(student_number, unit_values):
     print(request.args.get('units'))
     print("touched")
     new_list = [int(x) for x in unit_values.split('-')]
-    data = get_student_info(studentid, new_list)
+    print(new_list)
+    data = get_student_info(student_number, new_list)
 
     return render_template('reports/student_pdf.jinja', data=data)
 

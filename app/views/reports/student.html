@@ -10,6 +10,68 @@
 
 {% block content %}
 
+<script>
+  function makePDF(studentNumber, unitValues) {
+  const url = `/reports/student/pdf/${studentNumber}/${unitValues}`;
+  const windowName = "PDF Report";
+  const windowSpecs = "toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,width=800,height=600";
+
+  // Open new window with the rendered template
+  let pdfWindow = window.open(url, windowName, windowSpecs);
+  printWindow.onload = () => {
+    if (printWindow.document.readyState === 'complete') {
+      fetch('/makepdf', {
+                      method: 'POST',
+                      headers: {
+                        'Accept': 'application/pdf',
+                        'Content-Type': 'text/html'
+                      },
+                      body: printWindow.document.getElementById('wrapper').innerHTML
+                  })
+                      .then((response) => {
+                          printWindow.close();
+                          return response.blob();
+                      })
+                      .then((data) => {
+                          downloadFile(data, `Report-${studentID}.pdf`);
+                      })
+                      else {
+
+        }
+    }
+};
+  printWindow.onload = () => {
+                let chartImg = printWindow.document.getElementById('chartImage')
+                const awaitChart = () => {
+                  if (chartImg.src === '') {
+                        // timeout to come back in 50 ms and don't exec until re-test
+                        setTimeout(awaitChart, 50);
+                        return;
+                      }
+                  fetch('/makepdf', {
+                      method: 'POST',
+                      headers: {
+                        'Accept': 'application/pdf',
+                        'Content-Type': 'text/html'
+                      },
+                      body: printWindow.document.getElementById('wrapper').innerHTML
+                  })
+                      .then((response) => {
+                          printWindow.close();
+                          return response.blob();
+                      })
+                      .then((data) => {
+                          downloadFile(data, `Report-${studentID}.pdf`);
+                      })
+                  }
+                  awaitChart();
+              };
+
+  // Wait for the window to finish loading before creating the PDF
+
+}
+</script>
+
 <style>
   .highlight {
       background-color: #ccbb22;
@@ -18,8 +80,8 @@
 
 <div class='row'>
   <h3 class='title' style="display:inline-block"><small>Student Report:</small> {{data.student.name}} ({{(data.student.student_number|string).zfill(8)}})</h3>
-  <a href='/reports/student/{{student_number}}'><button class="backButton" style="float: right">Back to search</button></a>
-  <a><button onClick='getChartPng({{student_number}})' class="makePDF" style="float: right">Download PDF</button></td></a>
+  <a href='/reports/student'><button class="backButton" style="float: right">Back to search</button></a>
+  <a><button onclick="makePDF('{{student_number}}', '{{unit_values}}')">Download PDF</button></a>
 </div>
 <div class='row'>
     <div class='three columns vertical-fill'>

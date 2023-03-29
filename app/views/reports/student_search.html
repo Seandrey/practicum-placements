@@ -106,7 +106,7 @@
         <td class="student-id-field">{{(student.id|string).zfill(8)}}</td>
         <td class="student-name-field">{{student.name}}</td>
         <td><a href='./student/{{student.id}}'><button class="makeReport">See Report</button></a></td>
-        <td><button onClick='getChartPng({{student.id}})' class="makePDF">Download PDF</button></td>
+        <td><button class="makePDF">Download PDF( Unavailable )</button></td>
         <td><a href="./logs/{{student.id}}"><button class="seeLogs">See Logs</button></a></td>
     </tr>
     {%- endfor %}

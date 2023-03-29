@@ -370,7 +370,9 @@ def get_location_info(location_id: int):
     sup_hours: list = session.query(Supervisor.name.label("supervisor"), (func.sum(ActivityLog.minutes_spent) / 60.0).label(
         "hours")).join(ActivityLog).filter_by(locationid=location_id).group_by(ActivityLog.supervisorid).all()
 
-    domains = get_domain_table([ActivityLog.locationid == location_id])
+    # Get ALL UNITS FROM UNIT LIST WITH LOCATION TABLE?
+
+    domains = get_domain_table([ActivityLog.locationid == location_id], unit_list=unit_list)
 
     activity_names: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()
