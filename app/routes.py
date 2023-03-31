@@ -319,8 +319,14 @@ def updateroute():
 
 @app.route('/makepdf', methods=['POST'])
 def makePDF():
+    # Using PDFKIT
     if request.method == 'POST':
         html = request.data.decode('utf-8')
+        print ("PDF POST RECEIVED")
+        # Get Request Parameters, I.E.
+        # .jinja file, I.e. (student.jinja, location,jinja)
+        # Get student number to write in output
+        # Get date from here
 
         # PDF options
         options = {

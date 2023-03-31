@@ -273,8 +273,13 @@ def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
     """Gets the single AES domain/activity type table column specified as a partial query"""
     session: scoped_session = db.session
 
-    boilerplate = session.query(
-        ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) ) #Added Unit_list for filtering units
+    boilerplate: boilerplate = session.query(
+            ActivityLog, Activity).join(Activity).filter(*flist)
+
+    if unit_list == []:
+        # Unit List argument only necessary for student reports
+        boilerplate = session.query(
+            ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) ) #Added Unit_list for filtering units
     
     # if no activity, don't include in subquery (assume any activity)
     col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
@@ -287,7 +292,7 @@ def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
 
 # Search By Activity Log and Aggregate all values by Domain Name based on Passed Unitid
 # This function is FINE Acceptable
-def get_domain_table(flist: Optional[list], unit_list: list) -> list:
+def get_domain_table(flist: Optional[list], unit_list: list = []) -> list:
     """Gets AES domain/activity type table and number of activity columns"""
 
     # four columns
@@ -372,7 +377,7 @@ def get_location_info(location_id: int):
 
     # Get ALL UNITS FROM UNIT LIST WITH LOCATION TABLE?
 
-    domains = get_domain_table([ActivityLog.locationid == location_id], unit_list=unit_list)
+    domains = get_domain_table([ActivityLog.locationid == location_id])
 
     activity_names: list[Activity] = Activity.query.order_by(
         Activity.activityid).all()

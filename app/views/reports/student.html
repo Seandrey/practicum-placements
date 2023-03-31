@@ -11,65 +11,63 @@
 {% block content %}
 
 <script>
-  function makePDF(studentNumber, unitValues) {
-  const url = `/reports/student/pdf/${studentNumber}/${unitValues}`;
-  const windowName = "PDF Report";
-  const windowSpecs = "toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,width=800,height=600";
+  // function makePDF(studentNumber, unitValues) {
+  // const url = `/reports/student/pdf/${studentNumber}/${unitValues}`;
+  // const windowName = "PDF Report";
+  // const windowSpecs = "toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,width=800,height=600";
 
-  // Open new window with the rendered template
-  let pdfWindow = window.open(url, windowName, windowSpecs);
-  printWindow.onload = () => {
-    if (printWindow.document.readyState === 'complete') {
-      fetch('/makepdf', {
-                      method: 'POST',
-                      headers: {
-                        'Accept': 'application/pdf',
-                        'Content-Type': 'text/html'
-                      },
-                      body: printWindow.document.getElementById('wrapper').innerHTML
-                  })
-                      .then((response) => {
-                          printWindow.close();
-                          return response.blob();
-                      })
-                      .then((data) => {
-                          downloadFile(data, `Report-${studentID}.pdf`);
-                      })
-                      else {
-
-        }
-    }
-};
-  printWindow.onload = () => {
-                let chartImg = printWindow.document.getElementById('chartImage')
-                const awaitChart = () => {
-                  if (chartImg.src === '') {
-                        // timeout to come back in 50 ms and don't exec until re-test
-                        setTimeout(awaitChart, 50);
-                        return;
-                      }
-                  fetch('/makepdf', {
-                      method: 'POST',
-                      headers: {
-                        'Accept': 'application/pdf',
-                        'Content-Type': 'text/html'
-                      },
-                      body: printWindow.document.getElementById('wrapper').innerHTML
-                  })
-                      .then((response) => {
-                          printWindow.close();
-                          return response.blob();
-                      })
-                      .then((data) => {
-                          downloadFile(data, `Report-${studentID}.pdf`);
-                      })
-                  }
-                  awaitChart();
-              };
+  // // Open new window with the rendered template
+  // let pdfWindow = window.open(url, windowName, windowSpecs);
 
   // Wait for the window to finish loading before creating the PDF
 
-}
+//  }
+
+  const downloadFile = (blob, fileName) => {
+            // Author David Norris (22690264),
+            const link = document.createElement('a');
+            // make blobURI that points to blob
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            // for compatibility, some browsers require a link
+            document.body.append(link);
+            link.click();
+            link.remove();
+            // save memory if blob is using a lot
+            setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+          };
+
+          const makePDF = (studentNumber, unitValues) => {
+              // Author David Norris (22690264), Sean Ledesma (22752771)
+              let printWindow = window.open(`/reports/student/pdf/${studentNumber}/${unitValues}`, '', 'height=1000,width=1000');
+              printWindow.onload = () => {
+                  let chartImg = printWindow.document.getElementById('chartImage');
+                  const awaitChart = () => {
+                      // we need the charts api to of converted image to uri in img.src
+                      if (chartImg.src === '') {
+                          // timeout to come back in 50 ms and don't exec until re-test
+                          setTimeout(awaitChart, 50);
+                          return;
+                      }
+                      fetch('/makepdf', {
+                          method: 'POST',
+                          headers: {
+                            'Accept': 'application/pdf',
+                            'Content-Type': 'text/html'
+                          },
+                          body: printWindow.document.getElementById('wrapper').innerHTML
+                      })
+                      .then((response) => {
+                          printWindow.close();
+                          return response.blob();
+                      })
+                      .then((data) => {
+                          downloadFile(data, `Report-Student-${studentNumber}-${unitValues}.pdf`);
+                      })
+                  };
+                  awaitChart();
+              };
+          }
 </script>
 
 <style>
