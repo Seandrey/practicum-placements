@@ -31,6 +31,10 @@ SURVEY_NAME = "2023 Activity Log Practicum"
 
 
 from flask import Flask, request, redirect, url_for
+from preload_db import get_or_add_unit
+@app.route('/addPracticum', methods=['POST'])
+def addunit(unit_name, minimum_hours):
+    get_or_add_unit(unit_name, minimum_hours, False)
 
 @app.route('/submit', methods=['GET','POST'])
 def submit():
