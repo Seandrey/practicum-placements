@@ -28,7 +28,9 @@ def import_units():
     # Added prac units, later have website add and make changes to db backend    
     get_or_add_unit("Practicum 1", 40, False)
     get_or_add_unit("Practicum 2", 40, False)
-    get_or_add_unit("Practicum 3", 0, False)
+    get_or_add_unit("Practicum 3", 40, False)
+    get_or_add_unit("Practicum 4", 40, False)
+
     
     # note that some units do not have cumulative hours from previous units counted. for example,    """        Units as described by Jo:        SSEH2295: 40. "definitely". 40 hours in that unit only.        SSEH3345: 25 (2298 doesn't count). 25 in that unit only.        SSEH3385: 25 (2298 doesn't count)        SSEH3393: 140 (earlier hours count towards it)        SSEH3394: 140 (earlier hours count towards it)        Apparently students can, but shouldn't, do units out of order (e.g. 2298 after 3345)        DOn't worry about 4th year.        She notes 45 and 85 are incompatible, and 93 and 94 are incompatible.    """    
     db.session.commit()
