@@ -92,13 +92,13 @@
                 </tr>
                 <tr>
                   <th>Remaining</th>
-                    <td>{{[(data.units[0] - data.graph.total), 0] | max  | round(2, 'common') }}</td>
+                    <td>{{[(140 - data.graph.total), 0] | max  | round(2, 'common') }}</td>
                 </tr>
             </table>
         </div>
         <div class='card'>
             <h5>CHECK</h5>
-            <h4>{{ 'PASSED' if ((data.units[0] - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
+            <h4>{{ 'PASSED' if ((140 - data.graph.total) <= 0) else 'UNPASSED' }}</h2>
         </div>
         <div class='card'>
           <h5>Selected Units</h5>
