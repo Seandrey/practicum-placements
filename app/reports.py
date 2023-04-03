@@ -273,13 +273,15 @@ def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
     """Gets the single AES domain/activity type table column specified as a partial query"""
     session: scoped_session = db.session
 
-    boilerplate: boilerplate = session.query(
-            ActivityLog, Activity).join(Activity).filter(*flist)
-
+    print(unit_list)
+    boilerplate = session.query(
+            ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) )
     if unit_list == []:
-        # Unit List argument only necessary for student reports
+        print("EMPTY not Student Report")
         boilerplate = session.query(
-            ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) ) #Added Unit_list for filtering units
+            ActivityLog, Activity).join(Activity).filter(*flist)
+        # Unit List argument only necessary for student reports
+         #Added Unit_list for filtering units
     
     # if no activity, don't include in subquery (assume any activity)
     col_activity_subq = boilerplate.filter(Activity.activity == activity).subquery(
