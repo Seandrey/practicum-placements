@@ -10,6 +10,8 @@ import contextlib
 from sqlalchemy import MetaData
 from sqlalchemy import func
 
+#-------- Demo Creation Generator ---------------------
+
 # 500 Random names
 names_list = ["Brandon Bell", "Victoria Little", "Samuel Wilkinson", "Charles Taylor", "Stephen Hopkins", "Justin Chan", "Matthew Hobbs", "George Morgan", "Donald Ritter", "Margaret Hamilton", "William Mullen", "Keith Simmons", "Roberta Boyle", "Tammy Matthews", "Ryan Stephens", "Helen Thompson", "Judith Smith", "Timothy Mack", "Lisa Hernandez", "Gabriel Willis", "Zachary Smith", "Sylvia Chen", "Sydney Johnson", "Cheryl Miller", "Casey Green", "Justin Miller", "Robert Welch", "Jesse Farley", "Courtney Wilson", "Craig Brown", "Christine Mendoza", "Danielle Juarez", "Bridget Blake", "Bailey Brown", "Juan Shannon", "Eric Mcclure", "Rachel Hudson", "Melissa Garcia", "Andrew Tran", "James Gonzalez", "Rachel Smith", "Christopher Morrow", "Shane Stark", "Earl Johnson", "Larry Moss", "Laurie Case", "Jennifer Garner", "Robert Ramos", "Chris Wilkins", "Maria Rice", "Margaret Jenkins", "Charles Ferguson", "Seth Jones", "Alex Thompson", "James Mcbride", "Annette Brown", "Jennifer Orozco", "Daniel Cannon", "Caleb Christensen", "Kathleen Smith", "Laura Hernandez", "Douglas Johnson", "Theresa Taylor", "Cynthia Mann", "Angelica Spencer", "Eileen Patel", "Elizabeth Thompson", "Richard Lee", "Sierra Daniels", "Christine Perez", "Barry Daniel", "Justin Bates", "Edwin Stone", "Paul Garner", "Randy Chapman", "Jamie Jones", "Alex Rose", "Melissa Williams", "Michelle Reed", "John Salinas", "Debra Michael", "Donna Hendricks", "Thomas Romero", "Robert Cochran", "Ryan Grant", "Terry Hunter", "Micheal Brooks", "Tricia Mathis", "Leslie House", "Andrew Davis", "Belinda Wade", "Nicole Wiggins", "Lisa Ferguson", "Taylor Hanson", "Mrs. Pamela Fleming", "Matthew Miles", "Toni Small", "Jordan Davis", "Tyler Drake", "Ralph Barber", "Paige Cook", "Penny Santos", "Amy King", "Anthony Smith", "Sarah Munoz", "Amy Howard", "Paul Butler", "Joshua Matthews", "Robin Phillips", "Angela Horton", "Michele Arnold", "Emily White", "David Bishop", "William Lewis", "Alison Klein", "Cory Jenkins", "Brian Moore", "John Ryan", "Clarence Ruiz", "Angel Holland", "Justin Schneider", "Matthew Jones", "James Acosta", "Miguel Walker", "Kathleen Long", "Megan Armstrong", "Sheena Mcdaniel", "Matthew Parker", "Benjamin Carter", "Ariel Vasquez", "Brett Kidd", "Suzanne Powers", "Justin Little", "Maxwell Meza", "Erica Vega", "Kimberly Miller", "Brittany Kelly", "Trevor Osborne", "John Hester", "Eric Baldwin", "Danielle Mccoy", "Evan Bailey", "Stephen Anderson", "Brian Hill", "Dustin Smith", "Dennis Melton", "Misty Jimenez", "Duane Rodriguez", "Andrew Silva", "Casey Collins", "Sarah Hines", "Laura Bradford", "Heather Myers", "Andrew Soto", "Jennifer Mendoza", "Amanda Wolf", "Mr. Cory Morrison MD", "Emily James", "Jennifer Gonzalez", "Stephanie Miller", "Jeffery Jones", "Danielle George", "Antonio Yang", "John Harris", "Linda Garcia", "Richard Flynn", "Allen Wright", "Michael Williams", "Joshua Kelley", "Samantha Rojas", "Christopher Ewing", "Andrew Li", "Madeline Davenport", "Roy Myers", "George Martin", "Michael Kelley", "Kristin Patterson", "Christopher Flores", "Michael Phillips", "Mrs. Julie Hudson", "Claire Baker", "Jeffrey Palmer DDS", "Arthur Hanna", "Richard King", "Wendy Wilson", "Jo Cooper", "Tara Brown", "Brett Pitts", "Matthew Butler", "Benjamin Johnson", "Paul Fox", "Michael Richard", "Jennifer Smith", "Bonnie Chase", "Sara Mcknight", "Robert Short", "Michelle Tanner", "Karen Villanueva", "Eric Walters", "Allen Weber", "Robin Parrish", "Julie Hutchinson DVM", "Veronica Russell", "Sarah Weaver", "Ronnie Griffith", "Brenda Ramirez", "John Goodman", "Tiffany Wagner", "Michael Richardson", "Samuel Williams", "Christopher Hill", "Nathan Lynch", "Michael Powers", "Patricia Banks", "Deanna Baldwin", "Joshua Torres", "Earl Dalton", "Charles Munoz", "Douglas Evans", "Matthew Garcia", "Julia Hubbard", "Andrea White", "Jerry Dodson", "Angela Morris", "Sherri Reid", "Nicole Jones DVM", "Gloria James", "Steven Blake", "Paul Bradley", "Mary Guerrero", "Andrew Cruz", "Paul Scott", "Misty Hicks", "Tracy Hunter", "Mackenzie Carroll", "Amy Collins", "Shannon Vargas", "Katrina Anderson", "David Anderson", "Natalie Brown DDS", "Ashley Hughes", "Brian Richardson", "Lisa Bentley", "Colton Fernandez", "Susan Singh", "John Leonard", "Mark Turner", "Jeremy Garcia", "Sydney Richard", "Shannon Cooper", "Willie Briggs",
               "Denise Knight", "Mark Moses", "Daniel Freeman", "Glen Romero", "Tiffany Villarreal", "Robert Morris", "Amber Thomas", "Phillip Henson", "Michelle Miller", "James Ross", "Samantha Kelley", "Joshua Brown", "Joseph Walker", "Laurie Shaw", "Ashley Hill", "Brian Wallace", "Richard Morrison", "Ronald Arnold MD", "Jane Bennett", "Whitney Hurst", "Samantha Phillips", "Daniel Pena", "Sharon Greene", "Anne Cain", "Kyle Huff", "Dawn Sanchez", "Richard Orr", "Angela Hayes", "Courtney Ferguson", "Jason Myers", "Ashley Hansen", "Sarah White", "Katie Kirby", "Kimberly Mitchell", "Ronnie Bailey", "Veronica Grant", "Kevin Gonzalez", "Pamela Wheeler", "Eddie Ramirez", "Shelly Perry", "Bailey Callahan", "Stacey Thomas", "Isabel Berger", "James Knight", "Kevin Reynolds", "Susan Gordon", "Brittany Banks", "Roy Small", "Deanna Sharp", "William Cox", "Linda Burnett", "Cathy Kennedy", "Jennifer Smith", "Pam Black", "Tonya Hughes", "Alex Nguyen", "Rachel Carroll", "Keith Murray", "Colleen Martin", "Kelly Edwards", "Michael David", "Corey Ortiz", "Alyssa Harrell", "Sharon Salazar", "Gabriela Williams", "Mark Reynolds", "Kimberly Butler", "Alicia Stephenson", "Mr. Jeremy Moon DDS", "Loretta Edwards", "Lisa Dickson", "Janice Brewer", "Tracey Douglas", "Anthony Miller", "Jennifer Jones MD", "Bethany Holden", "Mary Mclean", "John Chapman", "Regina Johnson", "Daniel Evans", "Lori Lyons", "Anthony Thomas", "Jesse Ware", "Christopher Steele", "Jenny Scott", "Christopher Jones", "Angela Lopez", "Andrew Daugherty", "Daniel Calhoun", "Oscar Mckenzie", "Abigail Anderson", "Jesus Cooper", "Stacie Ponce", "Stephen Lewis", "Jessica Fitzgerald", "Mary Roberts", "Thomas Rasmussen", "Larry Rodgers", "Debra Carter", "John Day", "Carrie Lee", "Rachel Bell", "Patrick Mejia", "Brandon Roberts", "Donna Mcdonald", "Sandra Perez", "Katherine Hunt", "Lisa Valencia", "Danielle Murphy", "Cynthia Carter", "Danielle Young", "Nicole Miles", "Henry Spencer", "Steven Barker DDS", "Lawrence Reynolds", "Mary Larson", "Brian Mcmillan", "Laura Day", "Brandon Gonzalez", "James Gonzalez", "Christopher Rodriguez", "Hunter Edwards", "Alison Williams", "Shelby Gonzalez", "Edward Lambert", "Julie Peterson", "Michael Brown", "Virginia Stuart", "William Chen", "Cassandra Kelly", "Jennifer Lambert", "Ms. Tara Gonzalez", "Steven Sosa", "Lindsay Rivera", "Jesse Black", "Jessica Mendoza", "Jay Rogers", "Justin Mcdonald", "Kelli Bowen", "Mr. Brian Williamson", "Ronald Jackson", "Laurie Mccullough", "Alexis Delgado", "Robert Burnett III", "Priscilla Adams", "Gwendolyn Horton", "Melissa Lewis", "Diana Watson", "Marissa Thompson", "Sheila Hunter", "Mr. Shane Gregory", "Lisa Oconnor", "Kelly Allen", "Carrie Lopez", "Kenneth Anderson", "Ruben Collier", "Mark Odom", "Joel Snow", "Andrew Johns", "Taylor Campbell", "Terri Ayala", "Miss Rebecca Montgomery", "Kristen Gomez", "April Barnett", "Annette Santos", "Thomas Ortiz", "Mr. Matthew Collins", "Michele Hale", "Melissa Diaz", "Pamela Gilmore", "Michael Murphy", "Elizabeth Moreno", "Travis Becker", "Allen Cantrell", "Tracy Cook", "Kyle Mcclain", "Jeremy Clark", "Ashley Weber", "Jennifer Roberts", "Robert Reynolds", "Gary Smith", "Lindsey West", "Charles Stevenson", "Julie Travis", "Mallory Potter", "Cindy Lewis", "Eric Williams", "Jeremiah Snyder", "Shane Smith", "Janice Bass", "Holly Weiss", "Sarah Duncan", "Javier Smith", "Monica Fitzpatrick", "Sandra Rasmussen", "Emily Little", "Corey Rice MD", "Robin Brown", "Bryan Wilson", "Rachel Whitney", "Daniel Pena", "Tammy Santana", "Paul Levy", "Wendy Burke", "Brenda Summers", "Jillian Payne", "Gary Brown", "Jennifer Gonzalez", "Leslie Cole", "Amanda Alvarado", "Benjamin Macias", "Steven Black", "Pamela Patterson", "Shannon Wright", "Eric Williams", "Nicholas Miranda", "Robert Graham", "Savannah Adams", "Ronald Mills", "Ashley Freeman", "Ryan Key", "Manuel Shelton", "Wesley Hopkins", "Ashley Christensen", "Madeline Floyd", "Joshua Perry", "Anthony Mcclain", "Michelle Hall", "Brian Perry", "Philip Rogers", "Crystal Smith", "Monica Smith", "Ryan Edwards", "Mary Coleman", "Aaron Dorsey", "Charles Campbell", "Gary Stevenson", "Mackenzie Ryan", "Wanda Santana", "Anthony Johnson", "Deanna Mcknight", "Gregory Hernandez", "David Guzman", "Amanda Harper", "Wanda Rich", "Crystal Jones", "Mary Rodriguez", "Kelsey Rodriguez", "Mary White"]
@@ -50,7 +52,6 @@ l = (
 )
 # 20 random names from the list = 20 supervisors
 s = [random.choice(names_list) for _ in range(1, 20)]
-
 
 def teardown_db():
     """removes all db table entries except user table"""
@@ -100,6 +101,8 @@ def fill_db_student_random_hours(studentid, name):
         db.session.add(al)
 
     db.session.commit()
+
+#---------------------------------------------------------------------------------
 
 # Create Filter For Unit Reports
 def gen_total_row(domains: list, activity_names: list[Activity]) -> dict:
@@ -165,51 +168,25 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
 
 
 
-def get_student_info_aggregate(unitlist: dict[str:str],student_number: int) -> dict[str, Any]:
+
+# Generates multiple tables separated by unit for activity/domain
+def get_unit_student_report(student_number: int, unit_list: list[Any])->dict[str, Any]:
+    """ Generates separate tables for each unit selected by report, separates domain/activity titles by separate practicums"""
+
+    data = {}
+
+    for unit in unit_list:
+        list1 = [unit]
+        data[f"{unit}"] = get_student_info(student_number, list1)
     
-    s: Student = Student.query.filter_by(student_number=student_number).one()
-    studentid = s.studentid
-
-    # assume unit is one in which most recent added hours are
-    recent_hours: ActivityLog = ActivityLog.query.filter_by(studentid=studentid).order_by(ActivityLog.record_date.desc()).first()
-    unit: Unit = Unit.query.filter_by(unitid=recent_hours.unitid).one()
-
-    domain_list = [ActivityLog.studentid == studentid]
-    # if unit does not count all previous ones, restrict to a certain unit as well
-    if not unit.counts_prev:
-        domain_list.append(ActivityLog.unitid == unit.unitid)
-    domains = get_domain_table(domain_list)
-
-    # Gets all activity names regardless of whether used by Student
-    activity_names: list[Activity] = Activity.query.order_by(
-        Activity.activityid).all()
-
-    print('activity_names:', activity_names)
-
-    # Sum Row at bottom of Page, Returns totals for domain types 4, and Sums of AES Types
-    total_row = gen_total_row(domains, activity_names)
-
-
-
-
-    data = {
-        "date_generated": date.today().isoformat(),
-        "student": s,
-        "domains": domains,
-        "locations": get_location_hours(studentid),
-        "activity_names": activity_names,
-        "total_row": total_row,
-        "required_min": unit.required_minutes,
-        "graph": build_chart_from_table(f"{s.name}", domains, activity_names)
-    }
-    print(data['locations'])
-    # here we should also add data for location and domain, currently only gains graphs
+    """ data { 
+            "1: [data contents]
+    } """
+    print(data)
     return data
 
-    return ''
 
-
-# THIS ONE IMPORTANT
+# Generates single aggregated table based on UNITS PARSED
 def get_student_info(student_number: int, unit_list: list[Any]) -> dict[str, Any]:
     """Generates data used for student page. Gets student number as external student number, not internal DB number!"""
 

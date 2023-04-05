@@ -32,7 +32,7 @@ SURVEY_NAME = "2023 Activity Log Practicum"
 
 from flask import Flask, request, redirect, url_for
 from preload_db import get_or_add_unit
-@app.route('/addPracticum', methods=['POST'])
+@app.route('/addPrac', methods=['POST'])
 def addunit(unit_name, minimum_hours):
     get_or_add_unit(unit_name, minimum_hours, False)
 
@@ -83,8 +83,11 @@ def reportStudent(student_number, unit_values):
     print("unitid", unit_values) # <----- unitid's in Local DB
     new_list = [int(x) for x in unit_values.split('-')]
     print("student_number", student_number)
+
+    # Move Unit_names to new_data
     data = get_student_info(student_number, new_list)
-    return render_template('reports/student.html', data=data, student_number=student_number, unit_values=unit_values)
+    new_data = get_unit_student_report(student_number, new_list)
+    return render_template('reports/student_multitable.html', data=data, student_number=student_number, unit_values=unit_values, new_data=new_data)
 
 @app.route('/reports/student/<int:student_number>/', methods=["GET","POST"])
 def students_units(student_number):
@@ -191,8 +194,9 @@ def reportStudentPdf(student_number, unit_values):
     new_list = [int(x) for x in unit_values.split('-')]
     print(new_list)
     data = get_student_info(student_number, new_list)
+    new_data = get_unit_student_report(student_number, new_list)
 
-    return render_template('reports/student_pdf.jinja', data=data)
+    return render_template('reports/student_pdf_multitable.jinja', data=data, new_data=new_data)
 
 
 @app.route('/reports/staff')
@@ -288,7 +292,7 @@ def update_db_qualtrics():
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
     # Get Survey Format
     label_lookup = qualtrics_import.get_label_lookup(format)
-    print(f'LABEL LOOKUP:{label_lookup}')
+    # print(f'LABEL LOOKUP:{label_lookup}')
 
     
 

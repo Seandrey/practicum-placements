@@ -30,16 +30,30 @@ ACTIVITY_DESCRIPTION = "3_QID11_TEXT"
 # Just Find on of the description as they have all the same Lookup ID
 DOMAIN_DESCRIPTION = "'Assessment' activity?"
 
-DEBUG_FILE_NAME = datetime.now().strftime("%d/%m/%Y-%H:%M")
+
+DEBUG_FILE_NAME = "DebugLog-" + datetime.now().strftime("%d-%m-%Y--%H:%M")
 
 def Debuggerlog(error_string: str):
     try:
         with open(DEBUG_FILE_NAME, "a") as file:
-            file.write(error_string)
+            file.write(error_string + "\n")  # Add a newline character after the error string
     except FileNotFoundError:
-        with open(DEBUG_FILE_NAME, "w") as file:
-            file.write(error_string)
+        try:
+            # Split the file path into directory and filename
+            directory, filename = os.path.split(DEBUG_FILE_NAME)
+            
+            # Create the directory if it doesn't exist
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            
+            # Create the file
+            with open(DEBUG_FILE_NAME, "x") as file:
+                file.write(error_string + "\n")  # Add a newline character after the error string
+        except Exception as e:
+            print("Error creating file:", e)
 
+# Test the function
+Debuggerlog("This is an error message.")
 
 
 # Downloads Respective QID and Survery Name Title for Label Lookup
@@ -82,12 +96,12 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     }
 
     download_req_response = requests.request("POST", url, json=data, headers=headers)
-    print(f'req response: {download_req_response.json()} \n')
+    Debuggerlog(f'req response: {download_req_response.json()} \n')
 
     try:
         progress_id = download_req_response.json()["result"]["progressId"]
     except KeyError:
-        print(download_req_response.json())
+        Debuggerlog(f"Donwload Req_response + {download_req_response.json()}")
         sys.exit(2)
     assert progress_id is not None, "progress_id is none!"
     
@@ -96,18 +110,18 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     # 2: check on data export progress and wait until export ready
     while progress_status != "complete" and progress_status != "failed" and isFile is None:
         if isFile is None:
-            print("file not ready")
+            Debuggerlog("file not ready")
         else:
-            print("progress_status=", progress_status)
+            Debuggerlog("progress_status=", progress_status)
         request_check_url = url + progress_id
         request_check_response = requests.request("GET", request_check_url, headers=headers)
         try:
             isFile = request_check_response.json()["result"]["fileId"]
         except KeyError:
             1 == 1
-        print(request_check_response.json())
+        Debuggerlog(f"{request_check_response.json()}")
         request_check_progress = request_check_response.json()["result"]["percentComplete"]
-        print("Download is " + str(request_check_progress) + " complete")
+        Debuggerlog("Download is " + str(request_check_progress) + " complete")
         progress_status = request_check_response.json()["result"]["status"]
     
     # check for error
@@ -122,7 +136,7 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
 
     # 4: unzip file
     zipfile.ZipFile(io.BytesIO(request_download.content)).extractall("MyQualtricsDownload")
-    print("complete")
+    Debuggerlog("complete")
 
 # Downloads Response Survey Detecting Key 
 def load_json(filename: str) -> dict[str, list[dict]]:
@@ -185,7 +199,7 @@ def DescActivityLookup():
 
 def get_answer_label(json_response: dict[str, dict[str, str]], key: str) -> str:
     """Gets answer label for given question name key"""
-    print("DEBUG: looking up in labels: ", key)
+    Debuggerlog(f"DEBUG: looking up in labels: , {key}")
     return json_response["labels"][key]
 
 def make_n_text(text: str, iteration: int) -> str:
@@ -200,10 +214,10 @@ def get_answer_label_n(json_response: dict[str, dict[str, str]], key: str, itera
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
 
-    print("DEBUG---")
-    print("Key: ", label_lookup.get_text(label_name))
-    print("Response_val:", response_val)
-    print("END DEBUG---")
+    Debuggerlog("DEBUG---")
+    Debuggerlog(f"Key: , {label_lookup.get_text(label_name)}")
+    Debuggerlog(f"Response_val:, {response_val}")
+    Debuggerlog("END DEBUG---")
 
     return response_val[label_lookup.get_text(label_name)]
 
@@ -265,7 +279,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         # if already seen a response with same ID in database, skip
         same_response_id: list[ActivityLog] = ActivityLog.query.filter_by(responseid=response_id).all()
         if len(same_response_id) != 0:
-            print(f"Found response ID {response_id} in DB already! Skipping response")
+            Debuggerlog(f"Found response ID {response_id} in DB already! Skipping response")
             continue
 
         student_name = lookup_embedded_text(response_val, label_lookup, STUDENT_NAME)
@@ -278,7 +292,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         try:
             student_number_int = int(student_number, base=10)
         except ValueError:
-            print(f"failed to parse '{student_number}' to int (student number). skipping response")
+            Debuggerlog(f"failed to parse '{student_number}' to int (student number). skipping response")
             continue
         student: Optional[Student] = Student.query.filter_by(student_number=student_number_int).one_or_none()
         if student is None:
@@ -286,14 +300,14 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             db.session.add(student)
         # TODO changes in how differing student names for same ID are handled? currently just ignores name change
         if student.name != student_name:
-            print(f"Warning: student ID {student.student_number} previously named as '{student.name}', new response names as '{student_name}'")
+            Debuggerlog(f"Warning: student ID {student.student_number} previously named as '{student.name}', new response names as '{student_name}'")
 
         service_date = lookup_embedded_text(response_val, label_lookup, SERVICE_DATE)
         service_date_datetime: datetime = 0
         try:
             service_date_datetime = datetime.strptime(service_date, "%d/%m/%Y")
         except ValueError:
-            print(f"failed to parse '{service_date}' to datetime (service date). skipping response")
+            Debuggerlog(f"failed to parse '{service_date}' to datetime (service date). skipping response")
             continue
         service_date_date: date = service_date_datetime.date()
 
@@ -302,7 +316,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
 
         # supervisor is more complicated as has multiple questions as implementation. so use multi lookup
         supervisor_lookup = get_multi_lookup(format, PLACEMENT_SUPERVISOR)
-        # print(f'Supervisor Lookup f{supervisor_lookup}')
+        # Debuggerlog(f'Supervisor Lookup f{supervisor_lookup}')
         supervisor_name = get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)
         supervisor = get_or_add_db(Supervisor, {"name": supervisor_name})
 
@@ -310,7 +324,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         # ensure unit already exists, otherwise ignore with warning
         unit: Unit = Unit.query.filter_by(unit=unit_code).one_or_none()
         if unit is None:
-            print(f"Unknown unit '{unit_code}'! Skipping response")
+            Debuggerlog(f"Unknown unit '{unit_code}'! Skipping response")
             continue
 
         num_logs = lookup_embedded_text(response_val, label_lookup, NUM_ACTIVITY_LOGS) 
@@ -318,7 +332,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
         try:
             num_logs_int = int(num_logs)
         except ValueError:
-            print(f"failed to parse '{num_logs}' to int (num logs). skipping response")
+            Debuggerlog(f"failed to parse '{num_logs}' to int (num logs). skipping response")
             continue
 
         # commit any added rows
@@ -352,7 +366,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             try:
                 minutes_int = int(minutes)
             except ValueError:
-                print(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
+                Debuggerlog(f"Failed to parse '{minutes}' (minutes) to int! Ignoring log")
                 continue
             
             # TODO: ADD FEATURE TO DESCRIPTION ACITIVTY MAKE SURE LABEL LOOKUP ADDS VALUE OF DESCRIPTION_ACTIVITY
@@ -361,7 +375,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             try:
                 notes = response_val[ACTIVITY_DESCRIPTION]
             except KeyError:
-                print("No Description")
+                Debuggerlog("No Description")
                 notes = "No Description"
 
             log_row = ActivityLog(studentid=student.studentid, locationid=location.locationid, supervisorid=supervisor.supervisorid, activityid=activity.activityid, domainid=domain.domainid, minutes_spent=minutes_int, record_date=service_date_date, unitid=unit.unitid, responseid=response_id, \
@@ -373,7 +387,7 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
     last_update: LastDbUpdate = LastDbUpdate.query.one()
     # make this a bit before current in case responses received in meantime
     last_update.updatedate = datetime.now() - timedelta(hours=1)
-    print(last_update)
+    Debuggerlog(f"LastUpdate - {last_update}")
 
     session: scoped_session = db.session
     session.commit()
@@ -392,6 +406,8 @@ def get_survey_format(survey_id: str, api_token: str, data_centre: str) -> dict[
 
     # should have a json form, with "result" field. Under "result", has exportColumnMap
     # Find Activity Description
+    Debuggerlog(f"DEBUGGER RESPONSE: {response.json}")
+    print(response.json())
     return response.json()
 
 # def get_label_lookup_old(survey_format_json: dict[str, dict]) -> dict[str, str]:
@@ -426,7 +442,7 @@ def get_label_lookup(survey_format_json: dict[str, dict]) -> LabelLookup:
     #label_lookup: dict[str, str] = {value["questionText"]: key for (key, value) in questions_map.items()}
     label_lookup: dict[str, str] = {}
     for key, value in questions_map.items():
-        print(f'val:{value} key{key}')
+        Debuggerlog(f'val:{value} key{key}')
         if "questionLabel" in value and value["questionLabel"] is not None:
             label_lookup[value["questionLabel"]] = key
 

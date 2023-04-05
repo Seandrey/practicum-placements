@@ -90,7 +90,11 @@
         </div>
       </div>
       <div class="row">
+      {% for key, data in new_data.items() %}
         <div class='12 columns'>
+          {% for unit_names in data.results%}
+          <h4> {{unit_names[0]}} </h4>
+          {% endfor %}
           <h5>HOURS BY ACTIVITY AND AES DOMAIN</h5>
           <table class="u-full-width">
               <thead>
@@ -142,6 +146,7 @@
             </tbody>
           </table>
         </div>
+        {% endfor %}
       </div>
       <div class='row new_page'>
           <div class='twelve columns'>
@@ -150,6 +155,7 @@
           </div>
       </div>
     </div>
+    
   </div>
 </body>
 </html>
