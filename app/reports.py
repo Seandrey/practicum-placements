@@ -269,6 +269,8 @@ def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
     return cols
 
 
+
+
 # Search By Activity Log and Aggregate all values by Domain Name based on Passed Unitid
 # This function is FINE Acceptable
 def get_domain_table(flist: Optional[list], unit_list: list = []) -> list:
@@ -295,9 +297,15 @@ def get_domain_table(flist: Optional[list], unit_list: list = []) -> list:
         # print("Parsing Acticity Column's Rows:", activity.activity)
 
         # Most important function at the bottom here
-        col = get_domain_col(activity.activity, flist, unit_list)
+        cols = get_domain_col(activity.activity, flist, unit_list)
         # Grabs each Domain Row for Respective Activity
-        col_subqs.append(col)
+        
+        """ Code Ignores Empty Columns: TODO Fix get_student_info, index out of range due to reducing columns"""
+        # subquery = db.session.query(cols.c.hours).filter(cols.c.hours != 0).exists()
+        # if (not db.session.query(subquery).scalar()):
+        col_subqs.append(cols)
+
+
     total = get_domain_col(None, flist, unit_list)
 
     table = session.query(total.c.domain.label("domain"), *[col_subqs[i].c.hours.label(

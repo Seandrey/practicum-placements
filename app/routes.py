@@ -23,6 +23,7 @@ API_KEY_2 = "YThuWnPU1PYJwJUQuf0rWYqPJvdTaeGrELNbPZPK"
 DATA_CENTRE = "yul1"
 SURVEY_ID = "SV_e2MzVI6odZyLabs"
 SURVEY_NAME = "2023 Activity Log Practicum"
+HOURS_FOR_PASS = 140
 
 # SV_e2MzVI6odZyLabs
 # 2023 Activity Log Practicum
@@ -87,7 +88,9 @@ def reportStudent(student_number, unit_values):
     # Move Unit_names to new_data
     data = get_student_info(student_number, new_list)
     new_data = get_unit_student_report(student_number, new_list)
-    return render_template('reports/student_multitable.html', data=data, student_number=student_number, unit_values=unit_values, new_data=new_data)
+    max_hours = HOURS_FOR_PASS
+
+    return render_template('reports/student_multitable.html', data=data, student_number=student_number, unit_values=unit_values, new_data=new_data, max_hours = HOURS_FOR_PASS)
 
 @app.route('/reports/student/<int:student_number>/', methods=["GET","POST"])
 def students_units(student_number):
@@ -195,8 +198,9 @@ def reportStudentPdf(student_number, unit_values):
     print(new_list)
     data = get_student_info(student_number, new_list)
     new_data = get_unit_student_report(student_number, new_list)
+    max_hours = HOURS_FOR_PASS
 
-    return render_template('reports/student_pdf_multitable.jinja', data=data, new_data=new_data)
+    return render_template('reports/student_pdf_multitable.jinja', data=data, new_data=new_data, max_hours=HOURS_FOR_PASS)
 
 
 @app.route('/reports/staff')
