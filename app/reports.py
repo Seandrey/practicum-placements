@@ -90,7 +90,6 @@ def fill_db_multiple_students(num):
     for i in range(0, num):
         fill_db_student_random_hours(22000000 + i, random.choice(names_list))
 
-
 def fill_db_student_random_hours(studentid, name):
     """fill db with a student entry with id of param student id and name name, also generate 50 activity entries"""
     st = Student(studentid=studentid, name=name)
@@ -132,7 +131,7 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
 
     weird_activity_map: list[list] = [domain_names]
     for activity in activities:
-        print("weird activity map", activity)
+        # print("weird activity map", activity)
         weird_activity_map.append([activity.activity])
 
     for domain in domain_table:
@@ -166,7 +165,9 @@ def build_chart_from_table(title: str, domain_table: list, activities: list[Acti
     return graph
 
 
-
+def generate_note_display():
+    # Grab all activity Logs
+    return ""
 
 
 # Generates multiple tables separated by unit for activity/domain
@@ -182,7 +183,7 @@ def get_unit_student_report(student_number: int, unit_list: list[Any])->dict[str
     """ data { 
             "1: [data contents]
     } """
-    print(data)
+    # print(data)
     return data
 
 
@@ -217,7 +218,7 @@ def get_student_info(student_number: int, unit_list: list[Any]) -> dict[str, Any
 
     # Select Activity Logs based on filter
     domain_list = [ActivityLog.studentid == studentid]
-    print("domain_list:", domain_list)
+    # print("domain_list:", domain_list)
     # Get all domain list from student
     domains = get_domain_table(domain_list, unit_list)
 
@@ -239,7 +240,7 @@ def get_student_info(student_number: int, unit_list: list[Any]) -> dict[str, Any
         "results": student_unit_hours #Change it so it is the sum of the unit hours
     }
     # print("locations:::",data['locations'])
-    print(data["units"])
+    # print(f'DATA UNITS: {data["units"]}')
     # here we should also add data for location and domain, currently only gains graphs
     
     return data
@@ -250,7 +251,7 @@ def get_domain_col(activity: Optional[str], flist: list, unit_list: list):
     """Gets the single AES domain/activity type table column specified as a partial query"""
     session: scoped_session = db.session
 
-    print(unit_list)
+    # print(f'UNITLIST: {unit_list}')
     boilerplate = session.query(
             ActivityLog, Activity).join(Activity).filter(*flist, ActivityLog.unitid.in_(unit_list) )
     if unit_list == []:

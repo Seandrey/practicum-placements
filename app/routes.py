@@ -16,6 +16,7 @@ from datetime import date, timedelta
 from app.reports import *
 from app.models import Activity, ActivityLog, Domain, Location, Supervisor, User
 import pdfkit
+from typing import List
 
 #Chaning survey data based on Survery reference
 API_KEY = "3g99BHNjmZBe03puBM8gwx2WqptsJNfiTXyJW3Aa"
@@ -34,15 +35,25 @@ HOURS_FOR_PASS = 140
 from flask import Flask, request, redirect, url_for
 from preload_db import get_or_add_unit
 @app.route('/addPrac', methods=['POST'])
-def addunit(unit_name, minimum_hours):
-    get_or_add_unit(unit_name, minimum_hours, False)
+def addunit():
+    unit_name = request.form.get('unit_name')
+
+    if  (Unit.query.filter_by(unit=unit_name).first() is not None):
+        get_or_add_unit(unit_name, 40, False)
+        #print(Unit.query.all())
+        return jsonify({'message': 'Form submitted! Added Unit'})
+    
+    #print(Unit.query.all())
+
+    # allow redirection: designed to be used to reload page on AJAX POST
+    return jsonify({'message': 'Form submitted! Unit Already Exists!'})
 
 @app.route('/submit', methods=['GET','POST'])
 def submit():
     # Do something with the form data
     if request.method == 'POST':
         form_data = request.form.getlist('vehicle')
-        print('Form data:', form_data)
+        #print('Form data:', form_data)
         return redirect(url_for('run', form_data=form_data))
     return render_template('reports/new_template.html')
 
@@ -81,9 +92,9 @@ def reportStudents():
 @app.route('/reports/student/<int:student_number>/<unit_values>')
 # @login_required
 def reportStudent(student_number, unit_values):
-    print("unitid", unit_values) # <----- unitid's in Local DB
+    #print("unitid", unit_values) # <----- unitid's in Local DB
     new_list = [int(x) for x in unit_values.split('-')]
-    print("student_number", student_number)
+    #print("student_number", student_number)
 
     # Move Unit_names to new_data
     data = get_student_info(student_number, new_list)
@@ -96,9 +107,9 @@ def reportStudent(student_number, unit_values):
 def students_units(student_number):
     if request.method == 'POST':
         unit_values = request.form.getlist('units')
-        print('Form data:', unit_values)
-        for i in unit_values:
-            print("id:", i)
+        #print('Form data:', unit_values)
+        # for i in unit_values:
+            #print("id:", i)
         return redirect(url_for('reportStudent', student_number=student_number, unit_values='-'.join(unit_values)))
         # Convert list of unit_values to a string with '-' as separator
         
@@ -156,7 +167,7 @@ def submit_edit():
     """Send Post Request to that page, on the client has JSON file. Extracts json file from body"""
     data = request.get_json()
 
-    print(data)
+    # #print(data)
     
     #Update Row with new Data
     new_log: ActivityLog = ActivityLog.query.filter_by(logid=data['logid']).one()
@@ -187,20 +198,50 @@ def submit_edit():
     return jsonify({"success": True})
 
 
-
-# WORKING ON IT
+# Mind Melted overwhelmed, TODO: fix the entire Layout or Querying
+# TODO: Removed Supervisor Row and Unit Row to fit Description in.
 @app.route('/reports/student/pdf/<int:student_number>/<unit_values>')
 # @login_required
 def reportStudentPdf(student_number, unit_values):
-    print(request.args.get('units'))
-    print("touched")
+    # #print(request.args.get('units'))
+    # #print("touched")
     new_list = [int(x) for x in unit_values.split('-')]
-    print(new_list)
+    # #print(new_list)
     data = get_student_info(student_number, new_list)
     new_data = get_unit_student_report(student_number, new_list)
     max_hours = HOURS_FOR_PASS
 
-    return render_template('reports/student_pdf_multitable.jinja', data=data, new_data=new_data, max_hours=HOURS_FOR_PASS)
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+
+    logs = ActivityLog.query.filter_by(studentid=studentid).options(db.joinedload(ActivityLog.unit)).all()
+
+    #Get Queries   
+    units: list[Unit] = Unit.query.order_by(
+        Unit.unitid).all()
+    locations: list[Location] = Location.query.order_by(
+        Location.locationid).all()
+    supervisors: list[Supervisor] = Supervisor.query.order_by(
+        Supervisor.supervisorid).all()
+    domains: list[Domain] = Domain.query.order_by(
+        Domain.domainid).all()
+    activities: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    subst_data = {
+        "student_db_id": studentid
+    }
+    # Create Report
+    note_data = {
+        "student": s,
+        "locations": locations,
+        "supervisors": supervisors,
+        "domains": domains,
+        "units": units,
+        "activities": activities
+    }
+
+    return render_template('reports/student_pdf_multitable.jinja', data=data, new_data=new_data, max_hours=HOURS_FOR_PASS, note_data=note_data, logs=logs)
 
 
 @app.route('/reports/staff')
@@ -268,9 +309,6 @@ def loginroute():
 def logoutroute():
     return logoutredirect()
 
-
-
-
 def lookup_manual():
     "Gets the QID for the Domain Descriptions Since All Domain Descriptions contain the same value we only need to find one"
     manual_lookup = {}
@@ -296,23 +334,100 @@ def update_db_qualtrics():
     format = qualtrics_import.get_survey_format(survey_id, api_key, data_centre)
     # Get Survey Format
     label_lookup = qualtrics_import.get_label_lookup(format)
-    # print(f'LABEL LOOKUP:{label_lookup}')
-
-    
+    #print(f'LABEL LOOKUP:{label_lookup}')
+    # Sample
+    """LABEL LOOKUP:{'Name': 'QID1', 'Student Number': 'QID89', 'Unit Code': 'QID90', 'Service Date': 'QID44', 'Location': 'QID2', 'Supervisor': 'QID86', 'Number of Logs': 'QID41', 'Activity Type': 'QID9', 'Domain': 'QID3', 'Minutes': 'QID6'}"""
 
 
     qualtrics_import.add_known_choices(label_lookup, format)
 
     qualtrics_import.download_zip(survey_id, api_key, data_centre)
 
+    # Where is the downloaded csv File?
+
     json_path = f"MyQualtricsDownload/{SURVEY_NAME}.json"
     assert os.path.isfile(json_path), "failed to find downloaded .json"
+
+
+
+    # Using lookup ids to find specified rows and add them to the system
     json = qualtrics_import.load_json(json_path)
+    # JSON STUFF IS ALREADY FIXED LOADED SO LOOK INTO LOAD JSON
+    # DICTIONARY QUERY SET
+    # #print(json['{"ImportId":"1_QID10"}'])
     qualtrics_import.test_parse_json(json, label_lookup, format)
 
     # remove generated files
     os.remove(json_path)
     os.rmdir("MyQualtricsDownload")
+
+def cleardb():
+    try:
+        Domain.query.delete()
+        Location.query.delete()
+        Supervisor.query.delete()
+        Activity.query.delete()
+        ActivityLog.query.delete()
+        LastDbUpdate.query.delete()
+        Student.query.delete()
+        db.session.commit()
+        return True
+    except:
+        #print("Error Deletion Database error")
+        return False
+
+
+
+@app.route('/reports/student/<int:student_number>/<unit_values>/notes')
+def studentnotes(student_number, unit_values):
+    s: Student = Student.query.filter_by(student_number=student_number).one()
+    studentid = s.studentid
+    logs = ActivityLog.query.filter_by(studentid=studentid).options(db.joinedload(ActivityLog.unit)).all()
+
+    #Get Queries   
+    units: list[Unit] = Unit.query.order_by(
+        Unit.unitid).all()
+    locations: list[Location] = Location.query.order_by(
+        Location.locationid).all()
+    supervisors: list[Supervisor] = Supervisor.query.order_by(
+        Supervisor.supervisorid).all()
+    domains: list[Domain] = Domain.query.order_by(
+        Domain.domainid).all()
+    activities: list[Activity] = Activity.query.order_by(
+        Activity.activityid).all()
+
+    subst_data = {
+        "student_db_id": studentid
+    }
+    # Create Report
+    data = {
+        "student": s,
+        "locations": locations,
+        "supervisors": supervisors,
+        "domains": domains,
+        "units": units,
+        "activities": activities
+    }
+    return render_template('reports/studentnotess.html', logs=logs, subst_data=subst_data, data=data, unit_val=unit_values)
+
+
+@app.route('/cleardb', methods=['POST'])
+def cleardatabase():
+    """Clears Database of Contents except Unit Names"""
+    cleardb()
+
+    # DEBUG
+    #print(Unit.query.all())
+
+    # allow redirection: designed to be used to reload page on AJAX POST
+    redirect_to = request.args.get("next")
+    if redirect_to is None:
+        redirect_to = "home"
+
+    return redirect(url_for(redirect_to))
+
+
+
 
 @app.route('/update', methods=['POST'])
 def updateroute():
@@ -320,7 +435,7 @@ def updateroute():
     update_db_qualtrics()
 
     # DEBUG
-    print(ActivityLog.query.all())
+    #print(ActivityLog.query.all())
 
     # allow redirection: designed to be used to reload page on AJAX POST
     redirect_to = request.args.get("next")
@@ -334,7 +449,7 @@ def makePDF():
     # Using PDFKIT
     if request.method == 'POST':
         html = request.data.decode('utf-8')
-        print ("PDF POST RECEIVED")
+        #print ("PDF POST RECEIVED")
         # Get Request Parameters, I.E.
         # .jinja file, I.e. (student.jinja, location,jinja)
         # Get student number to write in output
@@ -357,3 +472,4 @@ def makePDF():
         response.headers['Content-Disposition'] = 'inline; filename-output.pdf'
 
         return response
+

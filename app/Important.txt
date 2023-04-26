@@ -18,12 +18,6 @@ Hours Notes
 Batch Changes
 
 
-1. Unit Page
-	1.1 Query Units for Activity Logs, Refer to Django
-	1.2 Create Page of Selection of units
-	1.3 Create Page where units selected are reflected
-
-
 Add Unit to Selection
 
 Create Meta File?
@@ -37,3 +31,22 @@ Parse Through Excel
 Investigate JSON Response Where does it come from how come it only gets one text??
 
 Reports Displays specific rows from all UNITS Selected. Recreate Row so that for every loop for a unitid, create a table based on that and repeat.
+
+
+Adding Unit Removal
+
+A lookup table based on the json reponses is made
+a csv file is then downloaded
+Based on the lookup table the CSV finds all the specified responses of the rows based on the lookuptable id's
+
+sample:
+LABEL LOOKUP:{    
+'Name': 'QID1', 'Student Number': 'QID89', 
+'Unit Code': 'QID90', 'Service Date': 'QID44', 
+'Location': 'QID2', 'Supervisor': 'QID86', 'Number of Logs': 'QID41', 
+'Activity Type': 'QID9', 'Domain': 'QID3', 
+'Minutes': 'QID6'}
+
+it uses lookup_embedded_text to get the response_val
+
+FIND ALL INSTANCES OF _QID11_TEXT

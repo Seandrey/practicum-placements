@@ -106,6 +106,8 @@ class ActivityLog(db.Model):
     supervisorid = db.Column(db.Integer, db.ForeignKey(Supervisor.supervisorid))
     activityid = db.Column(db.Integer, db.ForeignKey(Activity.activityid))
     domainid = db.Column(db.Integer, db.ForeignKey(Domain.domainid))
+    unitid = db.Column(db.Integer, db.ForeignKey(Unit.unitid))
+
     minutes_spent = db.Column(db.Integer)
     record_date = db.Column(db.Date)
 
@@ -113,10 +115,17 @@ class ActivityLog(db.Model):
     activitydesc = db.Column(db.String(255))
 
     """The date the service was recorded for"""
-    unitid = db.Column(db.Integer, db.ForeignKey(Unit.unitid))
     responseid = db.Column(db.String(64))
     """ID of original Qualtrics survey response. TODO is this long enough to match?"""
+    
+    unit = db.relationship('Unit', lazy='joined')
+    student = db.relationship('Student', lazy='joined')
+    location = db.relationship('Location', lazy='joined')
+    supervisor = db.relationship('Supervisor', lazy='joined')
+    domain = db.relationship('Domain', lazy='joined')
+    activity = db.relationship('Activity', lazy='joined')
 
+    # Sanity Check
     def __repr__(self):
         return f'<ActivityLog {self.logid} with student {self.studentid}, supervisor {self.supervisorid}, location {self.locationid}, activity {self.activityid}, domain {self.domainid}, unit {self.unitid}, of {self.minutes_spent} m on {self.record_date} (response {self.responseid})>'
 
