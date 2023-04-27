@@ -283,7 +283,8 @@ def getdescriptions(response_val: dict):
 
 
 def badresponse(response: any):
-    print(f'BAD RESPONSE:{response}\n')
+    # print(f'BAD RESPONSE:{response}\n')
+    print("BAD RESPONSE\n")
 
 def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup, format: dict[str, dict]) -> None:
     """Try to parse JSON representation of dict? Assumed format below"""

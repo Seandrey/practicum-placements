@@ -23,18 +23,20 @@
                 <th>Category</th>
                 <th>Domain</th>
                 <th>Minutes</th>
-                <th>Activity Description</th>
             </tr>
             {% for log in logs %}
             <tr >
-                <td id =rowDisplay class="date-field"">{{log.record_date}}</td>
+                <td style="white-space: normal; word-break: break-all;">{{log.record_date}}</td>
                 <td id =rowDisplay class="select unit-field">{{log.unit.unit}}</td>
-                <td class="select location-field">{{log.location.location}}</td>
+                <td>{{log.location.location}}</td>
                 <td class="select supervisor-field">{{log.supervisor.name}}</td>
-                <td id =rowDisplay class="select exercise-prescription-field">{{log.activity.activity}}</td>
-                <td id =rowDisplay class="select domain-field">{{log.domain.domain}}</td>
-                <td class="text-field minutes-field">{{log.minutes_spent}}</td>
-                <td id =rowDisplay class="select activity-field">{{log.activitydesc}}</td>
+                <td>{{log.activity.activity}}</td>
+                <td>{{log.domain.domain}}</td>
+                <td>{{log.minutes_spent}}</td>
+            </tr>
+            <th>Description:</th>
+            <tr>
+              <td style="width: 25%" colspan=7>{{log.activitydesc}}</td>
             </tr>
             {% endfor %}
         </table>

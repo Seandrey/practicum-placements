@@ -187,8 +187,18 @@
                 <td>{{log.activity.activity}}</td>
                 <td>{{log.domain.domain}}</td>
                 <td>{{log.minutes_spent}}</td>
-                
             </tr>
+             {% if loop.index is divisibleby 4 %}
+              <tr>
+                <th>Date</th>
+                <th>Unit</th>
+                <th>Location</th>
+                <th>Supervisor</th>
+                <th>Category</th>
+                <th>Domain</th>
+                <th>Minutes</th>
+              </tr>
+            {% endif %}
             <th>Description:</th>
             <tr>
               <td style="width: 25%" colspan=7>{{log.activitydesc}}</td>
