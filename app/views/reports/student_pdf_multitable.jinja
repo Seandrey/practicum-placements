@@ -168,27 +168,30 @@
     <div class="twelve column vertical fill">
         <h4> Log Entries </h4>
 
-        <table id="activity-log-table">
+        <table>
             <tr>
                 <th>Date</th>
-                <!-- <th>Unit</th> -->
+                <th>Unit</th>
                 <th>Location</th>
-                <!-- <th>Supervisor</th> -->
+                <th>Supervisor</th>
                 <th>Category</th>
                 <th>Domain</th>
                 <th>Minutes</th>
-                <th>Description</th>
             </tr>
             {% for log in logs %}
             <tr >
                 <td style="white-space: normal; word-break: break-all;">{{log.record_date}}</td>
-                <!-- <td id =rowDisplay class="select unit-field">{{log.unit.unit}}</td> -->
+                <td id =rowDisplay class="select unit-field">{{log.unit.unit}}</td>
                 <td>{{log.location.location}}</td>
-                <!-- <td class="select supervisor-field">{{log.supervisor.name}}</td> -->
+                <td class="select supervisor-field">{{log.supervisor.name}}</td>
                 <td>{{log.activity.activity}}</td>
                 <td>{{log.domain.domain}}</td>
                 <td>{{log.minutes_spent}}</td>
-                <td style="width: 40%">{{log.activitydesc}}</td>
+                
+            </tr>
+            <th>Description:</th>
+            <tr>
+              <td style="width: 25%" colspan=7>{{log.activitydesc}}</td>
             </tr>
             {% endfor %}
         </table>
