@@ -28,13 +28,26 @@ AEP_DOMAIN = "Domain"
 MINUTES_SPENT = "Minutes"
 # Just Find on of the description as they have all the same Lookup ID
 
+def warninglog(warning_message):
+    try:
+        with open('warning.txt', 'a') as file:
+            file.write(warning_message+'\n')
+    except:
+        print("Error writing to warning.txt file.")
+
+def warningDump(response_val):
+    try:
+        with open('warning.txt', 'a') as file:
+            file.write(json.dumps(response_val))
+    except:
+        print("Error writing to warning.txt file.")
 
 def Debuggerlog(error_message):
     try:
         with open('log.txt', 'a') as file:
             file.write(error_message+'\n')
     except:
-        print("Error writing to file.")
+        print("Error writing to log.txt file.")
 
 # Test the function
 Debuggerlog("This is an error message.")
@@ -69,7 +82,6 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     # get to UTC
     last_date_utc = last_update.updatedate - timedelta(hours=8)
     # Debuggerlog(last_date_utc.isoformat())
-
     # 1: create data export
     data = {
         "format": "json", # JSON seems more difficult to use. See if can parse CSV adequately
@@ -332,8 +344,25 @@ def test_parse_json(json_file: dict[str, list[dict]], label_lookup: LabelLookup,
             service_date_string = service_date_datetime.strftime("%Y-%m-%d")
         except ValueError:
             print(f"WARNING: failed to parse '{service_date}' to datetime (service date). skipping response")
-            badresponse(response_val)
+            warninglog(f"WARNING: failed to parse '{service_date}' to datetime (service date).)")
+            
+
+            # Warning Dump Message
+            warninglog(f'recordedDate: {response_val["recordedDate"]}')
+            warninglog(f'RecordId: {response_val["_recordId"]}')
+            warninglog(f'Service Date: {service_date}')
+            warninglog(f'StudName:{student_name}')
+            warninglog(f'StudID:{student_number}\n')
+            # warninglog(f'Unit:{get_answer_label(response, label_lookup[UNIT_CODE])}')
+            # warninglog(f'Loc:{get_answer_label(response, label_lookup[PLACEMENT_LOCATION])}')
+            # warninglog(f'Supervisor:{get_multi_label(response, supervisor_lookup, PLACEMENT_SUPERVISOR)}\n')
+            # warningDump(response_val)
+
+
+
+
             continue
+        
         service_date_date = datetime.strptime(service_date_string, "%Y-%m-%d").date()
 
         placement_loc = get_answer_label(response, label_lookup[PLACEMENT_LOCATION])

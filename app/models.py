@@ -6,7 +6,7 @@ from datetime import date, time, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login, db
-from sqlalchemy import JSON, func, extract
+from sqlalchemy import JSON, func, extract, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
 
 class User(UserMixin, db.Model):
@@ -110,6 +110,8 @@ class ActivityLog(db.Model):
 
     minutes_spent = db.Column(db.Integer)
     record_date = db.Column(db.Date)
+
+    is_edited = db.Column(db.Integer,default=0)
 
     "Description of Notes"
     activitydesc = db.Column(db.String(255))

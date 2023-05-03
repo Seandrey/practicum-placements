@@ -124,15 +124,15 @@ def students_units(student_number):
     }
     return render_template('reports/selectunits.html', data=data, student_number=student_number)
 
-
-
+# Change Where Description row is on logs. Make Sure JS works use getRow different row
+# Qualtrics Update Response type beat
 
 @app.route('/reports/logs/<int:student_number>/')
 # @login_required
 def studentLogs(student_number):
     s: Student = Student.query.filter_by(student_number=student_number).one()
     studentid = s.studentid
-    logs = ActivityLog.query.filter_by(studentid=studentid).all()
+    logs = ActivityLog.query.filter_by(studentid=studentid).order_by(ActivityLog.record_date.desc()).all()
 
     #Get Queries   
     units: list[Unit] = Unit.query.order_by(
@@ -167,7 +167,7 @@ def submit_edit():
     """Send Post Request to that page, on the client has JSON file. Extracts json file from body"""
     data = request.get_json()
 
-    # #print(data)
+    print(f'JSON Data: {data}\n')
     
     #Update Row with new Data
     new_log: ActivityLog = ActivityLog.query.filter_by(logid=data['logid']).one()
@@ -177,9 +177,13 @@ def submit_edit():
     new_log.activityid = data["activityid"]
     new_log.domainid =  data["domainid"]
     new_log.minutes_spent = data["minutes_spent"]
+    # Why disabled?
     # new_log.record_date = data["record_date"]
     new_log.unitid = data["unitid"]
+    new_log.activitydesc= data["activitydesc"]
+    new_log.is_edited = True
 
+    # Datetime No change Depreciated Datetime?
     service_date_datetime: datetime = 0
     try:
         #service_date_datetime = datetime.strptime(data["record_date"], "%Y-%m-%d")
@@ -194,8 +198,12 @@ def submit_edit():
     session: scoped_session = db.session
     session.commit()
 
-    # TODO: do more stuff
-    return jsonify({"success": True})
+    student: Student=Student.query.filter_by(studentid=data["studentid"]).one()
+    # redirect_to = request.args.get("next")
+    # if redirect_to is None:
+    #     redirect_to = "/reports/logs/"  + f'{student.student_number}/'
+    return redirect(url_for('home'))
+    # return redirect(url_for('studentLogs', student_number=student.student_number))
 
 
 # Mind Melted overwhelmed, TODO: fix the entire Layout or Querying
@@ -367,7 +375,7 @@ def cleardb():
         Location.query.delete()
         Supervisor.query.delete()
         Activity.query.delete()
-        ActivityLog.query.delete()
+        ActivityLog.query.filter(ActivityLog.is_edited == 0).delete()
         LastDbUpdate.query.delete()
         Student.query.delete()
         db.session.commit()
