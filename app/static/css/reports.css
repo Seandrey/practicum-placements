@@ -9,29 +9,53 @@
 
 #activity-log-table select { 
     appearance: none;
+
 }
+
 
 #activity-log-table select { 
     border-style: none; 
     width: 100%; 
-    padding: 0px; 
+    padding: 0px;
+
+}
+
+
+#rowDisplay select{
+    white-space: pre-wrap;
+    width: auto;
+}
+
+#backButton button{
+    style: auto;
+}
+
+#unit-field{
+    white-space: pre-wrap;
+    width: auto;
+}
+
+#divdisplay{
+    overflow-x: 10px;
+    width: auto;
 }
 
 table { 
     width: 100%; 
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     /* border: 1px solid #E1E1E1;  */
     border-radius: 8px;
 }
 
 .container { 
     height: 90%; 
-     overflow-y: auto;
+    padding-right: 200px;
+
 }
 
 .tableContainer { 
     height: 85%; 
-    width: 100%; 
+    width: 110%; 
 }
 
 h1 { 
@@ -68,7 +92,7 @@ h1 {
 }
 
 .tableContainer th:first-child {
-    padding-left: 50px; 
+    padding-left: x; 
     width: 30%; 
 }
 
@@ -78,6 +102,14 @@ h1 {
 
 .tableContainer td:first-child {
     padding-left: 50px; 
+}
+
+.card{
+    display: flex; 
+    justify-content: flex-start; 
+    overflow-x: auto; 
+    width: 200%;
+    max-width: 150%;
 }
 
 .tableContainer td:nth-child(2) {
@@ -113,6 +145,8 @@ h1 {
     margin-bottom: 0px; 
     border-style: none; 
 }
+
+
 
 .searchIcon { 
     float: right; 
