@@ -79,7 +79,7 @@ def library():
     #students = studentRep()
     return render_template('library.html', students=[])
 
-@app.route('/reports/student')
+@app.route('/reports/student/')
 # @login_required
 def reportStudents():
     students = db.session.query(Student.student_number.label('id'), Student.name).all()
