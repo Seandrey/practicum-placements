@@ -28,19 +28,6 @@ AEP_DOMAIN = "Domain"
 MINUTES_SPENT = "Minutes"
 # Just Find on of the description as they have all the same Lookup ID
 
-def warninglog(warning_message):
-    try:
-        with open('warning.txt', 'a') as file:
-            file.write(warning_message+'\n')
-    except:
-        print("Error writing to warning.txt file.")
-
-def warningDump(response_val):
-    try:
-        with open('warning.txt', 'a') as file:
-            file.write(json.dumps(response_val))
-    except:
-        print("Error writing to warning.txt file.")
 
 def Debuggerlog(error_message):
     try:
@@ -48,11 +35,6 @@ def Debuggerlog(error_message):
             file.write(error_message+'\n')
     except:
         print("Error writing to log.txt file.")
-
-# Test the function
-Debuggerlog("This is an error message.")
-
-
 
 # Downloads Respective QID and Survery Name Title for Label Lookup
 def download_zip(survey_id: str, api_token: str, data_centre: str):
@@ -135,7 +117,6 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     zipfile.ZipFile(io.BytesIO(request_download.content)).extractall("MyQualtricsDownload")
     Debuggerlog("complete")
 
-
 # Downloads Response Survey Detecting Key 
 def load_json(filename: str) -> dict[str, list[dict]]:
     """Loads JSON file to python dictionary"""
@@ -206,10 +187,11 @@ def get_answer_label_n(json_response: dict[str, dict[str, str]], key: str, itera
 def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup, label_name: str) -> str:
     """Lookup text embedded in JSON (with _TEXT suffix)"""
 
-    Debuggerlog("DEBUG---")
+    Debuggerlog(" ")
     Debuggerlog(f"Key: , {label_lookup.get_text(label_name)}")
     Debuggerlog(f"Response_val:, {response_val}")
-    Debuggerlog("END DEBUG---")
+    Debuggerlog(" ")
+
     return response_val[label_lookup.get_text(label_name)]
 
 # Looks at where it is called
