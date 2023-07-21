@@ -28,14 +28,13 @@ AEP_DOMAIN = "Domain"
 MINUTES_SPENT = "Minutes"
 # Just Find on of the description as they have all the same Lookup ID
 
+
 def Debuggerlog(error_message):
     try:
         with open('log.txt', 'a') as file:
             file.write(error_message+'\n')
     except:
         print("Error writing to log.txt file.")
-
-
 
 # Downloads Respective QID and Survery Name Title for Label Lookup
 def download_zip(survey_id: str, api_token: str, data_centre: str):
@@ -118,7 +117,6 @@ def download_zip(survey_id: str, api_token: str, data_centre: str):
     zipfile.ZipFile(io.BytesIO(request_download.content)).extractall("MyQualtricsDownload")
     Debuggerlog("complete")
 
-
 # Downloads Response Survey Detecting Key 
 def load_json(filename: str) -> dict[str, list[dict]]:
     """Loads JSON file to python dictionary"""
@@ -193,6 +191,7 @@ def lookup_embedded_text(response_val: dict[str, str], label_lookup: LabelLookup
     Debuggerlog(f"Key: , {label_lookup.get_text(label_name)}")
     Debuggerlog(f"Response_val:, {response_val}")
     Debuggerlog(" ")
+
     return response_val[label_lookup.get_text(label_name)]
 
 # Looks at where it is called
